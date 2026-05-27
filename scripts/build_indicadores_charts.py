@@ -472,7 +472,7 @@ def build_year_line_chart_js(year_data_list, y_axis_name="", y_formatter="null",
         axisLabel:{{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8'}}
       }},
       yAxis:{{
-        type:'value',
+        type:'value',min:'dataMin',
         name:'{y_axis_name}',
         nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#94A3B8',padding:[0,0,0,0]}},
         splitLine:{{lineStyle:{{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},

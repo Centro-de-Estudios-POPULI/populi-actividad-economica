@@ -167,7 +167,7 @@
   function getAvg(){return curMetric===0?AVG_PROD:AVG_CAP}
 
   var RANGES=[{label:'3A',from:2023},{label:'5A',from:2021},{label:'Todo',from:2020}];
-  var curRange=0,chart=null,curQ=-1;
+  var curRange=2,chart=null,curQ=-1;
 
   function fval(v){if(v==null)return'—';return v.toFixed(1)}
   function fpct(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(1)+'%'}
@@ -352,7 +352,7 @@
       },
       yAxis:{
         type:'value',
-        min:isProd?null:55,
+        min:'dataMin',
         splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
         axisLine:{show:false},axisTick:{show:false},
         axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',

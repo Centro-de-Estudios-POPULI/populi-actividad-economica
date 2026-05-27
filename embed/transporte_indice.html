@@ -143,7 +143,7 @@
   var AVG={c:'#D1D5DB',lw:1,d:[104.58,96.05,103.95,100.88,104.67,102.27,108.41,109.40,106.24,103.24,94.23,111.00]};
 
   var RANGES=[{label:'3A',from:2024},{label:'5A',from:2022},{label:'Todo',from:2020}];
-  var curRange=0,chart=null,curMonth=-1;
+  var curRange=2,chart=null,curMonth=-1;
 
   function fval(v){if(v==null)return'—';return v.toFixed(1)}
   function fpct(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(1)+'%'}
@@ -306,7 +306,7 @@
         axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#64748B':'#94A3B8'}
       },
       yAxis:{
-        type:'value',
+        type:'value',min:'dataMin',
         splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
         axisLine:{show:false},axisTick:{show:false},
         axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
