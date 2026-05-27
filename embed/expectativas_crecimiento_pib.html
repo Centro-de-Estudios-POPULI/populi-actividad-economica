@@ -1,701 +1,478 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expectativas de Crecimiento del PIB · Populi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-  <style>
-    :root {
-      --populi:#8B1A1A; --populi-light:#C00000;
-      --cream:#F5EFE0; --brown-dark:#3D2B1F;
-      --navy:#0D1B2A; --slate:#475569; --slate-light:#64748B;
-      --warm-white:#FAF8F3; --light-gray:#F1EDE5;
-      --border:#E2DDD3; --dark-border:#2A3A50;
-      --bg:var(--warm-white); --card:#FFFFFF; --text:var(--brown-dark); --muted:var(--slate-light);
-      --accent:#0D9488; --radius:12px;
-    }
-    [data-theme="dark"] {
-      --bg:#080808; --card:#141414; --text:#E2E8F0; --muted:#64748B;
-      --border:#2A3A50; --light-gray:#1A1A1A; --cream:#1A2940;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Expectativas de Crecimiento del PIB · Populi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+:root{
+  --populi:#8B1A1A;--populi-light:#C00000;
+  --cream:#F5EFE0;--brown-dark:#3D2B1F;
+  --navy:#0D1B2A;--slate:#475569;--slate-light:#64748B;
+  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+  --border:#E2DDD3;--dark-border:#2A3A50;
+  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+  --shadow-xs:0 1px 3px rgba(0,0,0,.04);--radius:12px;
+}
+[data-theme="dark"]{
+  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
+  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 
-    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
 
-    /* ── Section header ── */
-    .section-header{margin-bottom:16px}
-    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
-    [data-theme="dark"] .section-title{color:#fff}
-    .accent-bar{width:4px;height:26px;background:#6366F1;border-radius:2px;flex-shrink:0}
-    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
+/* ── Section header ── */
+.sec-hd{margin-bottom:16px}
+.sec-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
+[data-theme="dark"] .sec-title{color:#fff}
+.accent-bar{width:4px;height:26px;background:#0D9488;border-radius:2px;flex-shrink:0}
+.sec-sub{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+[data-theme="dark"] .sec-sub{color:rgba(255,255,255,.4)}
 
-    /* ── Toggle bar ── */
-    .toggle-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-left:14px}
-    .toggle-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-    .toggle-group{display:flex;gap:0;background:var(--light-gray);border-radius:8px;padding:2px;border:1px solid var(--border)}
-    [data-theme="dark"] .toggle-group{background:#1A1A1A;border-color:var(--dark-border)}
-    .metric-btn{padding:5px 14px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
-    .metric-btn:hover{color:var(--text)}
-    .metric-btn.active{background:#6366F1;color:#fff;box-shadow:0 2px 8px rgba(99,102,241,.25)}
+/* ── Horizon toggle ── */
+.hz-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-left:14px}
+.hz-lbl{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.hz-grp{display:flex;gap:0;background:var(--light-gray);border-radius:8px;padding:2px;border:1px solid var(--border)}
+[data-theme="dark"] .hz-grp{background:#1A1A1A;border-color:var(--dark-border)}
+.hz-btn{padding:5px 14px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
+.hz-btn:hover{color:var(--text)}
+.hz-btn.active{background:#0D9488;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25)}
 
-    /* ── KPIs ── */
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
-    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
-    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-    .kpi-card[data-s="med"]::after{background:#6366F1}
-    .kpi-card[data-s="chg"]::after{background:#059669}
-    .kpi-card[data-s="chg"].neg::after{background:#C71E1D}
-    .kpi-card[data-s="rango"]::after{background:#D97706}
-    .kpi-card[data-s="d1"]::after{background:#C71E1D}
-    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
-    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.35rem;font-weight:700}
-    .kpi-delta{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:600;padding:1px 7px;border-radius:5px;margin-top:5px}
-    .kpi-delta.pos{background:rgba(5,150,105,.08);color:#059669}
-    .kpi-delta.neg{background:rgba(199,30,29,.08);color:#C71E1D}
-    .kpi-delta.flat{background:rgba(100,116,139,.08);color:#64748B}
-    [data-theme="dark"] .kpi-delta.pos{background:rgba(5,150,105,.15)}
-    [data-theme="dark"] .kpi-delta.neg{background:rgba(199,30,29,.15)}
+/* ── KPIs ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;cursor:default;box-shadow:var(--shadow-xs)}
+[data-theme="dark"] .kpi{background:#141414;border-color:var(--dark-border)}
+.kpi:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.kpi-lbl{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+[data-theme="dark"] .kpi-lbl{color:rgba(255,255,255,.4)}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700}
+.kpi-d{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:.66rem;font-weight:600;padding:1px 7px;border-radius:5px;margin-top:4px}
+.kpi-d.up{background:rgba(199,30,29,.08);color:#C71E1D}
+.kpi-d.down{background:rgba(5,150,105,.08);color:#059669}
+.kpi-d.flat{background:rgba(100,116,139,.08);color:#64748B}
+[data-theme="dark"] .kpi-d.up{background:rgba(199,30,29,.15)}
+[data-theme="dark"] .kpi-d.down{background:rgba(5,150,105,.15)}
 
-    /* ── Main grid: chart 3fr + lectura 2fr ── */
-    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
-    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
-    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
-    @media(min-width:1100px){.main-grid{grid-template-rows:600px}}
+/* ── Chart wrap: chart + panel ── */
+.chart-wrap{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:20px}
+@media(max-width:960px){.chart-wrap{grid-template-columns:1fr;grid-template-rows:500px auto}}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-xs);display:flex;flex-direction:column;min-height:520px}
+[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+.chart-ctrl{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.tog-grp{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:5px;padding:4px 12px;border:1.5px solid;border-radius:8px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;transition:all .2s}
+.pill:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.lp{width:16px;height:0;border-top:2.5px solid;border-radius:1px}
+.lp.dashed{border-top-style:dashed}
+.chart-area{flex:1;min-height:0}
 
-    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;height:100%;overflow:hidden}
-    [data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-    .chart-area{flex:1;min-height:0}
+/* ── Analysis panel ── */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-xs)}
+[data-theme="dark"] .panel{background:#141414;border-color:var(--dark-border)}
+.panel-hd{padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.panel-hd-t{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.8)}
+.panel-hd-d{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:600;padding:2px 8px;border-radius:5px}
+.panel-body{padding:14px;flex:1;overflow-y:auto}
+.pb{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.pb:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.pb-lbl{display:inline-flex;align-items:center;gap:4px;font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;padding:2px 9px 2px 6px;border-radius:4px;border-left:3px solid}
+.pb-val{font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;margin-bottom:3px}
+.pb-desc{font-size:.66rem;line-height:1.5;color:var(--muted)}
+.pb-desc strong{color:var(--text)}
+.ctx{border-radius:6px;padding:8px 10px;border-left:3px solid;margin-top:6px}
+.ctx p{font-size:.66rem;line-height:1.5;color:var(--muted)}
+.ctx p strong{color:var(--text)}
 
-    /* ── Lectura panel ── */
-    .lectura-panel{background:var(--light-gray);border:1px solid var(--border);border-radius:var(--radius);padding:20px;height:100%;overflow-y:auto;display:flex;flex-direction:column}
-    [data-theme="dark"] .lectura-panel{background:#141414;border-color:var(--dark-border)}
-    .lectura-title{font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;margin-bottom:14px}
-    [data-theme="dark"] .lectura-title{color:#fff}
-    .lectura-title .accent-bar{height:20px}
-    .lectura-body{flex:1}
-    .lectura-p{font-size:.82rem;line-height:1.65;color:var(--text);margin-bottom:12px}
-    [data-theme="dark"] .lectura-p{color:#CBD5E1}
-    .lectura-p strong{color:var(--navy)}
-    [data-theme="dark"] .lectura-p strong{color:#E2E8F0}
-    .hl-red{color:#C71E1D;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-blue{color:#2563EB;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-green{color:#059669;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-amber{color:#D97706;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-indigo{color:#6366F1;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-teal{color:#0D9488;font-family:'JetBrains Mono',monospace;font-weight:700}
-    .hl-mono{font-family:'JetBrains Mono',monospace;font-weight:600}
-    [data-theme="dark"] .hl-red{color:#EF4444}
-    [data-theme="dark"] .hl-blue{color:#3B82F6}
+/* ── Edu cards ── */
+.edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:20px}
+.edu{background:var(--card);border:1px solid var(--border);border-left:3px solid;border-radius:var(--radius);padding:12px;cursor:pointer;box-shadow:var(--shadow-xs);transition:all .2s}
+[data-theme="dark"] .edu{background:#141414;border-color:var(--dark-border)}
+.edu-t{font-size:.72rem;font-weight:700;color:var(--navy);display:flex;align-items:center;justify-content:space-between;gap:8px}
+[data-theme="dark"] .edu-t{color:#E2E8F0}
+.edu-t svg{width:14px;height:14px;flex-shrink:0;transition:transform .2s;color:var(--muted)}
+.edu.open .edu-t svg{transform:rotate(180deg)}
+.edu-body{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:.68rem;line-height:1.55;color:var(--muted);margin-top:0}
+.edu.open .edu-body{max-height:300px;margin-top:8px}
+.edu-body strong{color:var(--text)}
 
-    /* ── Footer ── */
-    .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:0 2px}
-    .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-    .chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-    .chart-source-text a:hover{text-decoration:underline}
-    .watermark{height:15px;width:auto;opacity:.18}
-    [data-theme="dark"] .watermark{opacity:.10}
-  </style>
+/* ── Footer ── */
+.chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:0 2px}
+.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+.watermark{height:15px;width:auto;opacity:.18}
+[data-theme="dark"] .watermark{opacity:.10}
+</style>
 </head>
 <body>
-  <div class="embed-container">
-    <!-- Section header -->
-    <div class="section-header">
-      <div class="section-title"><span class="accent-bar"></span>Expectativas de Crecimiento del PIB</div>
-      <div class="section-subtitle">Encuesta de Expectativas Econ&oacute;micas (EEE) &mdash; Banco Central de Bolivia</div>
-    </div>
+<div class="embed-container">
 
-    <!-- Toggle -->
-    <div class="toggle-bar">
-      <span class="toggle-label">Horizonte:</span>
-      <div class="toggle-group">
-        <button class="metric-btn active" data-view="ACT" onclick="switchView('ACT')">A&ntilde;o en curso</button>
-        <button class="metric-btn" data-view="SIG" onclick="switchView('SIG')">A&ntilde;o siguiente</button>
-      </div>
-    </div>
+  <!-- Header -->
+  <div class="sec-hd">
+    <div class="sec-title"><span class="accent-bar"></span>Expectativas de Crecimiento del PIB</div>
+    <div class="sec-sub">Variaci&oacute;n anual acumulada del PIB esperada. Encuesta mensual EEE del BCB.</div>
+  </div>
 
-    <!-- KPIs -->
-    <div class="kpi-grid" id="kpis"></div>
-
-    <!-- Main grid -->
-    <div class="main-grid">
-      <div class="chart-card">
-        <div class="chart-area" id="chart"></div>
-      </div>
-      <div class="lectura-panel">
-        <div class="lectura-title"><span class="accent-bar"></span>Lectura del Indicador</div>
-        <div class="lectura-body" id="lectura-text"></div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="chart-source">
-      <span class="chart-source-text">
-        Fuente: <a href="https://www.bcb.gob.bo/?q=resultados-encuestas" target="_blank">BCB &mdash; EEE</a> &middot; Elaboraci&oacute;n: <a href="https://populi.bo" target="_blank">Centro de Estudios POPULI</a>
-      </span>
-      <svg class="watermark" viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg">
-        <text x="6" y="112" font-family="'Playfair Display',Georgia,serif" font-size="145" font-weight="700" fill="#8B1A1A">P</text>
-        <text x="92" y="87" font-family="'Playfair Display',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="#3D2B1F">opuli</text>
-      </svg>
+  <!-- Horizon toggle -->
+  <div class="hz-bar">
+    <span class="hz-lbl">Horizonte:</span>
+    <div class="hz-grp">
+      <button class="hz-btn active" data-hz="siguiente" onclick="switchHz('siguiente')">A&ntilde;o siguiente</button>
+      <button class="hz-btn" data-hz="actual" onclick="switchHz('actual')">A&ntilde;o en curso</button>
     </div>
   </div>
 
-  <script>
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpis"></div>
+
+  <!-- Chart + Panel -->
+  <div class="chart-wrap">
+    <div class="chart-card">
+      <div class="chart-ctrl">
+        <div class="tog-grp" id="pills"></div>
+      </div>
+      <div class="chart-area" id="chart"></div>
+    </div>
+    <div id="panel-wrap"></div>
+  </div>
+
+  <!-- Edu -->
+  <div class="edu-grid">
+    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+      <div class="edu-t">&iquest;Qu&eacute; mide esta expectativa?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      <div class="edu-body">La tasa de crecimiento anual del PIB esperada. Positivo = expansi&oacute;n, negativo = recesi&oacute;n.</div>
+    </div>
+    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+      <div class="edu-t">Contexto hist&oacute;rico<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      <div class="edu-body">Bolivia creci&oacute; promedio <strong>4.5%</strong> (2006-2019). Tras la pandemia y la crisis cambiaria, las expectativas reflejan un entorno m&aacute;s desafiante.</div>
+    </div>
+    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+      <div class="edu-t">D1 y D9 invertidos<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      <div class="edu-body">Aqu&iacute; el <strong>Decil 9 son los optimistas</strong> (mayor crecimiento) y el <strong>Decil 1 los pesimistas</strong> (menor crecimiento o contracci&oacute;n).</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="chart-source">
+    <span class="chart-source-text">Fuente: <a href="https://www.bcb.gob.bo/?q=resultados-encuestas" target="_blank">BCB &mdash; EEE</a> &middot; Elaboraci&oacute;n: <a href="https://populi.bo" target="_blank">Centro de Estudios POPULI</a></span>
+    <svg class="watermark" viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg">
+      <text x="6" y="112" font-family="'Playfair Display',Georgia,serif" font-size="145" font-weight="700" fill="#8B1A1A">P</text>
+      <text x="92" y="87" font-family="'Playfair Display',Georgia,serif" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  /* ── DATA ── */
+  var DATA = {
+    series_siguiente: [
+      {survey_month:'2024-01',label:'Ene 2024',target:'Año 2025',mediana:2.5,decil1:1.47,decil9:3.8},
+      {survey_month:'2024-02',label:'Feb 2024',target:'Año 2025',mediana:2.35,decil1:1.49,decil9:3.53},
+      {survey_month:'2024-03',label:'Mar 2024',target:'Año 2025',mediana:2.6,decil1:1.66,decil9:3.74},
+      {survey_month:'2024-04',label:'Abr 2024',target:'Año 2025',mediana:2.5,decil1:1.52,decil9:3.7},
+      {survey_month:'2024-05',label:'May 2024',target:'Año 2025',mediana:2.9,decil1:1.79,decil9:3.82},
+      {survey_month:'2024-06',label:'Jun 2024',target:'Año 2025',mediana:2.05,decil1:1.71,decil9:3.71},
+      {survey_month:'2024-07',label:'Jul 2024',target:'Año 2025',mediana:2.65,decil1:1.61,decil9:3.73},
+      {survey_month:'2024-08',label:'Ago 2024',target:'Año 2025',mediana:2.4,decil1:1.5,decil9:3.7},
+      {survey_month:'2024-09',label:'Sep 2024',target:'Año 2025',mediana:2.05,decil1:0.5,decil9:3.66},
+      {survey_month:'2024-10',label:'Oct 2024',target:'Año 2025',mediana:2.0,decil1:0.95,decil9:3.5},
+      {survey_month:'2024-11',label:'Nov 2024',target:'Año 2025',mediana:2.0,decil1:0.96,decil9:3.49},
+      {survey_month:'2024-12',label:'Dic 2024',target:'Año 2025',mediana:1.98,decil1:1.0,decil9:3.5},
+      {survey_month:'2025-04',label:'Abr 2025',target:'Año 2026',mediana:2.0,decil1:0.68,decil9:3.46},
+      {survey_month:'2025-05',label:'May 2025',target:'Año 2026',mediana:2.0,decil1:0.56,decil9:3.11},
+      {survey_month:'2025-06',label:'Jun 2025',target:'Año 2026',mediana:2.0,decil1:0.36,decil9:3.18},
+      {survey_month:'2025-07',label:'Jul 2025',target:'Año 2026',mediana:1.41,decil1:-0.44,decil9:3.14},
+      {survey_month:'2025-08',label:'Ago 2025',target:'Año 2026',mediana:1.5,decil1:-1.08,decil9:3.48},
+      {survey_month:'2025-09',label:'Sep 2025',target:'Año 2026',mediana:1.5,decil1:-1.12,decil9:3.34},
+      {survey_month:'2025-10',label:'Oct 2025',target:'Año 2026',mediana:0.91,decil1:-1.5,decil9:3.03},
+      {survey_month:'2025-11',label:'Nov 2025',target:'Año 2026',mediana:0.65,decil1:-2.84,decil9:2.4},
+      {survey_month:'2025-12',label:'Dic 2025',target:'Año 2026',mediana:0.8,decil1:-2.26,decil9:2.24},
+      {survey_month:'2026-02',label:'Feb 2026',target:'Año 2027',mediana:1.04,decil1:-1.4,decil9:2.95},
+      {survey_month:'2026-03',label:'Mar 2026',target:'Año 2027',mediana:1.2,decil1:-0.39,decil9:3.03},
+      {survey_month:'2026-04',label:'Abr 2026',target:'Año 2027',mediana:1.5,decil1:-1.64,decil9:3.66}
+    ],
+    series_actual: [
+      {survey_month:'2024-01',label:'Ene 2024',target:'Año 2024',mediana:2.5,decil1:1.6,decil9:3.86},
+      {survey_month:'2024-02',label:'Feb 2024',target:'Año 2024',mediana:2.2,decil1:1.5,decil9:3.72},
+      {survey_month:'2024-03',label:'Mar 2024',target:'Año 2024',mediana:2.28,decil1:1.8,decil9:3.71},
+      {survey_month:'2024-04',label:'Abr 2024',target:'Año 2024',mediana:2.48,decil1:1.8,decil9:3.71},
+      {survey_month:'2024-05',label:'May 2024',target:'Año 2024',mediana:2.9,decil1:1.5,decil9:3.7},
+      {survey_month:'2024-06',label:'Jun 2024',target:'Año 2024',mediana:2.1,decil1:1.62,decil9:3.69},
+      {survey_month:'2024-07',label:'Jul 2024',target:'Año 2024',mediana:2.61,decil1:1.71,decil9:3.69},
+      {survey_month:'2024-08',label:'Ago 2024',target:'Año 2024',mediana:2.3,decil1:1.5,decil9:3.66},
+      {survey_month:'2024-09',label:'Sep 2024',target:'Año 2024',mediana:1.9,decil1:1.0,decil9:3.35},
+      {survey_month:'2024-10',label:'Oct 2024',target:'Año 2024',mediana:1.9,decil1:1.0,decil9:3.34},
+      {survey_month:'2024-11',label:'Nov 2024',target:'Año 2024',mediana:2.0,decil1:1.47,decil9:3.33},
+      {survey_month:'2024-12',label:'Dic 2024',target:'Año 2024',mediana:2.0,decil1:1.5,decil9:3.31},
+      {survey_month:'2025-01',label:'Ene 2025',target:'Año 2025',mediana:2.0,decil1:0.6,decil9:3.5},
+      {survey_month:'2025-02',label:'Feb 2025',target:'Año 2025',mediana:2.0,decil1:1.17,decil9:3.5},
+      {survey_month:'2025-03',label:'Mar 2025',target:'Año 2025',mediana:2.0,decil1:0.52,decil9:3.0},
+      {survey_month:'2025-04',label:'Abr 2025',target:'Año 2025',mediana:2.08,decil1:0.4,decil9:3.4},
+      {survey_month:'2025-05',label:'May 2025',target:'Año 2025',mediana:2.0,decil1:0.5,decil9:3.0},
+      {survey_month:'2025-06',label:'Jun 2025',target:'Año 2025',mediana:2.0,decil1:1.0,decil9:3.62},
+      {survey_month:'2025-07',label:'Jul 2025',target:'Año 2025',mediana:1.2,decil1:-0.61,decil9:2.0},
+      {survey_month:'2025-08',label:'Ago 2025',target:'Año 2025',mediana:1.0,decil1:-0.82,decil9:2.61},
+      {survey_month:'2025-09',label:'Sep 2025',target:'Año 2025',mediana:1.1,decil1:-0.92,decil9:2.37},
+      {survey_month:'2025-10',label:'Oct 2025',target:'Año 2025',mediana:0.53,decil1:-1.0,decil9:2.09},
+      {survey_month:'2025-11',label:'Nov 2025',target:'Año 2025',mediana:-1.55,decil1:-3.0,decil9:1.33},
+      {survey_month:'2025-12',label:'Dic 2025',target:'Año 2025',mediana:-2.08,decil1:-3.0,decil9:1.13},
+      {survey_month:'2026-01',label:'Ene 2026',target:'Año 2026',mediana:0.05,decil1:-2.07,decil9:2.0},
+      {survey_month:'2026-02',label:'Feb 2026',target:'Año 2026',mediana:0.5,decil1:-2.44,decil9:1.75},
+      {survey_month:'2026-03',label:'Mar 2026',target:'Año 2026',mediana:0.75,decil1:-1.13,decil9:2.0},
+      {survey_month:'2026-04',label:'Abr 2026',target:'Año 2026',mediana:-1.5,decil1:-3.31,decil9:1.66}
+    ]
+  };
+
+  var horizon = 'siguiente';
+  var activeKeys = new Set(['mediana','decil9','decil1']);
+  var chart = null;
+  var COLOR = '#0D9488';
+
+  function dk(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
+  function getS(){ return DATA['series_'+horizon] || DATA.series_siguiente; }
+  function fmt(v){ return v != null ? v.toFixed(2)+'%' : '—'; }
+
+  /* ── Pills ── */
   (function(){
-    /* ================================================================
-       DATA
-       ================================================================ */
-    var MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    var pills = document.getElementById('pills');
+    [{key:'mediana',label:'Mediana',color:'#0D9488',dash:false},
+     {key:'decil9',label:'Decil 9',color:'#059669',dash:true},
+     {key:'decil1',label:'Decil 1',color:'#C71E1D',dash:true}].forEach(function(s){
+      var btn = document.createElement('button');
+      btn.className = 'pill';
+      btn.dataset.key = s.key;
+      btn.innerHTML = '<span class="lp'+(s.dash?' dashed':'')+'" style="border-color:#fff"></span>'+s.label;
+      btn.addEventListener('click', function(){ toggleKey(s.key); });
+      pills.appendChild(btn);
+    });
+    syncPills();
+  })();
 
-    var series_actual = [
-      {
-        target: '2024',
-        med: [2.5, 2.2, 2.28, 2.48, 2.9, 2.1, 2.61, 2.3, 1.9, 1.9, 2.0, 2.0],
-        d1:  [1.6, 1.5, 1.8, 1.8, 1.5, 1.62, 1.71, 1.5, 1.0, 1.0, 1.47, 1.5],
-        d9:  [3.86, 3.72, 3.71, 3.71, 3.7, 3.69, 3.69, 3.66, 3.35, 3.34, 3.33, 3.31]
-      },
-      {
-        target: '2025',
-        med: [2.0, 2.0, 2.0, 2.08, 2.0, 2.0, 1.2, 1.0, 1.1, 0.53, -1.55, -2.08],
-        d1:  [0.6, 1.17, 0.52, 0.4, 0.5, 1.0, -0.61, -0.82, -0.92, -1.0, -3.0, -3.0],
-        d9:  [3.5, 3.5, 3.0, 3.4, 3.0, 3.62, 2.0, 2.61, 2.37, 2.09, 1.33, 1.13]
-      },
-      {
-        target: '2026',
-        med: [0.05, 0.5, 0.75, -1.5, null, null, null, null, null, null, null, null],
-        d1:  [-2.07, -2.44, -1.13, -3.31, null, null, null, null, null, null, null, null],
-        d9:  [2.0, 1.75, 2.0, 1.66, null, null, null, null, null, null, null, null]
-      }
+  function toggleKey(key){
+    if(activeKeys.has(key)){ if(activeKeys.size===1) return; activeKeys.delete(key); }
+    else activeKeys.add(key);
+    syncPills();
+    buildChart();
+  }
+
+  function syncPills(){
+    var colors = {mediana:'#0D9488',decil9:'#059669',decil1:'#C71E1D'};
+    document.querySelectorAll('.pill').forEach(function(btn){
+      var k = btn.dataset.key, c = colors[k], on = activeKeys.has(k);
+      btn.style.borderColor = on ? c : 'var(--border)';
+      btn.style.background = on ? c+'18' : 'transparent';
+      btn.style.color = on ? c : 'var(--muted)';
+      var lp = btn.querySelector('.lp');
+      if(lp) lp.style.borderColor = on ? c : 'var(--muted)';
+    });
+  }
+
+  /* ── KPIs ── */
+  function updateKPIs(){
+    var S = getS(), N = S.length, last = S[N-1], prev = S[N-2];
+    var items = [
+      {lbl:'Mediana',val:last.mediana.toFixed(1)+'%',d:last.mediana-prev.mediana,color:'#0D9488',inv:false},
+      {lbl:'Decil 9 (optimistas)',val:last.decil9.toFixed(1)+'%',d:last.decil9-prev.decil9,color:'#059669',inv:false},
+      {lbl:'Decil 1 (pesimistas)',val:last.decil1.toFixed(1)+'%',d:last.decil1-prev.decil1,color:'#C71E1D',inv:false},
+      {lbl:'Rango D9–D1',val:(last.decil9-last.decil1).toFixed(1)+' pp',d:(last.decil9-last.decil1)-(prev.decil9-prev.decil1),color:'#0D9488',inv:true}
     ];
+    var el = document.getElementById('kpis');
+    el.innerHTML = items.map(function(i){
+      var isUp = i.d > 0.01, isDown = i.d < -0.01;
+      var cls = i.inv ? (isUp?'up':isDown?'down':'flat') : (isUp?'down':isDown?'up':'flat');
+      var arrow = isUp ? '▲' : isDown ? '▼' : '—';
+      var fmtD = Math.abs(i.d).toFixed(2)+' pp';
+      return '<div class="kpi"><div style="position:absolute;top:0;left:0;width:100%;height:3px;background:'+i.color+'"></div>'+
+        '<div class="kpi-lbl">'+i.lbl+'</div><div class="kpi-val" style="color:'+i.color+'">'+i.val+'</div>'+
+        '<div class="kpi-d '+cls+'">'+arrow+' '+fmtD+'</div></div>';
+    }).join('');
+  }
 
-    var series_siguiente = [
-      {
-        target: '2025',
-        med: [2.5, 2.35, 2.6, 2.5, 2.9, 2.05, 2.65, 2.4, 2.05, 2.0, 2.0, 1.98],
-        d1:  [1.47, 1.49, 1.66, 1.52, 1.79, 1.71, 1.61, 1.5, 0.5, 0.95, 0.96, 1.0],
-        d9:  [3.8, 3.53, 3.74, 3.7, 3.82, 3.71, 3.73, 3.7, 3.66, 3.5, 3.49, 3.5]
-      },
-      {
-        target: '2026',
-        med: [null, null, null, 2.0, 2.0, 2.0, 1.41, 1.5, 1.5, 0.91, 0.65, 0.8],
-        d1:  [null, null, null, 0.68, 0.56, 0.36, -0.44, -1.08, -1.12, -1.5, -2.84, -2.26],
-        d9:  [null, null, null, 3.46, 3.11, 3.18, 3.14, 3.48, 3.34, 3.03, 2.4, 2.24]
-      },
-      {
-        target: '2027',
-        med: [null, 1.04, 1.2, 1.5, null, null, null, null, null, null, null, null],
-        d1:  [null, -1.4, -0.39, -1.64, null, null, null, null, null, null, null, null],
-        d9:  [null, 2.95, 3.03, 3.66, null, null, null, null, null, null, null, null]
-      }
-    ];
+  /* ── Panel ── */
+  function pibAnalysis(d){
+    if(d.mediana < 0) return 'Mediana de <strong>'+d.mediana.toFixed(2)+'%</strong>: <strong>contracción económica</strong> esperada.';
+    if(d.mediana < 1.5) return 'Crecimiento de <strong>'+d.mediana.toFixed(2)+'%</strong>, ritmo <strong>muy bajo</strong>. Prácticamente estancamiento.';
+    if(d.mediana < 3) return 'Mediana de <strong>'+d.mediana.toFixed(2)+'%</strong>, crecimiento <strong>moderado</strong> por debajo del promedio histórico de 4.5%.';
+    return 'Expectativa de <strong>'+d.mediana.toFixed(2)+'%</strong>, crecimiento <strong>sólido</strong> cercano al promedio histórico.';
+  }
 
-    /* ================================================================
-       YEAR COLORS
-       ================================================================ */
-    var YEAR_COLORS_LIGHT = { '2024':'#94A3B8', '2025':'#2563EB', '2026':'#C71E1D', '2027':'#0D9488' };
-    var YEAR_COLORS_DARK  = { '2024':'#94A3B8', '2025':'#3B82F6', '2026':'#EF4444', '2027':'#14B8A6' };
-    var BAND_OPACITY      = { '2024':0.12, '2025':0.15, '2026':0.18, '2027':0.18 };
+  function buildPanel(idx){
+    var S = getS(), d = S[idx], prev = idx > 0 ? S[idx-1] : null;
+    var dMed = prev ? d.mediana - prev.mediana : 0;
+    var hdBg = dk() ? '#0A2A2A' : '#134E4A';
+    var html = '<div class="panel" id="panel-pib">';
+    html += '<div class="panel-hd" style="background:'+hdBg+'"><span class="panel-hd-t">Lectura del indicador</span>';
+    html += '<span class="panel-hd-d" style="color:#0D9488;background:#0D948822">'+d.label+'</span></div>';
+    html += '<div class="panel-body">';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#0D9488;background:#0D948814;border-left-color:#0D9488">Mediana</div>';
+    html += '<div class="pb-val" style="color:#0D9488">'+fmt(d.mediana)+'</div>';
+    html += '<p class="pb-desc">En <strong>'+d.label+'</strong>, expectativa mediana para <strong>'+d.target+'</strong>'+(prev?', '+(dMed>=0?'subiendo':'bajando')+' '+Math.abs(dMed).toFixed(2):'')+' vs. mes anterior.</p></div>';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#C71E1D;background:rgba(199,30,29,.08);border-left-color:#C71E1D">Decil extremo alto</div>';
+    html += '<div class="pb-val" style="color:#C71E1D">'+fmt(d.decil9)+'</div>';
+    html += '<p class="pb-desc">10% de encuestados con la expectativa más alta.</p></div>';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#059669;background:rgba(5,150,105,.08);border-left-color:#059669">Decil extremo bajo</div>';
+    html += '<div class="pb-val" style="color:#059669">'+fmt(d.decil1)+'</div>';
+    html += '<p class="pb-desc">10% de encuestados con la expectativa más baja.</p></div>';
+    html += '<div class="ctx" style="background:'+(dk()?'#0D94880D':'#0D948808')+';border-left-color:#0D9488"><p>'+pibAnalysis(d)+'</p></div>';
+    html += '</div></div>';
+    document.getElementById('panel-wrap').innerHTML = html;
+  }
 
-    /* ================================================================
-       STATE
-       ================================================================ */
-    var currentView = 'ACT';
-    var chart = null;
+  /* ── Chart ── */
+  function buildChart(){
+    var S = getS();
+    var d = dk();
+    var labels = S.map(function(s){ return s.label; });
+    var series = [];
 
-    /* ================================================================
-       HELPERS
-       ================================================================ */
-    function isDark() {
-      return document.documentElement.getAttribute('data-theme') === 'dark';
-    }
-
-    function yearColor(yr) {
-      return isDark() ? (YEAR_COLORS_DARK[yr] || '#94A3B8') : (YEAR_COLORS_LIGHT[yr] || '#94A3B8');
-    }
-
-    function fmt(v) {
-      return v == null ? '—' : v.toFixed(2) + '%';
-    }
-
-    function fmt1(v) {
-      return v == null ? '—' : v.toFixed(1) + '%';
-    }
-
-    function sign(v) {
-      return v > 0.005 ? '+' : '';
-    }
-
-    function isPartial(s) {
-      return s.med.some(function(v){ return v === null; });
-    }
-
-    function getData() {
-      return currentView === 'ACT' ? series_actual : series_siguiente;
-    }
-
-    /* Find the last non-null index in a mediana array */
-    function lastValid(arr) {
-      for (var i = arr.length - 1; i >= 0; i--) {
-        if (arr[i] !== null) return i;
-      }
-      return -1;
-    }
-
-    /* Find the first non-null index */
-    function firstValid(arr) {
-      for (var i = 0; i < arr.length; i++) {
-        if (arr[i] !== null) return i;
-      }
-      return -1;
-    }
-
-    /* ================================================================
-       KPIs
-       ================================================================ */
-    function updateKPIs() {
-      var data = getData();
-      /* Use the most recent target year that has at least 2 data points */
-      var target = null;
-      for (var i = data.length - 1; i >= 0; i--) {
-        var li = lastValid(data[i].med);
-        if (li >= 1) { target = data[i]; break; }
-      }
-      if (!target) { target = data[data.length - 1]; }
-
-      var li = lastValid(target.med);
-      var fi = firstValid(target.med);
-      var lastMed = target.med[li];
-      var firstMed = target.med[fi];
-      var chg = lastMed - firstMed;
-      var lastD1 = target.d1[li];
-      var lastD9 = target.d9[li];
-      var rango = (lastD9 != null && lastD1 != null) ? lastD9 - lastD1 : null;
-
-      var chgClass = chg > 0.005 ? 'pos' : chg < -0.005 ? 'neg' : 'flat';
-      var chgArrow = chg > 0.005 ? '▲' : chg < -0.005 ? '▼' : '—';
-      var chgCardClass = chg < -0.005 ? 'neg' : '';
-
-      var el = document.getElementById('kpis');
-      el.innerHTML =
-        '<div class="kpi-card" data-s="med">' +
-          '<div class="kpi-label">Mediana actual</div>' +
-          '<div class="kpi-value" style="color:#6366F1">' + fmt(lastMed) + '</div>' +
-          '<div class="kpi-delta flat"><span class="hl-mono">Año ' + target.target + ' · ' + MONTHS[li] + '</span></div>' +
-        '</div>' +
-        '<div class="kpi-card ' + chgCardClass + '" data-s="chg">' +
-          '<div class="kpi-label">Cambio en el año</div>' +
-          '<div class="kpi-value" style="color:' + (chg < -0.005 ? '#C71E1D' : '#059669') + '">' + sign(chg) + chg.toFixed(2) + ' pp</div>' +
-          '<div class="kpi-delta ' + chgClass + '">' + chgArrow + ' ' + MONTHS[fi] + '–' + MONTHS[li] + ' ' + target.target + '</div>' +
-        '</div>' +
-        '<div class="kpi-card" data-s="rango">' +
-          '<div class="kpi-label">Rango D1–D9</div>' +
-          '<div class="kpi-value" style="color:#D97706">' + (rango != null ? rango.toFixed(2) + ' pp' : '—') + '</div>' +
-          '<div class="kpi-delta flat"><span class="hl-mono">Incertidumbre</span></div>' +
-        '</div>' +
-        '<div class="kpi-card" data-s="d1">' +
-          '<div class="kpi-label">Decil pesimista</div>' +
-          '<div class="kpi-value" style="color:#C71E1D">' + fmt(lastD1) + '</div>' +
-          '<div class="kpi-delta flat"><span class="hl-mono">D1 · ' + MONTHS[li] + ' ' + target.target + '</span></div>' +
-        '</div>';
-    }
-
-    /* ================================================================
-       CHART
-       ================================================================ */
-    function buildChart() {
-      var data = getData();
-      var d = isDark();
-      var series = [];
-
-      /* Determine line widths based on number of years */
-      var widths = {};
-      if (data.length === 3) {
-        widths[data[0].target] = 1.5;
-        widths[data[1].target] = 2;
-        widths[data[2].target] = 2.5;
-      } else if (data.length === 2) {
-        widths[data[0].target] = 2;
-        widths[data[1].target] = 2.5;
-      } else {
-        widths[data[0].target] = 2.5;
-      }
-
-      for (var i = 0; i < data.length; i++) {
-        var s = data[i];
-        var yr = s.target;
-        var col = yearColor(yr);
-        var partial = isPartial(s);
-        var bOpacity = BAND_OPACITY[yr] || 0.15;
-        var lw = widths[yr] || 2;
-        var stackId = 'band' + yr;
-
-        /* 1) Lower bound (D1) — invisible, stacked */
-        series.push({
-          name: '_d1_' + yr,
-          type: 'line',
-          data: s.d1.slice(),
-          stack: stackId,
-          symbol: 'none',
-          lineStyle: { opacity: 0 },
-          itemStyle: { color: col },
-          areaStyle: { opacity: 0 },
-          legendHoverLink: false,
-          emphasis: { disabled: true },
-          connectNulls: false,
-          z: 0,
-          silent: true
-        });
-
-        /* 2) Band (D9 - D1 difference) — invisible line, visible area */
-        var bandData = [];
-        for (var j = 0; j < 12; j++) {
-          if (s.d9[j] != null && s.d1[j] != null) {
-            bandData.push(parseFloat((s.d9[j] - s.d1[j]).toFixed(4)));
-          } else {
-            bandData.push(null);
-          }
+    if(activeKeys.has('mediana')){
+      var medData = S.map(function(x){ return x.mediana; });
+      var lastIdx = medData.length - 1;
+      series.push({
+        name:'Mediana',type:'line',data:medData,symbol:'none',
+        lineStyle:{width:3,type:'solid'},
+        itemStyle:{color:'#0D9488'},z:3,
+        areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:'#0D9488'+(d?'20':'10')},
+          {offset:1,color:'#0D948800'}
+        ])},
+        markPoint:{
+          data:[{coord:[lastIdx,medData[lastIdx]]}],
+          symbol:'circle',symbolSize:7,
+          itemStyle:{color:'#0D9488',borderColor:d?'#101010':'#fff',borderWidth:2},
+          label:{show:false}
         }
-        series.push({
-          name: '_band_' + yr,
-          type: 'line',
-          data: bandData,
-          stack: stackId,
-          symbol: 'none',
-          lineStyle: { opacity: 0 },
-          itemStyle: { color: col },
-          areaStyle: {
-            color: col,
-            opacity: bOpacity
-          },
-          legendHoverLink: false,
-          emphasis: { disabled: true },
-          connectNulls: false,
-          z: 0,
-          silent: true
-        });
-
-        /* 3) Mediana — visible line */
-        series.push({
-          name: 'Año ' + yr,
-          type: 'line',
-          data: s.med.slice(),
-          smooth: 0.4,
-          symbol: 'circle',
-          symbolSize: function(value) { return value != null ? 4 : 0; },
-          lineStyle: {
-            width: lw,
-            type: partial ? [6, 3] : 'solid'
-          },
-          itemStyle: { color: col },
-          connectNulls: false,
-          z: 2 + i,
-          markPoint: (function(s, col, d) {
-            var li = lastValid(s.med);
-            if (li < 0) return undefined;
-            return {
-              data: [{ coord: [li, s.med[li]] }],
-              symbol: 'circle',
-              symbolSize: 8,
-              itemStyle: { color: col, borderColor: d ? '#141414' : '#fff', borderWidth: 2 },
-              label: { show: false }
-            };
-          })(s, col, d)
-        });
-      }
-
-      /* Zero reference markLine on last mediana series */
-      series[series.length - 1].markLine = {
-        silent: true,
-        symbol: 'none',
-        lineStyle: {
-          color: '#EF4444',
-          opacity: 0.4,
-          type: 'dashed',
-          width: 1
-        },
-        label: {
-          show: true,
-          position: 'insideEndTop',
-          formatter: '0%',
-          fontFamily: 'JetBrains Mono',
-          fontSize: 10,
-          color: d ? 'rgba(239,68,68,0.6)' : 'rgba(239,68,68,0.5)'
-        },
-        data: [{ yAxis: 0 }]
-      };
-
-      /* Legend: only show "Ano XXXX" entries */
-      var legendData = data.map(function(s) { return 'Año ' + s.target; });
-
-      var option = {
-        grid: { left: 52, right: 20, top: 36, bottom: 36 },
-        legend: {
-          type: 'scroll',
-          top: 4,
-          right: 10,
-          itemWidth: 18,
-          itemHeight: 3,
-          textStyle: {
-            fontFamily: 'Inter',
-            fontSize: 11,
-            fontWeight: 600,
-            color: d ? '#94A3B8' : '#475569'
-          },
-          data: legendData.map(function(name, idx) {
-            return {
-              name: name,
-              icon: 'roundRect',
-              itemStyle: { color: yearColor(data[idx].target) }
-            };
-          })
-        },
-        xAxis: {
-          type: 'category',
-          data: MONTHS,
-          boundaryGap: false,
-          axisLine: { lineStyle: { color: d ? '#2A3A50' : '#E2E8F0' } },
-          axisTick: { show: false },
-          axisLabel: {
-            fontFamily: 'Inter',
-            fontSize: 11,
-            fontWeight: 500,
-            color: d ? '#4A8A82' : '#94A3B8'
-          }
-        },
-        yAxis: {
-          type: 'value',
-          min: 'dataMin',
-          axisLine: { show: false },
-          splitLine: { lineStyle: { color: d ? 'rgba(42,58,80,0.5)' : '#F1F5F9' } },
-          axisLabel: {
-            fontFamily: 'JetBrains Mono',
-            fontSize: 11,
-            color: d ? '#4A8A82' : '#94A3B8',
-            formatter: function(v) { return v.toFixed(1) + '%'; }
-          }
-        },
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: 'rgba(0,18,25,0.96)',
-          borderColor: d ? '#2A3A50' : '#1A2940',
-          borderWidth: 1,
-          padding: 14,
-          extraCssText: 'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-          textStyle: { fontFamily: 'Inter', fontSize: 12, color: '#fff' },
-          formatter: function(params) {
-            var monthIdx = params[0].dataIndex;
-            var monthName = MONTHS[monthIdx];
-            var html = '<div style="font-weight:700;margin-bottom:8px;color:#E9D8A6">' + monthName + '</div>';
-
-            var seriesData = getData();
-            for (var i = 0; i < seriesData.length; i++) {
-              var s = seriesData[i];
-              var medVal = s.med[monthIdx];
-              if (medVal == null) continue;
-              var col = yearColor(s.target);
-              var d1Val = s.d1[monthIdx];
-              var d9Val = s.d9[monthIdx];
-              html += '<div style="display:flex;align-items:center;gap:6px;margin-top:5px">' +
-                '<span style="width:8px;height:8px;border-radius:50%;background:' + col + ';display:inline-block;flex-shrink:0"></span>' +
-                '<span style="font-size:11px;color:#CBD5E1">Año ' + s.target + '</span>' +
-                '<span style="font-family:\'JetBrains Mono\';font-weight:700;color:' + col + ';margin-left:auto">' + medVal.toFixed(2) + '%</span>' +
-                '</div>';
-              if (d1Val != null && d9Val != null) {
-                html += '<div style="font-family:\'JetBrains Mono\';font-size:10px;color:#64748B;padding-left:14px;margin-top:1px">' +
-                  '[' + d1Val.toFixed(2) + ' — ' + d9Val.toFixed(2) + ']</div>';
-              }
-            }
-            return html;
-          }
-        },
-        series: series
-      };
-
-      if (!chart) {
-        chart = echarts.init(document.getElementById('chart'));
-        window.addEventListener('resize', function() { chart && chart.resize(); });
-      }
-      chart.setOption(option, true);
-    }
-
-    /* ================================================================
-       LECTURA
-       ================================================================ */
-    function updateLectura() {
-      var data = getData();
-      var el = document.getElementById('lectura-text');
-      var html = '';
-
-      if (currentView === 'ACT') {
-        /* "Ano en curso" analysis */
-        /* Focus on the most recent complete year and the current partial year */
-        var recent = data[data.length - 1];
-        var prev = data.length >= 2 ? data[data.length - 2] : null;
-
-        var rLi = lastValid(recent.med);
-        var rFi = firstValid(recent.med);
-
-        if (rLi >= 0 && rFi >= 0) {
-          var startVal = recent.med[rFi];
-          var endVal = recent.med[rLi];
-          var chg = endVal - startVal;
-          var turnedNeg = endVal < 0 && startVal >= 0;
-
-          html += '<p class="lectura-p">Para el <strong>año ' + recent.target + '</strong>, la expectativa mediana de crecimiento del PIB pasó de ' +
-            '<span class="hl-indigo">' + fmt(startVal) + '</span> en ' + MONTHS[rFi] +
-            ' a <span class="hl-' + (endVal < 0 ? 'red' : 'blue') + '">' + fmt(endVal) + '</span> en ' + MONTHS[rLi] +
-            ', un cambio de <strong>' + sign(chg) + chg.toFixed(2) + ' pp</strong> en el horizonte de encuesta.</p>';
-
-          if (turnedNeg) {
-            html += '<p class="lectura-p">Las expectativas <strong>se tornaron negativas</strong> durante el año, reflejando un giro significativo en la percepción de los analistas sobre el desempeño económico.</p>';
-          }
-
-          /* D1-D9 spread analysis */
-          var spreadStart = (recent.d9[rFi] != null && recent.d1[rFi] != null) ? recent.d9[rFi] - recent.d1[rFi] : null;
-          var spreadEnd = (recent.d9[rLi] != null && recent.d1[rLi] != null) ? recent.d9[rLi] - recent.d1[rLi] : null;
-          if (spreadStart != null && spreadEnd != null) {
-            var spreadChg = spreadEnd - spreadStart;
-            var widening = spreadChg > 0.1;
-            html += '<p class="lectura-p">El rango D1–D9 ' +
-              (widening ? 'se amplió' : 'se redujo') +
-              ' de <span class="hl-amber">' + spreadStart.toFixed(2) + ' pp</span> a <span class="hl-amber">' + spreadEnd.toFixed(2) + ' pp</span>' +
-              (widening ? ', indicando <strong>mayor incertidumbre</strong> entre los encuestados.' : ', sugiriendo un <strong>mayor consenso</strong> entre los encuestados.') +
-              ' El decil pesimista (D1) se ubica en <span class="hl-red">' + fmt(recent.d1[rLi]) + '</span>.</p>';
-          }
-        }
-
-        /* Previous year context */
-        if (prev) {
-          var pLi = lastValid(prev.med);
-          if (pLi >= 0) {
-            html += '<p class="lectura-p">Como referencia, para el <strong>año ' + prev.target + '</strong> la expectativa mediana cerró en ' +
-              '<span class="hl-blue">' + fmt(prev.med[pLi]) + '</span> (' + MONTHS[pLi] + '), dentro de un rango relativamente acotado de ' +
-              '<span class="hl-amber">' + (prev.d9[pLi] - prev.d1[pLi]).toFixed(2) + ' pp</span>.</p>';
-          }
-        }
-      } else {
-        /* "Ano siguiente" analysis */
-        var recent = data[data.length - 1];
-        var prev = data.length >= 2 ? data[data.length - 2] : null;
-
-        var rLi = lastValid(recent.med);
-        var rFi = firstValid(recent.med);
-
-        if (prev) {
-          var pLi = lastValid(prev.med);
-          var pFi = firstValid(prev.med);
-
-          if (pLi >= 0) {
-            var pStartVal = prev.med[pFi];
-            var pEndVal = prev.med[pLi];
-            var pChg = pEndVal - pStartVal;
-
-            html += '<p class="lectura-p">Las expectativas para el <strong>año ' + prev.target + '</strong> (encuestadas durante ' +
-              (pFi === 0 ? 'todo ' : 'parte de ') + (parseInt(prev.target) - 1) + ') evolucionaron de ' +
-              '<span class="hl-blue">' + fmt(pStartVal) + '</span> a <span class="hl-' + (pEndVal < 0 ? 'red' : 'blue') + '">' + fmt(pEndVal) + '</span>, ' +
-              'un ajuste de <strong>' + sign(pChg) + pChg.toFixed(2) + ' pp</strong>.</p>';
-          }
-        }
-
-        if (rLi >= 0 && rFi >= 0) {
-          var startVal = recent.med[rFi];
-          var endVal = recent.med[rLi];
-          var chg = endVal - startVal;
-          var pessimism = endVal < 1.0;
-
-          html += '<p class="lectura-p">Para el <strong>año ' + recent.target + '</strong>, la expectativa mediana actual es ' +
-            '<span class="hl-' + (endVal < 0 ? 'red' : endVal < 1 ? 'amber' : 'teal') + '">' + fmt(endVal) + '</span> (' + MONTHS[rLi] + ')';
-
-          if (rFi !== rLi) {
-            html += ', desde <span class="hl-indigo">' + fmt(startVal) + '</span> en ' + MONTHS[rFi];
-          }
-          html += '.</p>';
-
-          if (pessimism) {
-            html += '<p class="lectura-p">El <strong>pesimismo predomina</strong>: los analistas anticipan un crecimiento muy bajo o incluso contracción. El decil pesimista (D1) marca <span class="hl-red">' + fmt(recent.d1[rLi]) + '</span>, mientras el optimista (D9) apenas llega a <span class="hl-green">' + fmt(recent.d9[rLi]) + '</span>.</p>';
-          } else {
-            html += '<p class="lectura-p">El <strong>optimismo moderado persiste</strong>: la mayoría de analistas proyecta crecimiento positivo. El rango D1–D9 de <span class="hl-amber">' + ((recent.d9[rLi] - recent.d1[rLi]).toFixed(2)) + ' pp</span> refleja el grado de dispersión en las opiniones.</p>';
-          }
-        }
-
-        /* If there's a third year (2027) */
-        if (data.length >= 3) {
-          var far = data[data.length - 1];
-          var farLi = lastValid(far.med);
-          if (farLi >= 0) {
-            /* Already handled above as 'recent', so provide cross-reference */
-          }
-        }
-      }
-
-      el.innerHTML = html;
-    }
-
-    /* ================================================================
-       SWITCH VIEW
-       ================================================================ */
-    window.switchView = function(view) {
-      if (view === currentView) return;
-      currentView = view;
-      document.querySelectorAll('.metric-btn').forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-view') === view);
       });
-      updateKPIs();
-      buildChart();
-      updateLectura();
+    }
+    if(activeKeys.has('decil9')){
+      var d9Data = S.map(function(x){ return x.decil9; });
+      series.push({
+        name:'Decil 9',type:'line',data:d9Data,symbol:'none',
+        lineStyle:{width:1.5,type:'dashed'},
+        itemStyle:{color:'#059669'},z:1,
+        markPoint:{
+          data:[{coord:[d9Data.length-1,d9Data[d9Data.length-1]]}],
+          symbol:'circle',symbolSize:7,
+          itemStyle:{color:'#059669',borderColor:d?'#101010':'#fff',borderWidth:2},
+          label:{show:false}
+        }
+      });
+    }
+    if(activeKeys.has('decil1')){
+      var d1Data = S.map(function(x){ return x.decil1; });
+      series.push({
+        name:'Decil 1',type:'line',data:d1Data,symbol:'none',
+        lineStyle:{width:1.5,type:'dashed'},
+        itemStyle:{color:'#C71E1D'},z:1,
+        markPoint:{
+          data:[{coord:[d1Data.length-1,d1Data[d1Data.length-1]]}],
+          symbol:'circle',symbolSize:7,
+          itemStyle:{color:'#C71E1D',borderColor:d?'#101010':'#fff',borderWidth:2},
+          label:{show:false}
+        }
+      });
+    }
+    if(activeKeys.has('decil1') && activeKeys.has('decil9')){
+      series.push({
+        type:'custom',name:'_band',
+        renderItem:function(params,api){
+          if(params.dataIndex!==0) return;
+          var pts=[];
+          for(var i=0;i<S.length;i++) pts.push(api.coord([i,S[i].decil9]));
+          for(var i=S.length-1;i>=0;i--) pts.push(api.coord([i,S[i].decil1]));
+          return {type:'polygon',shape:{points:pts},style:{fill:d?'rgba(13,148,136,.06)':'rgba(13,148,136,.08)'}};
+        },
+        data:S.map(function(_,i){return[i,0];}),silent:true,z:0
+      });
+    }
+
+    var option = {
+      grid:{left:55,right:20,top:20,bottom:40},
+      xAxis:{
+        type:'category',data:labels,
+        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2E8F0'}},
+        axisTick:{show:false},
+        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#666':'#94A3B8',rotate:45,
+          formatter:function(v){var parts=v.split(' ');return parts[0]==='Ene'?parts[0]+' '+parts[1]:parts[0];}
+        }
+      },
+      yAxis:{
+        type:'value',
+        axisLine:{show:false},
+        splitLine:{lineStyle:{color:d?'rgba(42,58,80,0.5)':'#F1F5F9'}},
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:d?'#666':'#94A3B8',
+          formatter:function(v){return v.toFixed(1)+'%';}}
+      },
+      tooltip:{
+        trigger:'axis',
+        backgroundColor:'rgba(0,18,25,0.96)',
+        borderColor:d?'#2A3A50':'#1A2940',
+        borderWidth:1,padding:14,
+        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
+        textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
+        formatter:function(params){
+          var valid=params.filter(function(p){return !p.seriesName.startsWith('_');});
+          if(!valid.length) return '';
+          var idx=valid[0].dataIndex;
+          var html='<div style="font-weight:700;margin-bottom:6px;color:#E9D8A6">'+valid[0].axisValue+'</div>';
+          html+='<div style="font-size:10px;color:#94A3B8;margin-bottom:6px">Expectativa para '+S[idx].target+'</div>';
+          valid.forEach(function(p){
+            html+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
+            html+='<span style="width:8px;height:8px;border-radius:50%;background:'+p.color+';display:inline-block"></span>';
+            html+='<span style="font-size:11px">'+p.seriesName+':</span>';
+            html+='<span style="font-family:\'JetBrains Mono\';font-weight:700;color:'+p.color+'">'+fmt(p.value)+'</span></div>';
+          });
+          return html;
+        }
+      },
+      series:series
     };
 
-    /* ================================================================
-       THEME
-       ================================================================ */
-    function applyTheme() {
-      if (chart) {
-        chart.dispose();
-        chart = null;
-      }
-      buildChart();
+    if(!chart){
+      chart = echarts.init(document.getElementById('chart'));
+      window.addEventListener('resize',function(){chart&&chart.resize();});
+      chart.on('click',function(p){
+        if(p.dataIndex!==undefined) buildPanel(p.dataIndex);
+      });
     }
+    chart.setOption(option,true);
+  }
 
-    /* Listen for postMessage theme */
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.theme) {
-        document.documentElement.setAttribute('data-theme', e.data.theme);
-      }
-    });
+  /* ── Horizon switch ── */
+  window.switchHz = function(hz){
+    if(hz===horizon) return;
+    horizon = hz;
+    document.querySelectorAll('.hz-btn').forEach(function(b){b.classList.toggle('active',b.dataset.hz===hz);});
+    refresh();
+  };
 
-    /* Check URL param */
-    (function() {
-      var params = new URLSearchParams(window.location.search);
-      var theme = params.get('theme');
-      if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-    })();
-
-    /* MutationObserver for data-theme changes */
-    new MutationObserver(function() {
-      applyTheme();
-      updateKPIs();
-      updateLectura();
-    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-    /* ================================================================
-       INIT
-       ================================================================ */
+  function refresh(){
     updateKPIs();
     buildChart();
-    updateLectura();
-  })();
-  </script>
+    var S = getS();
+    buildPanel(S.length-1);
+  }
+
+  /* ── Theme ── */
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.setAttribute('data-theme',e.data.theme);});
+  new MutationObserver(function(){
+    if(chart){chart.dispose();chart=null;}
+    refresh();
+  }).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+  /* ── Init ── */
+  refresh();
+})();
+</script>
 </body>
 </html>
