@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carga Ferroviaria · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+      --navy:#0D1B2A;--navy-light:#1A2940;
+      --slate:#475569;--slate-light:#64748B;
+      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+      --border:#E2DDD3;--dark-border:#2A3A50;
+      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+      --accent:#0D9488;--radius:12px;
+    }
+    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+    .section-header{margin-bottom:16px}
+    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
+    [data-theme="dark"] .section-title{color:#fff}
+    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
+    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
+    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
+    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+    .kpi-card[data-s="last"]::after{background:var(--accent)}
+    .kpi-card[data-s="yoy"]::after{background:#2563EB}
+    .kpi-card[data-s="acum"]::after{background:#D97706}
+    .kpi-card[data-s="total"]::after{background:var(--populi)}
+    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
+    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
+    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
+    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
+    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
+    @media(min-width:1100px){.main-grid{grid-template-rows:600px}}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;height:100%;overflow:hidden}
+    [data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+    .chart-controls{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:10px}
+    .toggle-group{display:flex;gap:4px}
+    .range-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .range-btn{border-color:var(--dark-border);color:#94A3B8}
+    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
+    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
+    .chart-area{flex:1;min-height:0}
+    .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px}
+    .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+    .chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+    .watermark{height:15px;width:auto;opacity:.18}
+    [data-theme="dark"] .watermark{opacity:.10}
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
+    [data-theme="dark"] .panel{background:#141414;border-color:var(--dark-border)}
+    .panel-header{background:var(--navy);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+    [data-theme="dark"] .panel-header{background:var(--navy-light)}
+    .panel-header-title{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.8)}
+    .panel-header-date{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:600;color:var(--populi-light);background:rgba(199,30,29,.15);padding:2px 8px;border-radius:5px}
+    .panel-body{padding:14px;flex:1;overflow-y:auto}
+    .panel-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+    [data-theme="dark"] .panel-block{border-color:var(--dark-border)}
+    .panel-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+    .panel-label{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;padding:2px 9px 2px 6px;border-radius:4px;border-left:3px solid}
+    .panel-val{font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;margin-bottom:3px}
+    .panel-desc{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
+    [data-theme="dark"] .panel-desc{color:rgba(255,255,255,.45)}
+    .panel-desc strong{color:var(--navy)}
+    [data-theme="dark"] .panel-desc strong{color:#E2E8F0}
+    .delta-tag{font-family:'JetBrains Mono',monospace;font-weight:600;padding:1px 5px;border-radius:4px;font-size:.82em;white-space:nowrap}
+    .dt-teal{background:rgba(13,148,136,.08);color:#0D9488}
+    .dt-red{background:rgba(199,30,29,.08);color:#C71E1D}
+    .dt-green{background:rgba(5,150,105,.08);color:#059669}
+    .ctx-box{background:var(--cream);border-radius:6px;padding:8px 10px;border-left:3px solid var(--populi);margin-top:6px}
+    [data-theme="dark"] .ctx-box{background:var(--navy-light)}
+    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
+    [data-theme="dark"] .ctx-box p{color:#94A3B8}
+    .ctx-box p strong{color:var(--navy)}
+    [data-theme="dark"] .ctx-box p strong{color:#E2E8F0}
+    .yr-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)}
+    [data-theme="dark"] .yr-row{border-color:var(--dark-border)}
+    .yr-row:last-child{border-bottom:none}
+    .yr-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .yr-name{font-size:.62rem;font-weight:600;flex:1;color:var(--text)}
+    [data-theme="dark"] .yr-name{color:#CBD5E1}
+    .yr-val{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700}
+    .yr-chg{font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:4px}
+    .panel-footer{padding:10px 14px;border-top:1px solid var(--border)}
+    [data-theme="dark"] .panel-footer{border-color:var(--dark-border)}
+    .ampliar-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 0;border-radius:8px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--populi);background:rgba(139,26,26,.06);border:1.5px solid rgba(139,26,26,.15);transition:all .2s;text-decoration:none;cursor:pointer}
+    [data-theme="dark"] .ampliar-btn{background:rgba(192,0,0,.08);border-color:rgba(192,0,0,.2);color:var(--populi-light)}
+    .ampliar-btn:hover{background:rgba(139,26,26,.12);border-color:rgba(139,26,26,.3);transform:translateY(-1px)}
+    .ampliar-btn svg{width:13px;height:13px}
+    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);margin-top:4px;cursor:pointer;transition:all .2s}
+    [data-theme="dark"] .edu-box{background:var(--navy-light)}
+    .edu-box:hover{transform:translateY(-1px)}
+    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
+    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
+    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
+    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
+    .edu-box-content{display:none;margin-top:8px}
+    .edu-box.open .edu-box-content{display:block}
+    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
+    .edu-box-content p:last-child{margin-bottom:0}
+    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
+    .edu-box-content p strong{color:var(--navy)}
+    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
+  </style>
+</head>
+<body>
+<div class="embed-container" id="app"></div>
+<script>
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
+  function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  var MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  var MONTHS_FULL=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  var Y=[
+    {y:2020,c:'#94A3B8',lw:1.2,d:[190083,182019,217141,103151,130492,170028,193236,177089,171138,184140,176186,197400]},
+    {y:2021,c:'#A3A3A3',lw:1.2,d:[161778,188686,226428,248739,256999,240576,231749,211275,174439,192005,193983,173515]},
+    {y:2022,c:'#8B5CF6',lw:1.5,d:[208851,203395,255035,276218,289959,275834,285318,235365,238857,150574,154355,199553]},
+    {y:2023,c:'#D97706',lw:1.5,d:[195205,166682,230218,243610,280728,259007,251899,259344,165859,214242,195508,158550]},
+    {y:2024,c:'#2563EB',lw:2,d:[169789,167790,155522,198731,210210,207249,260123,208512,166663,153241,150624,179221]},
+    {y:2025,c:'#0D9488',lw:2.5,d:[175885,127589,138391,212975,249773,224621,286855,230651,227428,207068,178860,198508]},
+    {y:2026,c:'#C71E1D',lw:2.8,dash:true,d:[186085,170663,202994,null,null,null,null,null,null,null,null,null]}
+  ];
+
+  var AVG={c:'#D1D5DB',lw:1,d:[210667,174638,236570,279052,291610,280656,296132,294217,269024,222688,219583,252083]};
+
+  var RANGES=[{label:'3A',from:2024},{label:'5A',from:2022},{label:'Todo',from:2020}];
+  var curRange=0,chart=null,curMonth=-1;
+
+  function fnum(v){if(v==null)return'—';return v.toLocaleString('es-BO')}
+  function fk(v){if(v==null)return'—';return Math.round(v/1000).toLocaleString('es-BO')+' mil'}
+  function fpct(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(1)+'%'}
+
+  function lastData(){
+    for(var i=Y.length-1;i>=0;i--){
+      for(var m=11;m>=0;m--){
+        if(Y[i].d[m]!=null) return{y:Y[i].y,m:m,v:Y[i].d[m]};
+      }
+    }
+    return{y:2026,m:0,v:0};
+  }
+
+  function init(){
+    document.getElementById('app').innerHTML=buildHTML();
+    buildControls();
+    chart=echarts.init(document.getElementById('chart'));
+    buildChart();
+    var ld=lastData();
+    updatePanel(ld.m);
+    buildKPIs();
+    buildEdu();
+    window.addEventListener('resize',function(){chart&&chart.resize()});
+    new MutationObserver(function(){buildChart();buildKPIs()})
+      .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  }
+
+  function buildHTML(){
+    var d=dk();
+    return '<div class="section-header">'
+      +'<h2 class="section-title"><span class="accent-bar"></span>Carga Ferroviaria</h2>'
+      +'<p class="section-subtitle">Toneladas métricas mensuales (Red Andina + Red Oriental) · Comparación interanual</p></div>'
+      +'<div class="kpi-grid" id="kpis"></div>'
+      +'<div class="main-grid">'
+      +'<div class="chart-card">'
+      +'<div class="chart-controls"><div class="toggle-group" id="ranges"></div></div>'
+      +'<div class="chart-area" id="chart"></div>'
+      +'<div class="chart-source"><span class="chart-source-text">'
+      +'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · Flujo del transporte ferroviario · '
+      +'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a></span>'
+      +'<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
+      +'<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#C00000':'#8B1A1A')+'">P</text>'
+      +'<text x="92" y="87" font-family="\'Playfair Display\',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="'+(d?'#F5EFE0':'#3D2B1F')+'">opuli</text></svg></div>'
+      +'</div>'
+      +'<div class="panel">'
+      +'<div class="panel-header"><span class="panel-header-title">Lectura del indicador</span>'
+      +'<span class="panel-header-date" id="panel-date"></span></div>'
+      +'<div class="panel-body" id="panel-body"></div>'
+      +'<div class="panel-footer"><a href="https://populi.org.bo/monitor-actividad-economica" target="_blank" class="ampliar-btn"><span>Ampliar análisis</span>'
+      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      +'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>'
+      +'</div></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px" id="edu"></div>';
+  }
+
+  function buildControls(){
+    var rEl=document.getElementById('ranges');
+    RANGES.forEach(function(r,i){
+      var b=document.createElement('button');
+      b.className='range-btn'+(i===curRange?' active':'');
+      b.textContent=r.label;
+      b.addEventListener('click',function(){curRange=i;
+        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');buildChart()});
+      rEl.appendChild(b);
+    });
+  }
+
+  function getVisibleYears(){
+    var from=RANGES[curRange].from;
+    return Y.filter(function(yr){return yr.y>=from});
+  }
+
+  function buildKPIs(){
+    var ld=lastData();
+    var prev=null;
+    for(var i=0;i<Y.length;i++){if(Y[i].y===ld.y-1&&Y[i].d[ld.m]!=null){prev=Y[i].d[ld.m];break}}
+    var yoy=prev!=null?((ld.v/prev-1)*100):null;
+
+    var curYr=Y.find(function(yr){return yr.y===ld.y});
+    var prevYr=Y.find(function(yr){return yr.y===ld.y-1});
+    var acumCur=0,acumPrev=0,acumM=0;
+    if(curYr){
+      for(var m=0;m<12;m++){
+        if(curYr.d[m]!=null){acumCur+=curYr.d[m];acumM=m+1}
+      }
+      if(prevYr){for(var m2=0;m2<acumM;m2++){if(prevYr.d[m2]!=null)acumPrev+=prevYr.d[m2]}}
+    }
+    var acumChg=acumPrev>0?((acumCur/acumPrev-1)*100):null;
+
+    var yr25=Y.find(function(yr){return yr.y===2025});
+    var total25=0;if(yr25)yr25.d.forEach(function(v){if(v!=null)total25+=v});
+
+    document.getElementById('kpis').innerHTML=
+      '<div class="kpi-card" data-s="last"><div class="kpi-label">Último dato</div>'
+      +'<div class="kpi-value" style="color:var(--accent)">'+fk(ld.v)+'</div>'
+      +'<div class="kpi-sub">'+MONTHS_FULL[ld.m]+' '+ld.y+' · toneladas</div></div>'
+      +'<div class="kpi-card" data-s="yoy"><div class="kpi-label">Var. Interanual</div>'
+      +'<div class="kpi-value" style="color:'+(yoy!=null&&yoy>=0?'#059669':'#C71E1D')+'">'+fpct(yoy)+'</div>'
+      +'<div class="kpi-sub">vs. '+MONTHS_FULL[ld.m]+' '+(ld.y-1)+'</div></div>'
+      +'<div class="kpi-card" data-s="acum"><div class="kpi-label">Acumulado '+ld.y+'</div>'
+      +'<div class="kpi-value" style="color:#D97706">'+fk(acumCur)+'</div>'
+      +'<div class="kpi-sub">'+(acumChg!=null?fpct(acumChg)+' vs. '+(ld.y-1):'—')+'</div></div>'
+      +'<div class="kpi-card" data-s="total"><div class="kpi-label">Total 2025</div>'
+      +'<div class="kpi-value" style="color:var(--populi)">'+fk(total25)+'</div>'
+      +'<div class="kpi-sub">Carga anual · toneladas</div></div>';
+  }
+
+  function buildChart(){
+    var d=dk();
+    var vis=getVisibleYears();
+
+    var series=[];
+    series.push({
+      name:'Prom. 2015-19',type:'line',smooth:0.4,
+      data:AVG.d,symbol:'none',z:1,
+      lineStyle:{width:1,color:d?'#333':'#D1D5DB',type:[4,4]},
+      itemStyle:{color:d?'#333':'#D1D5DB'}
+    });
+    vis.forEach(function(yr){
+      series.push({
+        name:String(yr.y),type:'line',smooth:0.4,
+        data:yr.d,
+        symbol:'circle',symbolSize:yr.y>=2025?5:3,
+        lineStyle:{width:yr.lw,type:yr.dash?[6,3]:'solid',color:yr.c},
+        itemStyle:{color:yr.c},
+        emphasis:{focus:'series'},
+        connectNulls:false,
+        z:yr.y>=2025?5:2
+      });
+    });
+
+    chart.setOption({
+      backgroundColor:'transparent',
+      grid:{top:24,right:12,bottom:44,left:56},
+      legend:{show:true,bottom:2,itemWidth:12,itemHeight:2,itemGap:10,
+        type:'scroll',pageIconSize:10,pageTextStyle:{fontSize:9},
+        textStyle:{fontFamily:'Inter',fontSize:9,color:d?'#94A3B8':'#64748B',padding:[0,0,0,2]},
+        itemStyle:{borderWidth:0}},
+      tooltip:{
+        trigger:'axis',
+        backgroundColor:d?'#080808':'rgba(13,27,42,.96)',
+        borderColor:d?'#2A3A50':'#1A2940',
+        textStyle:{fontFamily:'Inter',fontSize:11,color:'#fff'},
+        padding:[12,16],
+        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:420px;overflow-y:auto;',
+        formatter:function(params){
+          if(!params.length)return'';
+          var mi=params[0].dataIndex;
+          updatePanel(mi);
+          var html='<div style="font-weight:700;margin-bottom:6px;color:#E9D8A6;font-size:12px">'+MONTHS_FULL[mi]+'</div>';
+          var sorted=params.filter(function(p){return p.value!=null}).sort(function(a,b){return b.value-a.value});
+          sorted.forEach(function(p){
+            html+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
+              +'<span style="width:8px;height:2px;border-radius:1px;background:'+p.color+';display:inline-block"></span>'
+              +'<span style="font-size:10px;color:rgba(255,255,255,.6);flex:1">'+p.seriesName+'</span>'
+              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px">'+fnum(p.value)+' t</span></div>';
+          });
+          return html;
+        }
+      },
+      xAxis:{
+        type:'category',data:MONTHS,boundaryGap:false,
+        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
+        axisTick:{show:false},
+        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#64748B':'#94A3B8'}
+      },
+      yAxis:{
+        type:'value',
+        splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+        axisLine:{show:false},axisTick:{show:false},
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
+          formatter:function(v){return(v/1000).toFixed(0)+'k'}}
+      },
+      series:series
+    },true);
+  }
+
+  function updatePanel(mi){
+    if(mi<0||mi>11)mi=0;
+    curMonth=mi;
+    var d=dk();
+    document.getElementById('panel-date').textContent=MONTHS_FULL[mi];
+
+    var items=[];
+    Y.forEach(function(yr){
+      if(yr.d[mi]!=null){
+        var prev=null;
+        var pyr=Y.find(function(y2){return y2.y===yr.y-1});
+        if(pyr&&pyr.d[mi]!=null) prev=pyr.d[mi];
+        var chg=prev!=null?((yr.d[mi]/prev-1)*100):null;
+        items.push({y:yr.y,c:yr.c,v:yr.d[mi],chg:chg});
+      }
+    });
+
+    var latest=items.length>0?items[items.length-1]:null;
+    var html='<div class="panel-block">'
+      +'<div class="panel-label" style="color:#0D9488;background:rgba(13,148,136,.08);border-left-color:#0D9488">'+MONTHS_FULL[mi]+' — Comparación anual</div>';
+    if(latest){
+      html+='<div class="panel-val" style="color:#0D9488">'+fnum(latest.v)+' t</div>'
+        +'<p class="panel-desc">Carga ferroviaria en <strong>'+MONTHS_FULL[mi]+' '+latest.y+'</strong>'
+        +(latest.chg!=null?' con variación interanual de <span class="delta-tag '+(latest.chg>=0?'dt-teal':'dt-red')+'">'+fpct(latest.chg)+'</span>':'')
+        +'.</p>';
+    }
+    html+='</div>';
+
+    html+='<div class="panel-block"><div style="font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Carga en '+MONTHS_FULL[mi]+' por año</div>';
+    for(var i=items.length-1;i>=0;i--){
+      var it=items[i];
+      var chgHtml='';
+      if(it.chg!=null){
+        var cc=it.chg>=0?(d?'#34D399':'#059669'):(d?'#F87171':'#C71E1D');
+        chgHtml='<span class="yr-chg" style="color:'+cc+';background:'+(it.chg>=0?'rgba(5,150,105,.08)':'rgba(199,30,29,.08)')+'">'+fpct(it.chg)+'</span>';
+      }
+      html+='<div class="yr-row"><span class="yr-dot" style="background:'+it.c+'"></span>'
+        +'<span class="yr-name">'+it.y+'</span>'
+        +'<span class="yr-val">'+fk(it.v)+'</span>'+chgHtml+'</div>';
+    }
+    html+='</div>';
+
+    var analysis='';
+    if(latest&&items.length>=2){
+      var prev=items[items.length-2];
+      if(latest.chg!=null){
+        if(latest.chg>0){
+          analysis='<strong>Carga ferroviaria al alza.</strong> En '+MONTHS_FULL[mi]+' '+latest.y+', se transportaron <span class="delta-tag dt-teal">'+fk(latest.v)+'</span> toneladas, un <span class="delta-tag dt-green">'+fpct(latest.chg)+'</span> más que en '+prev.y+'.';
+        } else {
+          analysis='<strong>Carga ferroviaria a la baja.</strong> En '+MONTHS_FULL[mi]+' '+latest.y+', se transportaron <span class="delta-tag dt-red">'+fk(latest.v)+'</span> toneladas, un <span class="delta-tag dt-red">'+fpct(latest.chg)+'</span> respecto a '+prev.y+'.';
+        }
+      }
+      var avgV=AVG.d[mi];
+      if(avgV!=null&&latest.v!=null){
+        var vsAvg=((latest.v/avgV-1)*100);
+        analysis+=' Respecto al promedio pre-pandemia (2015-19): <span class="delta-tag '+(vsAvg>=0?'dt-teal':'dt-red')+'">'+fpct(vsAvg)+'</span>.';
+      }
+    }
+    if(analysis) html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
+
+    document.getElementById('panel-body').innerHTML=html;
+  }
+
+  function buildEdu(){
+    var items=[
+      {t:'¿Por qué la carga ferroviaria es indicador adelantado?',
+       c:'<p>El ferrocarril transporta principalmente <strong>minerales, soya, cemento y combustibles</strong> — insumos básicos de la economía. Un aumento en la carga ferroviaria anticipa mayor actividad extractiva e industrial.</p>'
+        +'<p>Bolivia tiene dos redes ferroviarias: la <strong>Red Andina</strong> (occidente, principalmente minerales) y la <strong>Red Oriental</strong> (oriente, agricultura y agroindustria). Juntas reflejan la dinámica productiva del país.</p>'},
+      {t:'Red Andina vs. Red Oriental',
+       c:'<p>La <strong>Red Andina</strong> conecta las regiones mineras del altiplano con puertos chilenos. Su carga está dominada por minerales (zinc, plomo, estaño) y es más sensible a precios internacionales de commodities.</p>'
+        +'<p>La <strong>Red Oriental</strong> conecta Santa Cruz con la frontera brasileña y argentina. Transporta principalmente soya, azúcar y productos agroindustriales, reflejando la actividad del agro cruceño.</p>'},
+      {t:'Tendencia de largo plazo',
+       c:'<p>La carga ferroviaria total ha mostrado una <strong>tendencia decreciente</strong> desde 2019, con niveles consistentemente por debajo del promedio pre-pandemia. Esto refleja tanto la menor actividad minera como la competencia del transporte carretero.</p>'
+        +'<p>La estacionalidad muestra picos en mayo-julio (cosecha de soya, mayor actividad minera) y valles en febrero (lluvias, menor actividad).</p>'}
+    ];
+    document.getElementById('edu').innerHTML=items.map(function(e){
+      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
+        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.t+'</span>'
+        +'<span class="edu-box-arrow">&#9660;</span></div>'
+        +'<div class="edu-box-content">'+e.c+'</div></div>';
+    }).join('');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

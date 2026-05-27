@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crecimiento del PIB por Gasto · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+      --navy:#0D1B2A;--navy-light:#1A2940;
+      --slate:#475569;--slate-light:#64748B;
+      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+      --border:#E2DDD3;--dark-border:#2A3A50;
+      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+      --accent:#0D9488;--radius:12px;
+    }
+    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+    .section-header{margin-bottom:16px}
+    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
+    [data-theme="dark"] .section-title{color:#fff}
+    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
+    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
+    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
+    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+    .kpi-card[data-s="pib"]::after{background:var(--accent)}
+    .kpi-card[data-s="best"]::after{background:#059669}
+    .kpi-card[data-s="worst"]::after{background:#C71E1D}
+    .kpi-card[data-s="inv"]::after{background:#D97706}
+    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
+    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
+    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
+
+    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
+    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
+
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
+    [data-theme="dark"] .chart-card{background:var(--card);border-color:var(--dark-border)}
+    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 14px 0;flex-wrap:wrap}
+    .toggle-group{display:flex;gap:4px}
+    .view-btn{padding:4px 12px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
+    .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
+    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.12)}
+    .range-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .range-btn{border-color:var(--dark-border);color:#94A3B8}
+    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
+    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
+    .chart-wrap{flex:1;min-height:0}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);height:100%;display:flex;flex-direction:column;overflow:hidden}
+    [data-theme="dark"] .panel{background:var(--card);border-color:var(--dark-border)}
+    .panel-header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+    .panel-header-title{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .panel-date{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(255,255,255,.12);padding:3px 8px;border-radius:4px}
+    .panel-body{flex:1;overflow-y:auto;padding:14px 16px}
+
+    .panel-block{margin-bottom:12px}
+    .panel-label{display:inline-flex;align-items:center;gap:6px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:3px 8px;border-radius:4px;border-left:3px solid transparent;background:rgba(100,116,139,.06);margin-bottom:4px}
+    [data-theme="dark"] .panel-label{background:rgba(255,255,255,.05)}
+    .panel-val{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700;margin:2px 0}
+    .panel-desc{font-size:.62rem;color:var(--muted);line-height:1.45}
+    .delta-tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;padding:1px 6px;border-radius:3px;display:inline-block}
+    .dt-green{color:#059669;background:rgba(5,150,105,.1)}
+    .dt-red{color:#C71E1D;background:rgba(199,30,29,.1)}
+    .dt-gray{color:var(--muted);background:rgba(100,116,139,.08)}
+    [data-theme="dark"] .dt-green{background:rgba(5,150,105,.2)}
+    [data-theme="dark"] .dt-red{background:rgba(199,30,29,.2)}
+
+    .ctx-box{background:var(--cream);border-left:3px solid var(--populi);border-radius:0 8px 8px 0;padding:10px 12px;margin-top:10px}
+    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--text)}
+    .ctx-box strong{font-weight:700}
+
+    .panel-footer{padding:10px 14px;border-top:1px solid var(--border);text-align:center}
+    [data-theme="dark"] .panel-footer{border-top-color:var(--dark-border)}
+    .btn-ampliar{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border:1.5px solid var(--populi);border-radius:8px;background:transparent;color:var(--populi);font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-ampliar:hover{background:var(--populi);color:#fff}
+
+    .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px}
+    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);cursor:pointer;transition:all .2s}
+    [data-theme="dark"] .edu-box{background:var(--navy-light)}
+    .edu-box:hover{transform:translateY(-1px)}
+    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
+    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
+    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
+    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
+    .edu-box-content{display:none;margin-top:8px}
+    .edu-box.open .edu-box-content{display:block}
+    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
+    .edu-box-content p:last-child{margin-bottom:0}
+    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
+    .edu-box-content p strong{color:var(--navy)}
+    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
+
+    .source{text-align:center;margin-top:16px;font-size:.55rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+    .watermark{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:.62rem;color:var(--populi);opacity:.7}
+  </style>
+</head>
+<body>
+<div class="embed-container" id="app"></div>
+<script>
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
+  function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  var LABELS=["2018-T1","2018-T2","2018-T3","2018-T4","2019-T1","2019-T2","2019-T3","2019-T4","2020-T1","2020-T2","2020-T3","2020-T4","2021-T1","2021-T2","2021-T3","2021-T4","2022-T1","2022-T2","2022-T3","2022-T4","2023-T1","2023-T2","2023-T3","2023-T4","2024-T1","2024-T2","2024-T3","2024-T4","2025-T1","2025-T2","2025-T3","2025-T4"];
+
+  var C=[
+    {n:'PIB Total',c:'#0D9488',lw:2.8,dash:false,
+     ia:[2.99,6.56,0.41,1.58,3.52,1.14,3.59,-2.18,-4.59,-25.9,-16.25,-2.7,-1.86,27.35,12.86,4.78,8.75,4.55,3.66,-1.65,-0.19,3.59,2.86,3.79,-2.39,0.85,-1.4,-1.7,-1.67,-2.77,-0.68,-1.14],
+     m12:[null,null,null,2.87,3.0,1.63,2.44,1.51,-0.45,-7.53,-12.54,-12.72,-12.17,0.0,7.96,10.03,12.86,7.6,5.38,3.75,1.6,1.39,1.2,2.52,1.97,1.26,0.17,-1.12,-0.95,-1.9,-1.72,-1.58],
+     acum:[2.99,4.83,3.3,2.87,3.52,2.27,2.72,1.51,-4.59,-15.64,-15.85,-12.72,-1.86,11.45,11.92,10.03,8.75,6.56,5.57,3.75,-0.19,1.74,2.12,2.52,-2.39,-0.7,-0.94,-1.12,-1.67,-2.25,-1.72,-1.58]},
+    {n:'Consumo Privado',c:'#2563EB',lw:2,dash:false,
+     ia:[1.86,4.48,1.19,4.94,6.18,4.17,3.15,-5.7,-2.99,-24.95,-14.62,-1.6,-5.43,23.83,11.93,4.31,6.79,6.44,8.14,2.19,4.45,1.73,0.11,4.27,-1.12,5.12,1.91,0.78,4.55,-0.23,1.94,0.54],
+     m12:[null,null,null,3.12,4.19,4.11,4.59,1.89,-0.36,-7.88,-12.2,-11.33,-11.99,-0.75,6.22,7.8,11.22,7.27,6.43,5.88,5.3,4.08,2.09,2.6,1.22,2.09,2.54,1.69,3.09,1.71,1.72,1.65],
+     acum:[1.86,3.19,2.52,3.12,6.18,5.14,4.48,1.89,-2.99,-14.19,-14.33,-11.33,-5.43,7.62,9.03,7.8,6.79,6.61,7.13,5.88,4.45,3.05,2.05,2.6,-1.12,2.04,2.0,1.69,4.55,2.06,2.02,1.65]},
+    {n:'Consumo Público',c:'#64748B',lw:1.5,dash:false,
+     ia:[-1.94,9.69,5.64,0.49,2.85,1.25,-0.06,3.03,-2.9,-3.56,-1.01,-1.25,4.38,3.13,2.63,7.39,1.03,-1.09,5.48,1.12,4.37,9.88,1.65,0.92,0.48,-0.49,-0.76,3.2,-0.8,-1.41,4.24,-2.54],
+     m12:[null,null,null,3.39,4.64,2.55,1.12,1.73,0.31,-0.94,-1.18,-2.19,-0.42,1.29,2.22,4.36,3.51,2.42,3.15,1.64,2.47,5.19,4.2,4.14,3.16,0.63,0.02,0.58,0.26,0.03,1.3,-0.13],
+     acum:[-1.94,3.7,4.35,3.39,2.85,2.03,1.32,1.73,-2.9,-3.23,-2.49,-2.19,4.38,3.75,3.37,4.36,1.03,-0.04,1.81,1.64,4.37,7.12,5.22,4.14,0.48,-0.02,-0.27,0.58,-0.8,-1.11,0.68,-0.13]},
+    {n:'Inversión (FBK)',c:'#D97706',lw:2,dash:false,
+     ia:[-2.62,8.23,-1.89,13.59,16.6,13.36,11.01,-17.86,-32.79,-66.31,-42.79,-16.0,-9.29,99.24,21.11,4.74,9.76,-3.48,6.36,6.58,17.59,12.12,2.64,-5.48,-4.33,-6.21,-1.89,-2.17,-17.61,-2.51,-14.04,-10.75],
+     m12:[null,null,null,4.24,5.87,4.51,6.0,-2.12,-10.4,-26.39,-35.86,-34.19,-30.68,-5.66,10.39,13.29,16.86,2.33,1.22,3.68,7.16,11.83,10.76,6.38,-0.72,-7.16,-10.24,-10.48,-12.6,-9.64,-10.22,-10.11],
+     acum:[-2.62,2.85,1.13,4.24,16.6,14.88,13.52,4.59,-32.79,-50.34,-47.74,-40.65,-9.29,29.25,26.18,19.4,9.76,2.51,3.91,4.65,17.59,14.78,10.28,5.83,-4.33,-5.28,-4.11,-3.62,-17.61,-10.09,-11.48,-11.29]},
+    {n:'Exportaciones',c:'#059669',lw:2,dash:false,
+     ia:[9.44,3.21,-2.1,-1.74,-5.68,-6.31,4.81,13.11,-2.64,-42.11,-32.17,-16.67,7.39,85.37,48.51,27.22,24.28,21.45,9.79,-7.96,-15.46,-11.46,-4.01,-1.02,-11.34,-9.14,-17.36,-19.85,-10.36,-0.24,9.28,29.41],
+     m12:[null,null,null,1.89,-1.52,-3.93,-2.14,1.44,2.23,-6.63,-16.84,-23.91,-21.88,0.28,22.23,37.44,41.82,29.18,20.18,11.01,1.39,-6.56,-9.69,-8.16,-6.98,-6.24,-9.86,-14.47,-14.35,-12.27,-5.42,6.64],
+     acum:[9.44,6.08,3.1,1.89,-5.68,-6.01,-2.26,1.44,-2.64,-23.27,-26.57,-23.91,7.39,38.15,41.71,37.44,24.28,22.78,18.11,11.01,-15.46,-13.36,-10.24,-8.16,-11.34,-10.16,-12.74,-14.47,-10.36,-4.88,-0.09,6.64]},
+    {n:'Importaciones',c:'#C71E1D',lw:2,dash:true,
+     ia:[-1.05,2.77,0.86,14.43,6.09,6.03,1.37,-13.65,-18.41,-53.17,-33.66,-15.63,-5.66,73.54,28.82,17.66,8.29,16.07,26.17,10.13,12.38,-5.85,-10.2,-9.08,-8.78,-9.0,-12.95,-10.85,-4.38,10.18,10.79,19.63],
+     m12:[null,null,null,4.38,6.16,6.92,7.04,-0.74,-6.7,-20.66,-29.04,-30.14,-27.95,-6.06,11.19,22.71,27.14,17.29,17.27,15.11,15.97,10.33,1.03,-4.04,-8.56,-9.29,-9.96,-10.44,-9.46,-5.23,0.78,9.09],
+     acum:[-1.05,0.8,0.82,4.38,6.09,6.06,4.45,-0.74,-18.41,-35.61,-34.96,-30.14,-5.66,22.85,24.89,22.71,8.29,12.24,17.14,15.11,12.38,2.79,-2.12,-4.04,-8.78,-8.89,-10.3,-10.44,-4.38,2.62,5.37,9.09]}
+  ];
+
+  var VIEWS=[{key:'ia',label:'Interanual',desc:'Trimestre vs mismo trimestre año anterior'},{key:'m12',label:'12 Meses',desc:'Suma móvil 4 trimestres vs período anterior'},{key:'acum',label:'Acumulada',desc:'Acumulado desde T1 del año'}];
+  var RANGES=[{label:'3A',trim:12},{label:'5A',trim:20},{label:'Todo',trim:0}];
+  var curView=0,curRange=0,chart=null,curIdx=-1;
+
+  function getKey(){return VIEWS[curView].key}
+  function getSlice(){
+    var trim=RANGES[curRange].trim;
+    if(!trim) return {labels:LABELS,start:0};
+    var s=LABELS.length-trim;
+    return {labels:LABELS.slice(s),start:s};
+  }
+
+  function getVal(comp,idx){
+    var k=getKey(),v=comp[k][idx];
+    return v;
+  }
+
+  function fmtPct(v){
+    if(v===null||v===undefined) return '—';
+    return (v>0?'+':'')+v.toFixed(2)+'%';
+  }
+
+  function buildKPIs(){
+    var last=LABELS.length-1,k=getKey();
+    var pib=C[0][k][last];
+    var others=C.slice(1).map(function(c){return {n:c.n,c:c.c,v:c[k][last]}}).filter(function(o){return o.v!==null});
+    others.sort(function(a,b){return b.v-a.v});
+    var best=others[0],worst=others[others.length-1];
+    var inv=C[3][k][last];
+    document.getElementById('kpi-area').innerHTML=
+      '<div class="kpi-card" data-s="pib"><div class="kpi-label">PIB Total</div>'
+      +'<div class="kpi-value" style="color:'+(pib>=0?'#0D9488':'#C71E1D')+'">'+fmtPct(pib)+'</div>'
+      +'<div class="kpi-sub">'+VIEWS[curView].label+' · '+LABELS[last]+'</div></div>'
+      +'<div class="kpi-card" data-s="best"><div class="kpi-label">Mayor Crecimiento</div>'
+      +'<div class="kpi-value" style="color:#059669">'+fmtPct(best.v)+'</div>'
+      +'<div class="kpi-sub">'+best.n+'</div></div>'
+      +'<div class="kpi-card" data-s="worst"><div class="kpi-label">Mayor Caída</div>'
+      +'<div class="kpi-value" style="color:#C71E1D">'+fmtPct(worst.v)+'</div>'
+      +'<div class="kpi-sub">'+worst.n+'</div></div>'
+      +'<div class="kpi-card" data-s="inv"><div class="kpi-label">Inversión (FBK)</div>'
+      +'<div class="kpi-value" style="color:'+(inv>=0?'#D97706':'#C71E1D')+'">'+fmtPct(inv)+'</div>'
+      +'<div class="kpi-sub">'+VIEWS[curView].label+'</div></div>';
+  }
+
+  function buildChart(){
+    var sl=getSlice(),d=dk(),k=getKey();
+    var series=C.map(function(c){
+      return {
+        name:c.n,type:'line',smooth:0.3,
+        lineStyle:{width:c.lw,type:c.dash?[6,3]:'solid'},
+        itemStyle:{color:c.c},
+        symbol:'none',
+        emphasis:{focus:'series'},
+        connectNulls:false,
+        data:c[k].slice(sl.start)
+      };
+    });
+    var opt={
+      backgroundColor:'transparent',
+      animation:true,animationDuration:400,
+      legend:{show:true,bottom:2,itemWidth:12,itemHeight:2,itemGap:10,
+        type:'scroll',pageIconSize:10,pageTextStyle:{fontSize:9},
+        textStyle:{fontFamily:'Inter',fontSize:9,color:d?'#94A3B8':'#64748B',padding:[0,0,0,2]},
+        itemStyle:{borderWidth:0}},
+      tooltip:{
+        trigger:'axis',
+        axisPointer:{type:'line',lineStyle:{color:d?'rgba(255,255,255,.15)':'rgba(0,0,0,.12)',type:'dashed'}},
+        backgroundColor:d?'#1A2940':'#0D1B2A',
+        borderColor:d?'#2A3A50':'#1A2940',borderWidth:1,
+        textStyle:{fontFamily:'Inter',fontSize:11,color:'#E2E8F0'},
+        formatter:function(params){
+          var realIdx=sl.start+params[0].dataIndex;
+          updatePanel(realIdx);
+          var h='<div style="font-weight:700;margin-bottom:5px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:4px">'+params[0].axisValue+' · '+VIEWS[curView].label+'</div>';
+          params.forEach(function(p){
+            var val=p.value!==null&&p.value!==undefined?p.value.toFixed(2)+'%':'—';
+            h+='<div style="display:flex;align-items:center;gap:5px;padding:2px 0">'
+              +'<span style="width:10px;height:3px;border-radius:1px;background:'+p.color+';display:inline-block;flex-shrink:0"></span>'
+              +'<span style="flex:1;font-size:10.5px">'+p.seriesName+'</span>'
+              +'<span style="font-family:JetBrains Mono;font-weight:700;font-size:10.5px;color:'+(p.value>=0?'#059669':'#C71E1D')+'">'+val+'</span>'
+              +'</div>';
+          });
+          return h;
+        }
+      },
+      grid:{left:48,right:12,top:10,bottom:44},
+      xAxis:{
+        type:'category',data:sl.labels,
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
+          formatter:function(v){var p=v.split('-');return p[1]==='T1'?p[0]:''}},
+        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
+        axisTick:{show:false}
+      },
+      yAxis:{
+        type:'value',
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
+          formatter:function(v){return v+'%'}},
+        splitLine:{lineStyle:{color:d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',type:'dashed'}},
+        axisLine:{show:false},axisTick:{show:false}
+      },
+      series:series
+    };
+    if(!chart){
+      chart=echarts.init(document.getElementById('chart'));
+      chart.getZr().on('globalout',function(){updatePanel(LABELS.length-1)});
+    }
+    chart.setOption(opt,true);
+    updatePanel(LABELS.length-1);
+  }
+
+  function updatePanel(idx){
+    if(idx<0||idx>=LABELS.length) idx=LABELS.length-1;
+    curIdx=idx;
+    var k=getKey();
+    var html='';
+    C.forEach(function(c){
+      var v=c[k][idx];
+      var vStr=v!==null&&v!==undefined?v.toFixed(2):'—';
+      var cls=v===null||v===undefined?'dt-gray':(v>=0?'dt-green':'dt-red');
+      html+='<div class="panel-block">'
+        +'<div class="panel-label" style="border-left-color:'+c.c+'">'+c.n+'</div>'
+        +'<div class="panel-val" style="color:'+(v>=0?c.c:'#C71E1D')+'">'+vStr+'<span style="font-size:.7rem;color:var(--muted)">%</span></div>'
+        +'<div class="panel-desc"><span class="delta-tag '+cls+'">'+(v!==null&&v!==undefined?fmtPct(v):'—')+'</span> '+VIEWS[curView].desc+'</div>'
+        +'</div>';
+    });
+
+    var pibV=C[0][k][idx];
+    var analysis='';
+    if(pibV!==null&&pibV!==undefined){
+      var positives=C.slice(1).filter(function(c){var v=c[k][idx];return v!==null&&v>0});
+      var negatives=C.slice(1).filter(function(c){var v=c[k][idx];return v!==null&&v<0});
+      analysis='El PIB registra <strong>'+(pibV>=0?'crecimiento':'contracción')+'</strong> de <strong>'+pibV.toFixed(2)+'%</strong> ('+VIEWS[curView].label.toLowerCase()+').';
+      if(positives.length>0) analysis+=' Crecen: '+positives.map(function(c){return '<strong>'+c.n+'</strong>'}).join(', ')+'.';
+      if(negatives.length>0) analysis+=' Caen: '+negatives.map(function(c){return '<strong>'+c.n+'</strong>'}).join(', ')+'.';
+    }
+    html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
+
+    document.getElementById('panel-body').innerHTML=html;
+    document.getElementById('panel-date').textContent=LABELS[idx];
+  }
+
+  function init(){
+    var el=document.getElementById('app');
+    el.innerHTML=
+      '<div class="section-header">'
+      +'<div class="section-title"><span class="accent-bar"></span>Crecimiento del PIB por Tipo de Gasto</div>'
+      +'<div class="section-subtitle">Tasa de variación en bolivianos encadenados · Base 2017 — SCN 2008</div></div>'
+      +'<div class="kpi-grid" id="kpi-area"></div>'
+      +'<div class="main-grid">'
+      +'<div class="chart-card">'
+      +'<div class="chart-toolbar"><div class="toggle-group" id="views"></div><div class="toggle-group" id="ranges"></div></div>'
+      +'<div class="chart-wrap" id="chart"></div></div>'
+      +'<div class="panel">'
+      +'<div class="panel-header"><span class="panel-header-title">Lectura del Indicador</span><span class="panel-date" id="panel-date"></span></div>'
+      +'<div class="panel-body" id="panel-body"></div>'
+      +'<div class="panel-footer"><button class="btn-ampliar">Ampliar análisis →</button></div>'
+      +'</div></div>'
+      +'<div class="edu-grid" id="edu-boxes"></div>'
+      +'<div class="source"><span class="watermark">POPULI</span>Fuente: INE — Cuentas Nacionales Trimestrales</div>';
+
+    var vEl=document.getElementById('views');
+    VIEWS.forEach(function(v,i){
+      var b=document.createElement('button');
+      b.className='view-btn'+(i===curView?' active':'');
+      b.textContent=v.label;
+      b.addEventListener('click',function(){
+        curView=i;curIdx=-1;
+        document.querySelectorAll('.view-btn').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');buildChart();buildKPIs();
+      });
+      vEl.appendChild(b);
+    });
+
+    var rEl=document.getElementById('ranges');
+    RANGES.forEach(function(r,i){
+      var b=document.createElement('button');
+      b.className='range-btn'+(i===curRange?' active':'');
+      b.textContent=r.label;
+      b.addEventListener('click',function(){curRange=i;
+        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');buildChart()});
+      rEl.appendChild(b);
+    });
+
+    buildKPIs();
+    buildChart();
+    window.addEventListener('resize',function(){if(chart)chart.resize()});
+    new MutationObserver(function(){buildChart();buildKPIs()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  }
+
+  function buildEdu(){
+    var edu=[
+      {title:'¿Qué miden las 3 tasas de crecimiento?',
+       content:'<p><strong>Interanual:</strong> compara cada trimestre con el mismo trimestre del año anterior. Elimina estacionalidad pero puede ser volátil.</p>'
+        +'<p><strong>12 Meses:</strong> suma móvil de 4 trimestres vs. los 4 trimestres anteriores. Suaviza la serie y muestra la tendencia de mediano plazo.</p>'
+        +'<p><strong>Acumulada:</strong> crecimiento desde el primer trimestre del año. Converge al crecimiento anual en el cuarto trimestre.</p>'},
+      {title:'¿Por qué la inversión es tan volátil?',
+       content:'<p>La <strong>Formación Bruta de Capital</strong> es el componente más volátil del PIB porque incluye proyectos de infraestructura, compra de maquinaria y variación de inventarios, que se pueden postergar o acelerar rápidamente.</p>'
+        +'<p>En crisis (como 2020), la inversión cae primero y más fuerte. En recuperación, rebota con fuerza — pero el colapso reciente sin pandemia sugiere restricciones estructurales de financiamiento.</p>'},
+      {title:'¿Las importaciones creciendo son malas?',
+       content:'<p>No necesariamente. Las <strong>importaciones crecen</strong> cuando la economía se expande — las empresas importan insumos y los hogares bienes de consumo. Un aumento de importaciones con crecimiento del PIB es normal.</p>'
+        +'<p>El problema surge cuando las importaciones crecen <strong>más rápido</strong> que las exportaciones sostenidamente, ampliando el déficit comercial y presionando las reservas internacionales.</p>'}
+    ];
+    document.getElementById('edu-boxes').innerHTML=edu.map(function(e){
+      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
+        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.title+'</span><span class="edu-box-arrow">&#9660;</span></div>'
+        +'<div class="edu-box-content">'+e.content+'</div></div>';
+    }).join('');
+  }
+
+  init();
+  buildEdu();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crecimiento Sectorial del PIB · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+      --navy:#0D1B2A;--navy-light:#1A2940;
+      --slate:#475569;--slate-light:#64748B;
+      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+      --border:#E2DDD3;--dark-border:#2A3A50;
+      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+      --accent:#0D9488;--radius:12px;
+    }
+    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+    .section-header{margin-bottom:16px}
+    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
+    [data-theme="dark"] .section-title{color:#fff}
+    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
+    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
+    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+    .kpi-card[data-s="up"]::after{background:#059669}
+    .kpi-card[data-s="down"]::after{background:#C71E1D}
+    .kpi-card[data-s="best"]::after{background:var(--accent)}
+    .kpi-card[data-s="worst"]::after{background:#D97706}
+    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
+    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
+    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
+
+    .controls-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .range-group{display:flex;gap:4px}
+    .range-btn,.view-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .range-btn,[data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
+    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
+    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
+    .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
+    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:#14B8A6;color:#14B8A6;background:rgba(13,148,136,.1)}
+    .controls-divider{width:1px;height:18px;background:var(--border)}
+    [data-theme="dark"] .controls-divider{background:var(--dark-border)}
+
+    .sectors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:900px){.sectors-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:500px){.sectors-grid{grid-template-columns:1fr}}
+    .sector-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow:hidden;position:relative}
+    [data-theme="dark"] .sector-card{background:#141414;border-color:var(--dark-border)}
+    .sector-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+    .sector-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+    .sector-name{font-size:.68rem;font-weight:700;color:var(--text);line-height:1.2;max-width:60%}
+    [data-theme="dark"] .sector-name{color:#E2E8F0}
+    .sector-badge{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap}
+    .sector-chart{width:100%;height:140px}
+
+    .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:0 2px}
+    .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+    .chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+    .watermark{height:15px;width:auto;opacity:.18}
+    [data-theme="dark"] .watermark{opacity:.10}
+
+    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);margin-top:4px;cursor:pointer;transition:all .2s}
+    [data-theme="dark"] .edu-box{background:var(--navy-light)}
+    .edu-box:hover{transform:translateY(-1px)}
+    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
+    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
+    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
+    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
+    .edu-box-content{display:none;margin-top:8px}
+    .edu-box.open .edu-box-content{display:block}
+    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
+    .edu-box-content p:last-child{margin-bottom:0}
+    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
+    .edu-box-content p strong{color:var(--navy)}
+    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
+  </style>
+</head>
+<body>
+<div class="embed-container" id="app"></div>
+<script>
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
+  function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  var LABELS=["2018-T1","2018-T2","2018-T3","2018-T4","2019-T1","2019-T2","2019-T3","2019-T4","2020-T1","2020-T2","2020-T3","2020-T4","2021-T1","2021-T2","2021-T3","2021-T4","2022-T1","2022-T2","2022-T3","2022-T4","2023-T1","2023-T2","2023-T3","2023-T4","2024-T1","2024-T2","2024-T3","2024-T4","2025-T1","2025-T2","2025-T3","2025-T4"];
+
+  var PIB={
+    ia:[2.99,6.56,0.41,1.58,3.52,1.14,3.59,-2.18,-4.59,-25.9,-16.25,-2.7,-1.86,27.35,12.86,4.78,8.75,4.55,3.66,-1.65,-0.19,3.59,2.86,3.79,-2.39,0.85,-1.4,-1.7,-1.67,-2.77,-0.68,-1.14],
+    m12:[null,null,null,2.87,3.0,1.63,2.44,1.51,-0.45,-7.53,-12.54,-12.72,-12.17,0.0,7.96,10.03,12.86,7.6,5.38,3.75,1.6,1.39,1.2,2.52,1.97,1.26,0.17,-1.12,-0.95,-1.9,-1.72,-1.58],
+    acum:[2.99,4.83,3.3,2.87,3.52,2.27,2.72,1.51,-4.59,-15.64,-15.85,-12.72,-1.86,11.45,11.92,10.03,8.75,6.56,5.57,3.75,-0.19,1.74,2.12,2.52,-2.39,-0.7,-0.94,-1.12,-1.67,-2.25,-1.72,-1.58]
+  };
+
+  var SECTORS=[
+    {key:'agro',short:'Agricultura',color:'#059669',
+     ia:[3.52,5.8,-2.03,4.39,5.48,-1.03,10.27,-1.47,4.91,-0.46,4.75,14.85,3.1,10.54,-1.1,-2.42,3.76,1.84,3.31,-3.36,-1.64,3.82,11.22,16.14,-5.74,5.14,-9.26,-10.51,7.53,0.43,11.22,12.19],
+     m12:[null,null,null,2.94,3.35,0.94,4.21,3.17,3.07,3.29,1.93,4.7,4.32,8.06,6.34,3.34,3.47,0.68,1.86,1.72,0.58,1.29,3.45,6.74,5.92,6.36,0.54,-3.89,-1.42,-2.98,2.57,6.66],
+     acum:[3.52,4.97,2.63,2.94,5.48,1.32,4.17,3.17,4.91,1.55,2.63,4.7,3.1,7.66,4.65,3.34,3.76,2.55,2.8,1.72,-1.64,1.77,4.86,6.74,-5.74,1.19,-2.43,-3.89,7.53,2.83,5.53,6.66]},
+    {key:'extract',short:'Extractiva',color:'#D97706',
+     ia:[8.38,2.72,-3.7,-8.22,-5.25,-7.29,0.28,5.33,-1.22,-41.47,-23.49,-4.51,1.6,79.17,31.42,11.87,11.88,2.01,-6.19,-8.74,-3.27,-2.83,-3.8,-9.65,-12.42,-8.59,-8.95,-6.74,-8.94,-11.45,-1.16,4.71],
+     m12:[null,null,null,-0.64,-3.7,-6.11,-5.11,-1.74,-0.75,-8.88,-15.3,-17.6,-17.0,4.41,19.9,25.21,28.02,13.5,4.59,-0.79,-4.21,-5.34,-4.75,-4.88,-7.18,-8.63,-9.92,-9.24,-8.31,-9.01,-7.1,-4.32],
+     acum:[8.38,5.42,2.08,-0.64,-5.25,-6.29,-4.02,-1.74,-1.22,-21.53,-22.24,-17.6,1.6,30.8,31.02,25.21,11.88,6.79,2.17,-0.79,-3.27,-3.05,-3.3,-4.88,-12.42,-10.53,-10.01,-9.24,-8.94,-10.2,-7.23,-4.32]},
+    {key:'manuf',short:'Manufactura',color:'#2563EB',
+     ia:[6.42,3.22,-0.65,3.54,5.53,2.94,7.3,-5.5,-4.06,-34.16,-20.51,3.05,-0.51,44.44,15.04,-0.81,6.55,8.95,5.07,-0.38,1.09,3.08,6.28,5.91,-4.17,2.09,4.46,1.82,2.27,0.67,-0.28,0.5],
+     m12:[null,null,null,3.03,2.86,2.79,4.82,2.5,0.15,-9.26,-16.22,-14.35,-13.61,2.85,13.15,11.97,13.92,7.17,4.91,5.03,3.66,2.22,2.56,4.07,2.74,2.48,2.07,1.12,2.68,2.31,1.06,0.74],
+     acum:[6.42,4.75,2.85,3.03,5.53,4.2,5.25,2.5,-4.06,-19.32,-19.73,-14.35,-0.51,18.09,17.04,11.97,6.55,7.77,6.86,5.03,1.09,2.11,3.49,4.07,-4.17,-0.94,0.9,1.12,2.27,1.42,0.82,0.74]},
+    {key:'elec',short:'Electricidad',color:'#8B5CF6',
+     ia:[2.44,6.28,5.63,6.84,10.05,9.53,7.71,3.13,2.74,-16.53,-8.84,2.41,-0.72,21.23,13.86,6.25,8.47,5.01,3.73,2.83,2.36,3.43,4.64,6.55,6.25,3.64,0.17,-1.02,-1.41,-0.87,2.16,-0.75],
+     m12:[null,null,null,5.32,7.2,8.01,8.51,7.5,5.68,-0.89,-4.94,-5.06,-5.87,2.71,8.51,9.53,11.97,8.26,5.84,4.94,3.45,3.08,3.31,4.28,5.25,5.29,4.15,2.17,0.28,-0.79,-0.31,-0.23],
+     acum:[2.44,4.35,4.78,5.32,10.05,9.79,9.08,7.5,2.74,-6.98,-7.61,-5.06,-0.72,9.22,10.77,9.53,8.47,6.73,5.7,4.94,2.36,2.89,3.48,4.28,6.25,4.95,3.33,2.17,-1.41,-1.14,-0.06,-0.23]},
+    {key:'construccion',short:'Construcción',color:'#C71E1D',
+     ia:[-3.76,10.76,8.04,6.22,15.89,9.71,2.67,-14.3,-29.71,-63.26,-39.7,-9.9,-2.64,98.6,30.69,4.07,11.76,0.09,-4.61,-3.57,0.2,4.08,4.48,6.48,7.64,-0.31,-4.13,-3.72,-15.82,-8.31,-12.11,-17.66],
+     m12:[null,null,null,5.46,9.9,9.66,8.15,2.37,-7.87,-25.66,-36.57,-36.41,-32.08,-5.54,17.59,23.23,27.1,10.78,2.31,0.18,-2.14,-1.21,1.18,3.94,5.65,4.55,2.26,-0.49,-5.87,-7.75,-9.78,-13.57],
+     acum:[-3.76,3.5,5.16,5.46,15.89,12.59,8.85,2.37,-29.71,-47.19,-44.53,-36.41,-2.64,34.06,32.76,23.23,11.76,5.49,1.65,0.18,0.2,2.18,3.0,3.94,7.64,3.51,0.75,-0.49,-15.82,-12.07,-12.08,-13.57]},
+    {key:'comer',short:'Comercio',color:'#0EA5E9',
+     ia:[1.35,5.52,-0.83,6.92,8.19,1.53,2.59,-7.83,-12.01,-33.29,-20.99,-1.53,4.61,39.41,16.81,4.47,7.22,7.45,8.04,2.53,3.45,3.51,-0.37,-2.85,-10.17,-3.32,-0.21,7.47,5.54,0.37,-3.27,-6.05],
+     m12:[null,null,null,3.24,4.88,3.74,4.6,1.11,-3.78,-13.55,-19.17,-18.0,-14.41,3.42,13.9,15.53,16.12,8.7,6.85,6.37,5.42,4.32,2.32,1.1,-2.31,-4.22,-4.18,-1.93,1.93,3.05,2.29,-0.87],
+     acum:[1.35,3.59,2.14,3.24,8.19,4.54,3.92,1.11,-12.01,-23.33,-22.59,-18.0,4.61,20.72,19.46,15.53,7.22,7.34,7.56,6.37,3.45,3.48,2.26,1.1,-10.17,-6.5,-4.56,-1.93,5.54,2.68,0.76,-0.87]},
+    {key:'trans',short:'Transporte',color:'#6366F1',
+     ia:[3.26,3.47,2.55,3.31,2.42,2.76,2.46,-7.36,-8.52,-40.73,-26.1,-3.47,-4.46,49.41,22.84,4.57,6.6,8.48,5.83,-0.17,1.86,0.04,0.52,6.88,1.63,2.69,-0.23,-3.72,-0.26,-3.28,1.33,-1.37],
+     m12:[null,null,null,3.14,2.94,2.76,2.74,-0.02,-2.67,-13.52,-20.74,-20.06,-19.37,-1.4,12.37,14.86,18.12,10.17,6.35,5.08,3.94,1.87,0.55,2.31,2.25,2.92,2.72,0.02,-0.43,-1.91,-1.51,-0.9],
+     acum:[3.26,3.37,3.09,3.14,2.42,2.59,2.55,-0.02,-8.52,-24.87,-25.29,-20.06,-4.46,17.12,19.06,14.86,6.6,7.56,6.96,5.08,1.86,0.93,0.79,2.31,1.63,2.17,1.34,0.02,-0.26,-1.81,-0.74,-0.9]},
+    {key:'aloj',short:'Alojamiento',color:'#EC4899',
+     ia:[5.11,7.5,6.23,-2.6,7.96,4.12,-1.06,-5.97,-11.02,-35.59,-38.06,-21.53,-11.5,29.96,42.06,31.37,20.99,19.93,19.83,6.62,3.55,4.64,5.16,3.83,1.75,0.85,0.52,6.19,6.57,6.27,-0.55,2.45],
+     m12:[null,null,null,3.9,4.61,3.82,1.96,1.15,-3.53,-13.42,-22.77,-26.67,-27.23,-14.13,5.03,20.1,30.49,27.62,22.71,16.5,12.12,8.4,4.99,4.31,3.87,2.91,1.7,2.31,3.45,4.81,4.52,3.58],
+     acum:[5.11,6.31,6.28,3.9,7.96,6.01,3.54,1.15,-11.02,-23.31,-28.23,-26.67,-11.5,5.92,16.33,20.1,20.99,20.44,20.23,16.5,3.55,4.11,4.48,4.31,1.75,1.29,1.02,2.31,6.57,6.41,3.97,3.58]},
+    {key:'finan',short:'Financieras',color:'#F59E0B',
+     ia:[9.06,5.38,0.87,-3.05,0.72,4.29,3.52,8.72,2.02,-10.64,-6.03,-7.79,-5.4,1.58,8.1,9.4,10.89,9.27,2.83,-4.53,-3.21,0.94,1.59,14.79,5.36,3.94,1.63,-8.1,-6.72,-4.63,-2.55,0.21],
+     m12:[null,null,null,2.94,0.94,0.72,1.37,4.27,4.6,0.68,-1.7,-5.68,-7.49,-4.56,-1.13,3.28,7.54,9.42,8.0,4.37,0.85,-1.03,-1.31,3.37,5.58,6.32,6.31,0.49,-2.48,-4.53,-5.54,-3.45],
+     acum:[9.06,7.19,5.02,2.94,0.72,2.51,2.84,4.27,2.02,-4.44,-4.96,-5.68,-5.4,-2.07,1.26,3.28,10.89,10.09,7.55,4.37,-3.21,-1.17,-0.25,3.37,5.36,4.65,3.62,0.49,-6.72,-5.68,-4.64,-3.45]},
+    {key:'admin',short:'Adm. Pública',color:'#64748B',
+     ia:[-8.98,16.15,1.81,2.4,0.1,-0.73,1.12,3.68,0.09,-2.65,-0.56,-0.59,4.37,1.72,-0.6,5.49,9.4,-8.47,7.44,2.35,-5.3,19.22,2.47,0.61,3.77,2.6,0.85,3.41,0.97,2.66,5.56,-1.47],
+     m12:[null,null,null,2.27,4.9,0.85,0.68,0.99,0.99,0.5,0.07,-0.95,0.1,1.22,1.21,2.7,4.0,1.41,3.43,2.66,-1.12,5.37,4.11,3.67,6.12,2.37,1.96,2.64,1.94,1.96,3.15,1.96],
+     acum:[-8.98,2.44,2.23,2.27,0.1,-0.33,0.15,0.99,0.09,-1.31,-1.06,-0.95,4.37,3.03,1.8,2.7,9.4,0.46,2.77,2.66,-5.3,5.87,4.69,3.67,3.77,3.17,2.39,2.64,0.97,1.83,3.07,1.96]},
+    {key:'comun',short:'Comunales',color:'#14B8A6',
+     ia:[7.71,7.78,-13.07,7.3,-0.78,-6.34,18.42,-4.42,15.13,-39.25,-19.3,10.03,-12.77,60.08,3.66,-19.23,-9.2,4.89,16.64,8.4,12.19,4.23,1.55,1.41,-2.11,0.66,1.76,6.25,7.26,0.51,-1.24,-3.71],
+     m12:[null,null,null,2.23,0.19,-3.09,4.33,1.06,5.01,-2.52,-11.32,-7.52,-14.31,2.54,9.09,-0.23,1.27,-6.28,-3.34,4.79,10.46,10.22,6.45,4.62,1.22,0.38,0.44,1.7,4.01,3.97,3.18,0.53],
+     acum:[7.71,7.75,0.34,2.23,-0.78,-3.54,3.23,1.06,15.13,-11.05,-13.97,-7.52,-12.77,11.18,8.69,-0.23,-9.2,-2.53,3.53,4.79,12.19,8.14,5.79,4.62,-2.11,-0.75,0.11,1.7,7.26,3.9,2.11,0.53]}
+  ];
+
+  var VIEWS=[
+    {key:'ia',label:'Interanual',desc:'Trimestre vs. mismo trimestre del año anterior'},
+    {key:'m12',label:'12 Meses',desc:'Suma 4 trim. / suma 4 trim. anteriores − 1'},
+    {key:'acum',label:'Acumulada',desc:'Acumulado desde el I trimestre del año'}
+  ];
+  var RANGES=[{label:'3A',trim:12},{label:'5A',trim:20},{label:'Todo',trim:0}];
+  var curView=0,curRange=2;
+  var charts=[];
+
+  function fpct(v){return (v>=0?'+':'')+v.toFixed(1)+'%'}
+  function fquarter(lbl){var p=lbl.split('-');var r={T1:'I',T2:'II',T3:'III',T4:'IV'};return r[p[1]]+' Trim. '+p[0]}
+
+  function init(){
+    document.getElementById('app').innerHTML=buildHTML();
+    buildKPIs();
+    buildControls();
+    buildAllCharts();
+    buildEduBoxes();
+    window.addEventListener('resize',function(){charts.forEach(function(c){c&&c.resize()})});
+    new MutationObserver(function(){buildAllCharts();buildKPIs()})
+      .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  }
+
+  function buildHTML(){
+    var d=dk();
+    var html='<div class="section-header">'
+      +'<h2 class="section-title"><span class="accent-bar"></span>Crecimiento del PIB por Sector</h2>'
+      +'<p class="section-subtitle">Medidas de volumen encadenadas · Base 2017 · Variación en %</p>'
+      +'</div>'
+      +'<div class="kpi-grid" id="kpis"></div>'
+      +'<div class="controls-bar"><div class="range-group" id="views"></div><div style="display:flex;gap:10px;align-items:center"><div class="controls-divider"></div><div class="range-group" id="ranges"></div></div></div>'
+      +'<div class="sectors-grid" id="sectors">';
+    SECTORS.forEach(function(s,i){
+      html+='<div class="sector-card"><style>.sector-card:nth-child('+(i+1)+')::before{background:'+s.color+'}</style>'
+        +'<div class="sector-header"><span class="sector-name">'+s.short+'</span>'
+        +'<span class="sector-badge" id="badge-'+s.key+'"></span></div>'
+        +'<div class="sector-chart" id="chart-'+s.key+'"></div></div>';
+    });
+    html+='</div><div class="chart-source"><span class="chart-source-text">'
+      +'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · '
+      +'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a></span>'
+      +'<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
+      +'<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#C00000':'#8B1A1A')+'">P</text>'
+      +'<text x="92" y="87" font-family="\'Playfair Display\',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="'+(d?'#F5EFE0':'#3D2B1F')+'">opuli</text></svg></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px" id="edu-boxes"></div>';
+    return html;
+  }
+
+  function buildKPIs(){
+    var vk=VIEWS[curView].key;
+    var lastIdx=LABELS.length-1;
+    var growing=0,contracting=0,bestS=null,bestV=-999,worstS=null,worstV=999;
+    SECTORS.forEach(function(s){
+      var v=s[vk][lastIdx];
+      if(v==null) return;
+      if(v>=0) growing++; else contracting++;
+      if(v>bestV){bestV=v;bestS=s}
+      if(v<worstV){worstV=v;worstS=s}
+    });
+    document.getElementById('kpis').innerHTML=
+      '<div class="kpi-card" data-s="up"><div class="kpi-label">En crecimiento</div>'
+      +'<div class="kpi-value" style="color:#059669">'+growing+'</div>'
+      +'<div class="kpi-sub">de 11 sectores · '+VIEWS[curView].label+'</div></div>'
+      +'<div class="kpi-card" data-s="down"><div class="kpi-label">En contracción</div>'
+      +'<div class="kpi-value" style="color:#C71E1D">'+contracting+'</div>'
+      +'<div class="kpi-sub">de 11 sectores · '+fquarter(LABELS[lastIdx])+'</div></div>'
+      +'<div class="kpi-card" data-s="best"><div class="kpi-label">Más dinámico</div>'
+      +'<div class="kpi-value" style="color:'+(bestS?bestS.color:'#000')+'">'+fpct(bestV)+'</div>'
+      +'<div class="kpi-sub">'+(bestS?bestS.short:'—')+'</div></div>'
+      +'<div class="kpi-card" data-s="worst"><div class="kpi-label">Mayor caída</div>'
+      +'<div class="kpi-value" style="color:'+(worstS?worstS.color:'#000')+'">'+fpct(worstV)+'</div>'
+      +'<div class="kpi-sub">'+(worstS?worstS.short:'—')+'</div></div>';
+  }
+
+  function buildControls(){
+    var vEl=document.getElementById('views');
+    VIEWS.forEach(function(v,i){
+      var btn=document.createElement('button');
+      btn.className='view-btn'+(i===curView?' active':'');
+      btn.textContent=v.label;
+      btn.title=v.desc;
+      btn.addEventListener('click',function(){
+        curView=i;
+        document.querySelectorAll('.view-btn').forEach(function(b){b.classList.remove('active')});
+        btn.classList.add('active');
+        document.querySelector('.section-subtitle').textContent='Medidas de volumen encadenadas · Base 2017 · '+v.desc;
+        buildAllCharts();buildKPIs();
+      });
+      vEl.appendChild(btn);
+    });
+    var rEl=document.getElementById('ranges');
+    RANGES.forEach(function(r,i){
+      var btn=document.createElement('button');
+      btn.className='range-btn'+(i===curRange?' active':'');
+      btn.textContent=r.label;
+      btn.addEventListener('click',function(){
+        curRange=i;
+        document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active')});
+        btn.classList.add('active');
+        buildAllCharts();buildKPIs();
+      });
+      rEl.appendChild(btn);
+    });
+  }
+
+  function buildAllCharts(){
+    charts.forEach(function(c){if(c) c.dispose()});
+    charts=[];
+    var vk=VIEWS[curView].key;
+    var trim=RANGES[curRange].trim;
+    var si=trim>0?Math.max(0,LABELS.length-trim):0;
+    var labels=LABELS.slice(si);
+    var pibSlice=PIB[vk].slice(si);
+
+    SECTORS.forEach(function(s){
+      var vals=s[vk].slice(si);
+      var lastVal=null;
+      for(var i=vals.length-1;i>=0;i--){if(vals[i]!=null){lastVal=vals[i];break}}
+      var badge=document.getElementById('badge-'+s.key);
+      if(badge&&lastVal!=null){
+        badge.textContent=fpct(lastVal);
+        badge.style.background=lastVal>=0?'rgba(5,150,105,.08)':'rgba(199,30,29,.08)';
+        badge.style.color=lastVal>=0?'#059669':'#C71E1D';
+      } else if(badge){badge.textContent='—';badge.style.background='transparent';badge.style.color='var(--muted)'}
+      var container=document.getElementById('chart-'+s.key);
+      if(!container) return;
+      var c=echarts.init(container);
+      charts.push(c);
+      buildMini(c,s,labels,vals,pibSlice);
+    });
+  }
+
+  function buildMini(chart,sector,labels,vals,pibSlice){
+    var d=dk();
+    chart.setOption({
+      backgroundColor:'transparent',
+      grid:{top:8,right:6,bottom:20,left:36},
+      tooltip:{
+        trigger:'axis',
+        backgroundColor:d?'#080808':'rgba(13,27,42,.96)',
+        borderColor:d?'#2A3A50':'#1A2940',
+        textStyle:{fontFamily:'Inter',fontSize:11,color:'#fff'},
+        padding:[8,12],
+        extraCssText:'border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.3);',
+        formatter:function(params){
+          if(!params.length) return '';
+          var html='<div style="font-weight:700;margin-bottom:4px;color:#E9D8A6;font-size:11px">'+fquarter(params[0].axisValue)+'</div>';
+          params.forEach(function(p){
+            if(p.value==null||p.seriesName==='ref') return;
+            html+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
+              +'<span style="width:6px;height:6px;border-radius:50%;background:'+p.color+';display:inline-block"></span>'
+              +'<span style="font-size:10px;color:rgba(255,255,255,.7)">'+p.seriesName+'</span>'
+              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px;margin-left:auto">'+fpct(p.value)+'</span></div>';
+          });
+          return html;
+        }
+      },
+      xAxis:{type:'category',data:labels,boundaryGap:false,
+        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},axisTick:{show:false},
+        axisLabel:{fontFamily:'Inter',fontSize:8,color:d?'#475569':'#CBD5E1',
+          formatter:function(v,i){return(i===0||i===labels.length-1)?v.split('-')[0]:''},
+          showMinLabel:true,showMaxLabel:true}},
+      yAxis:{type:'value',
+        splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+        axisLine:{show:false},axisTick:{show:false},
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#475569':'#CBD5E1',formatter:function(v){return v+'%'}}},
+      series:[
+        {name:'PIB Total',type:'line',data:pibSlice,symbol:'none',z:1,
+         lineStyle:{width:1,color:d?'#333':'#CBD5E1',type:[4,3]},itemStyle:{color:d?'#333':'#CBD5E1'},connectNulls:true},
+        {name:sector.short,type:'line',data:vals,symbol:'none',z:3,
+         lineStyle:{width:2,color:sector.color},itemStyle:{color:sector.color},connectNulls:true,
+         areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+           {offset:0,color:sector.color+(d?'20':'12')},{offset:1,color:'transparent'}])},
+         markPoint:{data:[function(){for(var i=vals.length-1;i>=0;i--){if(vals[i]!=null) return{coord:[i,vals[i]]}}return null}()].filter(Boolean),
+           symbol:'circle',symbolSize:5,itemStyle:{color:sector.color,borderColor:d?'#141414':'#fff',borderWidth:1.5},label:{show:false}}},
+        {name:'ref',type:'line',data:labels.map(function(){return 0}),symbol:'none',z:2,
+         lineStyle:{width:1,color:d?'#475569':'#94A3B8',type:'solid'},itemStyle:{color:d?'#475569':'#94A3B8'}}
+      ]
+    },true);
+  }
+
+  function buildEduBoxes(){
+    var eduData=[
+      {title:'¿Qué muestra este gráfico?',
+       content:'<p>Cada panel muestra el <strong>crecimiento de un sector del PIB</strong> en bolivianos encadenados (Base 2017). La línea punteada gris es el PIB total como referencia. Cuando la línea del sector está por encima del PIB, crece más rápido que el promedio.</p>'},
+      {title:'Las tres medidas de crecimiento',
+       content:'<p><strong>Interanual:</strong> compara cada trimestre contra el mismo trimestre del año anterior. Es la más volátil pero muestra dinámicas puntuales de cada sector.</p>'
+        +'<p><strong>12 Meses:</strong> compara la suma de los últimos 4 trimestres contra la suma de los 4 anteriores. Es la medida más suave y la que usa el BCB para el PIB total.</p>'
+        +'<p><strong>Acumulada:</strong> crecimiento desde el primer trimestre del año. En T1 coincide con la interanual; en T4, es el crecimiento anual completo.</p>'},
+      {title:'¿Qué sectores componen el PIB?',
+       content:'<p>El INE de Bolivia desagrega el PIB en <strong>11 grupos de actividad económica</strong> siguiendo la CIIU Rev.4. Los más volátiles son Construcción, Extractiva y Alojamiento. Los más estables son Administración Pública y Electricidad/Agua.</p>'}
+    ];
+    document.getElementById('edu-boxes').innerHTML=eduData.map(function(e){
+      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
+        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.title+'</span>'
+        +'<span class="edu-box-arrow">&#9660;</span></div>'
+        +'<div class="edu-box-content">'+e.content+'</div></div>';
+    }).join('');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

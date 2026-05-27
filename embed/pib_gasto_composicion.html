@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Composición del PIB por Gasto · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+      --navy:#0D1B2A;--navy-light:#1A2940;
+      --slate:#475569;--slate-light:#64748B;
+      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+      --border:#E2DDD3;--dark-border:#2A3A50;
+      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+      --accent:#0D9488;--radius:12px;
+    }
+    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+    .section-header{margin-bottom:16px}
+    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
+    [data-theme="dark"] .section-title{color:#fff}
+    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
+    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
+    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
+    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+    .kpi-card[data-s="hogares"]::after{background:#2563EB}
+    .kpi-card[data-s="inversion"]::after{background:#D97706}
+    .kpi-card[data-s="saldo"]::after{background:var(--accent)}
+    .kpi-card[data-s="demanda"]::after{background:#8B5CF6}
+    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
+    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
+    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
+
+    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
+    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
+
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
+    [data-theme="dark"] .chart-card{background:var(--card);border-color:var(--dark-border)}
+    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 14px 0;flex-wrap:wrap}
+    .toggle-group{display:flex;gap:4px}
+    .view-btn{padding:4px 12px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
+    .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
+    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.12)}
+    .range-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
+    [data-theme="dark"] .range-btn{border-color:var(--dark-border);color:#94A3B8}
+    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
+    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
+    .chart-wrap{flex:1;min-height:0}
+
+    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);height:100%;display:flex;flex-direction:column;overflow:hidden}
+    [data-theme="dark"] .panel{background:var(--card);border-color:var(--dark-border)}
+    .panel-header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+    .panel-header-title{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .panel-date{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(255,255,255,.12);padding:3px 8px;border-radius:4px}
+    .panel-body{flex:1;overflow-y:auto;padding:14px 16px}
+
+    .panel-block{margin-bottom:12px}
+    .panel-label{display:inline-flex;align-items:center;gap:6px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:3px 8px;border-radius:4px;border-left:3px solid transparent;background:rgba(100,116,139,.06);margin-bottom:4px}
+    [data-theme="dark"] .panel-label{background:rgba(255,255,255,.05)}
+    .panel-val{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700;margin:2px 0}
+    .panel-desc{font-size:.62rem;color:var(--muted);line-height:1.45}
+    .delta-tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;padding:1px 6px;border-radius:3px;display:inline-block}
+    .dt-green{color:#059669;background:rgba(5,150,105,.1)}
+    .dt-red{color:#C71E1D;background:rgba(199,30,29,.1)}
+    .dt-gray{color:var(--muted);background:rgba(100,116,139,.08)}
+    [data-theme="dark"] .dt-green{background:rgba(5,150,105,.2)}
+    [data-theme="dark"] .dt-red{background:rgba(199,30,29,.2)}
+
+    .panel-divider{border:none;border-top:1px dashed var(--border);margin:10px 0}
+    [data-theme="dark"] .panel-divider{border-top-color:var(--dark-border)}
+
+    .ctx-box{background:var(--cream);border-left:3px solid var(--populi);border-radius:0 8px 8px 0;padding:10px 12px;margin-top:10px}
+    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--text)}
+    .ctx-box strong{font-weight:700}
+
+    .panel-footer{padding:10px 14px;border-top:1px solid var(--border);text-align:center}
+    [data-theme="dark"] .panel-footer{border-top-color:var(--dark-border)}
+    .btn-ampliar{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border:1.5px solid var(--populi);border-radius:8px;background:transparent;color:var(--populi);font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-ampliar:hover{background:var(--populi);color:#fff}
+
+    .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px}
+    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);cursor:pointer;transition:all .2s}
+    [data-theme="dark"] .edu-box{background:var(--navy-light)}
+    .edu-box:hover{transform:translateY(-1px)}
+    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
+    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
+    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
+    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
+    .edu-box-content{display:none;margin-top:8px}
+    .edu-box.open .edu-box-content{display:block}
+    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
+    .edu-box-content p:last-child{margin-bottom:0}
+    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
+    .edu-box-content p strong{color:var(--navy)}
+    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
+    .edu-box-content .highlight{display:inline;font-family:'JetBrains Mono',monospace;font-size:.92em;font-weight:600;padding:0 4px;border-radius:3px}
+    .hl-blue{background:rgba(37,99,235,.08);color:#2563EB}
+    .hl-amber{background:rgba(217,119,6,.08);color:#D97706}
+    .hl-red{background:rgba(199,30,29,.08);color:#C71E1D}
+    .hl-green{background:rgba(5,150,105,.08);color:#059669}
+
+    .source{text-align:center;margin-top:16px;font-size:.55rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+    .watermark{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:.62rem;color:var(--populi);opacity:.7}
+  </style>
+</head>
+<body>
+<div class="embed-container" id="app"></div>
+<script>
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
+  function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  var LABELS=["2017-T1","2017-T2","2017-T3","2017-T4","2018-T1","2018-T2","2018-T3","2018-T4","2019-T1","2019-T2","2019-T3","2019-T4","2020-T1","2020-T2","2020-T3","2020-T4","2021-T1","2021-T2","2021-T3","2021-T4","2022-T1","2022-T2","2022-T3","2022-T4","2023-T1","2023-T2","2023-T3","2023-T4","2024-T1","2024-T2","2024-T3","2024-T4","2025-T1","2025-T2","2025-T3","2025-T4"];
+
+  var G=[
+    {n:'Consumo Privado',c:'#2563EB',lw:2.5,
+     d:[69.6,67.16,64.82,66.44,67.21,64.85,64.28,68.27,69.25,66.95,64.72,66.91,69.68,68.06,66.84,66.97,67.92,65.16,64.67,65.62,65.77,65.8,68.14,70.44,70.49,67.13,67.79,70.66,71.72,68.13,68.1,70.86,74.88,69.45,70.62,71.36]},
+    {n:'Importaciones',c:'#C71E1D',lw:2,
+     d:[27.49,24.36,25.27,27.15,25.92,23.89,25.74,30.87,27.37,25.07,24.74,26.08,22.51,15.69,20.14,23.33,22.52,21.99,23.55,28.15,25.56,28.25,31.77,33.36,27.82,23.95,27.28,30.0,27.15,22.67,25.11,27.47,25.73,28.24,28.22,30.52]},
+    {n:'Exportaciones',c:'#059669',lw:2,
+     d:[17.76,19.69,20.6,19.91,20.03,20.44,21.05,19.87,19.54,19.16,20.95,20.53,18.84,13.69,15.5,18.8,20.72,22.83,24.24,26.08,27.53,30.66,28.45,24.3,21.77,22.25,23.15,22.4,19.65,22.15,22.33,21.37,20.72,28.71,27.69,29.69]},
+    {n:'Inversión',c:'#D97706',lw:2,
+     d:[23.38,22.78,25.33,25.87,22.44,22.87,24.13,26.66,22.04,22.94,23.4,22.34,16.87,12.68,18.47,20.32,15.9,17.12,18.04,19.85,15.52,16.18,18.81,21.76,18.36,17.96,19.55,20.09,17.98,16.18,18.74,18.89,14.44,16.11,15.48,15.57]},
+    {n:'Consumo Público',c:'#64748B',lw:1.8,
+     d:[16.76,14.72,14.53,14.93,16.24,15.75,16.28,16.07,16.53,16.01,15.67,16.3,17.12,21.26,19.33,17.23,17.97,16.87,16.61,16.6,16.75,15.61,16.37,16.86,17.19,16.6,16.79,16.85,17.8,16.2,15.94,16.36,15.7,13.98,14.42,13.9]}
+  ];
+
+  var LABELS_A=["2017","2018","2019","2020","2021","2022","2023","2024","2025"];
+  var GA=G.map(function(g){
+    var ad=[];
+    for(var y=0;y<9;y++){
+      var sum=0;
+      for(var q=0;q<4;q++) sum+=g.d[y*4+q];
+      ad.push(Math.round(sum/4*100)/100);
+    }
+    return {n:g.n,c:g.c,lw:g.lw,d:ad};
+  });
+
+  var VIEWS=[{label:'Trimestral'},{label:'Anual'}];
+  var RANGES=[{label:'3A',trim:12,trimA:3},{label:'5A',trim:20,trimA:5},{label:'Todo',trim:0,trimA:0}];
+  var curView=0,curRange=0,chart=null,curIdx=-1;
+
+  function isA(){return curView===1}
+  function cL(){return isA()?LABELS_A:LABELS}
+  function cD(){return isA()?GA:G}
+  function yagoI(i){return isA()?i-1:i-4}
+
+  function getSlice(){
+    var labs=cL();
+    var trim=isA()?RANGES[curRange].trimA:RANGES[curRange].trim;
+    if(!trim) return {labels:labs,start:0};
+    var s=labs.length-trim;
+    return {labels:labs.slice(s),start:s};
+  }
+
+  function fmtD(v){
+    if(v===null) return {t:'—',c:'dt-gray'};
+    return {t:(v>0?'+':'')+v.toFixed(1)+'pp',c:v>0.05?'dt-green':(v<-0.05?'dt-red':'dt-gray')};
+  }
+
+  function buildKPIs(){
+    var labs=cL(),data=cD();
+    var last=labs.length-1,ya=yagoI(last);
+    var hog=data[0].d[last],hogChg=ya>=0?data[0].d[last]-data[0].d[ya]:0;
+    var inv=data[3].d[last],invChg=ya>=0?data[3].d[last]-data[3].d[ya]:0;
+    var exp=data[2].d[last],imp=data[1].d[last];
+    var saldo=exp-imp;
+    var di=hog+data[4].d[last]+inv;
+    var cmp=ya>=0?labs[ya]:'—';
+
+    document.getElementById('kpi-area').innerHTML=
+      '<div class="kpi-card" data-s="hogares"><div class="kpi-label">Consumo Privado</div>'
+      +'<div class="kpi-value" style="color:#2563EB">'+hog.toFixed(1)+'%</div>'
+      +'<div class="kpi-sub">'+(hogChg>0?'+':'')+hogChg.toFixed(1)+'pp vs '+cmp+'</div></div>'
+      +'<div class="kpi-card" data-s="inversion"><div class="kpi-label">Inversión (FBK)</div>'
+      +'<div class="kpi-value" style="color:#D97706">'+inv.toFixed(1)+'%</div>'
+      +'<div class="kpi-sub">'+(invChg>0?'+':'')+invChg.toFixed(1)+'pp vs '+cmp+'</div></div>'
+      +'<div class="kpi-card" data-s="saldo"><div class="kpi-label">Saldo Comercial</div>'
+      +'<div class="kpi-value" style="color:'+(saldo>=0?'#059669':'#C71E1D')+'">'+(saldo>=0?'+':'')+saldo.toFixed(1)+'pp</div>'
+      +'<div class="kpi-sub">X '+exp.toFixed(1)+'% − M '+imp.toFixed(1)+'%</div></div>'
+      +'<div class="kpi-card" data-s="demanda"><div class="kpi-label">Demanda Interna</div>'
+      +'<div class="kpi-value" style="color:#8B5CF6">'+di.toFixed(1)+'%</div>'
+      +'<div class="kpi-sub">C + G + I · '+labs[last]+'</div></div>';
+  }
+
+  function buildChart(){
+    var sl=getSlice(),d=dk(),annual=isA();
+    var series=cD().map(function(g){
+      return {
+        name:g.n,type:'line',
+        lineStyle:{width:g.lw,type:g.n==='Importaciones'?[6,3]:'solid'},
+        itemStyle:{color:g.c},
+        symbol:annual?'circle':'none',
+        symbolSize:annual?5:0,
+        emphasis:{focus:'series'},
+        data:g.d.slice(sl.start)
+      };
+    });
+    var opt={
+      backgroundColor:'transparent',
+      animation:true,animationDuration:400,
+      legend:{show:true,bottom:4,itemWidth:14,itemHeight:3,
+        textStyle:{fontFamily:'Inter',fontSize:10,color:d?'#94A3B8':'#64748B'},
+        itemStyle:{borderWidth:0}},
+      tooltip:{
+        trigger:'axis',
+        axisPointer:{type:'cross',
+          lineStyle:{color:d?'rgba(255,255,255,.15)':'rgba(0,0,0,.12)',type:'dashed'},
+          crossStyle:{color:d?'rgba(255,255,255,.15)':'rgba(0,0,0,.12)'},
+          label:{show:false}},
+        backgroundColor:d?'#1A2940':'#0D1B2A',
+        borderColor:d?'#2A3A50':'#1A2940',borderWidth:1,
+        textStyle:{fontFamily:'Inter',fontSize:11,color:'#E2E8F0'},
+        formatter:function(params){
+          var realIdx=sl.start+params[0].dataIndex;
+          updatePanel(realIdx);
+          var h='<div style="font-weight:700;margin-bottom:5px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:4px">'+params[0].axisValue+'</div>';
+          params.forEach(function(p){
+            h+='<div style="display:flex;align-items:center;gap:5px;padding:2px 0">'
+              +'<span style="width:10px;height:3px;border-radius:1px;background:'+p.color+';display:inline-block;flex-shrink:0"></span>'
+              +'<span style="flex:1;font-size:10.5px">'+p.seriesName+'</span>'
+              +'<span style="font-family:JetBrains Mono;font-weight:700;font-size:10.5px">'+p.value.toFixed(1)+'%</span>'
+              +'</div>';
+          });
+          return h;
+        }
+      },
+      grid:{left:42,right:12,top:10,bottom:42},
+      xAxis:{
+        type:'category',data:sl.labels,
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:annual?10:9,color:d?'#64748B':'#94A3B8',
+          formatter:annual?null:function(v){var p=v.split('-');return p[1]==='T1'?p[0]:''}},
+        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
+        axisTick:{show:false}
+      },
+      yAxis:{
+        type:'value',
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
+          formatter:function(v){return v+'%'}},
+        splitLine:{lineStyle:{color:d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',type:'dashed'}},
+        axisLine:{show:false},axisTick:{show:false}
+      },
+      series:series
+    };
+    if(!chart){
+      chart=echarts.init(document.getElementById('chart'));
+      chart.getZr().on('globalout',function(){updatePanel(cL().length-1)});
+    }
+    chart.setOption(opt,true);
+    updatePanel(cL().length-1);
+  }
+
+  function updatePanel(idx){
+    var labs=cL(),data=cD();
+    if(idx<0||idx>=labs.length) idx=labs.length-1;
+    curIdx=idx;
+    var ya=yagoI(idx);
+    var cmpText=isA()?'vs año anterior':'vs mismo trim. año anterior';
+
+    var html='';
+    data.forEach(function(g){
+      var v=g.d[idx];
+      var chg=ya>=0?v-g.d[ya]:null;
+      var dt=fmtD(chg);
+      html+='<div class="panel-block">'
+        +'<div class="panel-label" style="border-left-color:'+g.c+'">'+g.n+'</div>'
+        +'<div class="panel-val" style="color:'+g.c+'">'+v.toFixed(1)+'<span style="font-size:.7rem;color:var(--muted)">%</span></div>'
+        +'<div class="panel-desc"><span class="delta-tag '+dt.c+'">'+dt.t+'</span> '+cmpText+'</div>'
+        +'</div>';
+    });
+
+    var hog=data[0].d[idx],pub=data[4].d[idx],inv=data[3].d[idx];
+    var exp=data[2].d[idx],imp=data[1].d[idx];
+    var di=hog+pub+inv,saldo=exp-imp;
+
+    var analysis='<strong>Demanda interna</strong> (C+G+I) = <strong>'+di.toFixed(1)+'%</strong> del PIB.';
+    analysis+=' <strong>Saldo comercial</strong> (X−M) = <strong style="color:'+(saldo>=0?'#059669':'#C71E1D')+'">'+(saldo>=0?'+':'')+saldo.toFixed(1)+'pp</strong>.';
+    if(di>100) analysis+=' La demanda interna supera el PIB; el exceso se cubre con importaciones netas.';
+
+    html+='<hr class="panel-divider">';
+    html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
+
+    document.getElementById('panel-body').innerHTML=html;
+    document.getElementById('panel-date').textContent=labs[idx];
+  }
+
+  function init(){
+    var c=document.getElementById('app');
+    c.innerHTML=
+      '<div class="section-header">'
+      +'<div class="section-title"><span class="accent-bar"></span>Composición del PIB por Tipo de Gasto</div>'
+      +'<div class="section-subtitle">Participación porcentual a precios corrientes · Base 2017 — SCN 2008</div></div>'
+      +'<div class="kpi-grid" id="kpi-area"></div>'
+      +'<div class="main-grid">'
+      +'<div class="chart-card">'
+      +'<div class="chart-toolbar"><div class="toggle-group" id="views"></div><div class="toggle-group" id="ranges"></div></div>'
+      +'<div class="chart-wrap" id="chart"></div></div>'
+      +'<div class="panel">'
+      +'<div class="panel-header"><span class="panel-header-title">Lectura del Indicador</span><span class="panel-date" id="panel-date"></span></div>'
+      +'<div class="panel-body" id="panel-body"></div>'
+      +'<div class="panel-footer"><button class="btn-ampliar">Ampliar análisis →</button></div>'
+      +'</div></div>'
+      +'<div class="edu-grid" id="edu-boxes"></div>'
+      +'<div class="source"><span class="watermark">POPULI</span>Fuente: INE — Cuentas Nacionales Trimestrales</div>';
+
+    var vEl=document.getElementById('views');
+    VIEWS.forEach(function(v,i){
+      var b=document.createElement('button');
+      b.className='view-btn'+(i===curView?' active':'');
+      b.textContent=v.label;
+      b.addEventListener('click',function(){
+        curView=i;curIdx=-1;
+        document.querySelectorAll('.view-btn').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');buildChart();buildKPIs();
+      });
+      vEl.appendChild(b);
+    });
+
+    var rEl=document.getElementById('ranges');
+    RANGES.forEach(function(r,i){
+      var b=document.createElement('button');
+      b.className='range-btn'+(i===curRange?' active':'');
+      b.textContent=r.label;
+      b.addEventListener('click',function(){curRange=i;
+        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
+        b.classList.add('active');buildChart()});
+      rEl.appendChild(b);
+    });
+
+    buildKPIs();
+    buildChart();
+    window.addEventListener('resize',function(){if(chart)chart.resize()});
+    new MutationObserver(function(){buildChart();buildKPIs()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  }
+
+  function buildEdu(){
+    var edu=[
+      {title:'¿Qué es el PIB por tipo de gasto?',
+       content:'<p>El PIB puede descomponerse por el <strong>destino final</strong> de los bienes y servicios producidos: lo que consumen los hogares, lo que gasta el gobierno, lo que se invierte y lo que se exporta/importa.</p>'
+        +'<p>La identidad fundamental es: <strong>PIB = C + G + I + X − M</strong>, donde C es consumo privado, G consumo público, I inversión (formación bruta de capital), X exportaciones y M importaciones.</p>'},
+      {title:'¿Por qué las importaciones se restan?',
+       content:'<p>Las <strong>importaciones</strong> representan bienes y servicios producidos en el exterior. El PIB mide solo la producción <strong>interna</strong>, por lo que se restan para evitar contabilizar producción extranjera.</p>'
+        +'<p>En el gráfico, las importaciones superan frecuentemente a las exportaciones — esto indica un <strong>déficit comercial</strong>: Bolivia consume más del exterior de lo que vende, financiado con deuda o reservas.</p>'},
+      {title:'¿Qué indica la caída de la inversión?',
+       content:'<p>La <strong>Formación Bruta de Capital</strong> (inversión) pasó de <span class="highlight hl-amber">~25%</span> del PIB en 2017 a <span class="highlight hl-amber">~15%</span> en 2025. Esto refleja menor construcción de infraestructura, equipamiento y vivienda.</p>'
+        +'<p>Una inversión baja limita el crecimiento futuro: menos fábricas, carreteras y tecnología significan menor capacidad productiva a mediano plazo. Es una señal de alerta para la sostenibilidad del crecimiento.</p>'}
+    ];
+    document.getElementById('edu-boxes').innerHTML=edu.map(function(e){
+      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
+        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.title+'</span><span class="edu-box-arrow">&#9660;</span></div>'
+        +'<div class="edu-box-content">'+e.content+'</div></div>';
+    }).join('');
+  }
+
+  init();
+  buildEdu();
+})();
+</script>
+</body>
+</html>
