@@ -1,135 +1,73 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manufactura · Populi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-  <style>
-    :root{
-      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
-      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-      --navy:#0D1B2A;--navy-light:#1A2940;
-      --slate:#475569;--slate-light:#64748B;
-      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-      --border:#E2DDD3;--dark-border:#2A3A50;
-      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-      --accent:#0D9488;--radius:12px;
-    }
-    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
-    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-    .section-header{margin-bottom:16px}
-    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
-    [data-theme="dark"] .section-title{color:#fff}
-    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
-    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
-
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
-    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
-    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-    .kpi-card[data-s="last"]::after{background:var(--accent)}
-    .kpi-card[data-s="yoy"]::after{background:#2563EB}
-    .kpi-card[data-s="avg25"]::after{background:#D97706}
-    .kpi-card[data-s="avg24"]::after{background:var(--populi)}
-    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
-    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
-    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
-
-    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
-    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
-    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
-    @media(min-width:1100px){.main-grid{grid-template-rows:600px}}
-
-    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;height:100%;overflow:hidden}
-    [data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-    .chart-controls{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-    .toggle-group{display:flex;gap:4px}
-    .range-btn,.metric-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
-    [data-theme="dark"] .range-btn,[data-theme="dark"] .metric-btn{border-color:var(--dark-border);color:#94A3B8}
-    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
-    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
-    .metric-btn:hover,.metric-btn.active{border-color:var(--accent);color:var(--accent)}
-    [data-theme="dark"] .metric-btn:hover,[data-theme="dark"] .metric-btn.active{border-color:#2DD4BF;color:#2DD4BF}
-    .chart-area{flex:1;min-height:0}
-    .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px}
-    .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-    .chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-    .watermark{height:15px;width:auto;opacity:.18}
-    [data-theme="dark"] .watermark{opacity:.10}
-
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
-    [data-theme="dark"] .panel{background:#141414;border-color:var(--dark-border)}
-    .panel-header{background:var(--navy);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
-    [data-theme="dark"] .panel-header{background:var(--navy-light)}
-    .panel-header-title{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.8)}
-    .panel-header-date{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:600;color:var(--populi-light);background:rgba(199,30,29,.15);padding:2px 8px;border-radius:5px}
-    .panel-body{padding:14px;flex:1;overflow-y:auto}
-    .panel-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-    [data-theme="dark"] .panel-block{border-color:var(--dark-border)}
-    .panel-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
-    .panel-label{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;padding:2px 9px 2px 6px;border-radius:4px;border-left:3px solid}
-    .panel-val{font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;margin-bottom:3px}
-    .panel-desc{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
-    [data-theme="dark"] .panel-desc{color:rgba(255,255,255,.45)}
-    .panel-desc strong{color:var(--navy)}
-    [data-theme="dark"] .panel-desc strong{color:#E2E8F0}
-    .delta-tag{font-family:'JetBrains Mono',monospace;font-weight:600;padding:1px 5px;border-radius:4px;font-size:.82em;white-space:nowrap}
-    .dt-teal{background:rgba(13,148,136,.08);color:#0D9488}
-    .dt-red{background:rgba(199,30,29,.08);color:#C71E1D}
-    .dt-green{background:rgba(5,150,105,.08);color:#059669}
-
-    .ctx-box{background:var(--cream);border-radius:6px;padding:8px 10px;border-left:3px solid var(--populi);margin-top:6px}
-    [data-theme="dark"] .ctx-box{background:var(--navy-light)}
-    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
-    [data-theme="dark"] .ctx-box p{color:#94A3B8}
-    .ctx-box p strong{color:var(--navy)}
-    [data-theme="dark"] .ctx-box p strong{color:#E2E8F0}
-
-    .yr-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)}
-    [data-theme="dark"] .yr-row{border-color:var(--dark-border)}
-    .yr-row:last-child{border-bottom:none}
-    .yr-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .yr-name{font-size:.62rem;font-weight:600;flex:1;color:var(--text)}
-    [data-theme="dark"] .yr-name{color:#CBD5E1}
-    .yr-val{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700}
-    .yr-chg{font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:4px}
-
-    .panel-footer{padding:10px 14px;border-top:1px solid var(--border)}
-    [data-theme="dark"] .panel-footer{border-color:var(--dark-border)}
-    .ampliar-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 0;border-radius:8px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--populi);background:rgba(139,26,26,.06);border:1.5px solid rgba(139,26,26,.15);transition:all .2s;text-decoration:none;cursor:pointer}
-    [data-theme="dark"] .ampliar-btn{background:rgba(192,0,0,.08);border-color:rgba(192,0,0,.2);color:var(--populi-light)}
-    .ampliar-btn:hover{background:rgba(139,26,26,.12);border-color:rgba(139,26,26,.3);transform:translateY(-1px)}
-    .ampliar-btn svg{width:13px;height:13px}
-
-    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);margin-top:4px;cursor:pointer;transition:all .2s}
-    [data-theme="dark"] .edu-box{background:var(--navy-light)}
-    .edu-box:hover{transform:translateY(-1px)}
-    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
-    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
-    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
-    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
-    .edu-box-content{display:none;margin-top:8px}
-    .edu-box.open .edu-box-content{display:block}
-    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
-    .edu-box-content p:last-child{margin-bottom:0}
-    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
-    .edu-box-content p strong{color:var(--navy)}
-    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Industria manufacturera: producción y capacidad instalada</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+  --navy:#0D1B2A;--navy-light:#1A2940;
+  --slate:#475569;--slate-light:#64748B;
+  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+  --border:#E2DDD3;--dark-border:#2A3A50;
+  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+  --radius:12px;
+}
+[data-theme="dark"]{
+  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
+  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+}
+.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.chart-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;display:flex;flex-direction:column;overflow:hidden;
+}
+[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+.section-title{
+  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
+  color:var(--navy);display:flex;align-items:center;gap:10px;
+}
+[data-theme="dark"] .section-title{color:#fff}
+.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0;background:#0D9488}
+.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+#chart{width:100%;height:480px;margin-top:12px}
+.chart-source{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 4px 0;margin-top:8px;border-top:1px solid var(--border);
+}
+.chart-source-text{font-size:.72rem;color:var(--muted);letter-spacing:.01em}
+.chart-source-text a{color:var(--populi);text-decoration:none;font-weight:600}
+[data-theme="dark"] .chart-source-text a{color:#E9D8A6}
+.watermark{width:80px;height:auto;opacity:.18}
+[data-theme="dark"] .watermark text:first-child{fill:#E9D8A6}
+[data-theme="dark"] .watermark text:last-child{fill:#94A3B8}
+</style>
 </head>
 <body>
-<div class="embed-container" id="app"></div>
+<div class="embed-container">
+  <div class="chart-card">
+    <div class="section-title">
+      <span class="accent-bar"></span>Industria manufacturera: producción y capacidad instalada
+    </div>
+    <div class="section-subtitle">Trimestral 2017-2025 · Base 2017=100 (producción) / % (capacidad)</div>
+    <div id="chart"></div>
+    <div class="chart-source">
+      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#8B1A1A">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
   var params=new URLSearchParams(window.location.search);
@@ -137,328 +75,91 @@
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
   function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  var QTRS=['I Trim','II Trim','III Trim','IV Trim'];
-  var QTRS_FULL=['I Trimestre','II Trimestre','III Trimestre','IV Trimestre'];
-
-  var PROD=[
-    {y:2020,c:'#94A3B8',lw:1.2,d:[99.33,67.58,103.60,115.96]},
-    {y:2021,c:'#A3A3A3',lw:1.2,d:[97.57,109.88,126.55,119.48]},
-    {y:2022,c:'#8B5CF6',lw:1.5,d:[112.33,129.60,139.63,122.80]},
-    {y:2023,c:'#D97706',lw:1.5,d:[122.73,136.32,147.56,136.86]},
-    {y:2024,c:'#2563EB',lw:2,d:[107.96,125.11,136.86,127.14]},
-    {y:2025,c:'#0D9488',lw:2.5,d:[101.48,123.35,143.47,125.00]}
-  ];
-  var AVG_PROD={c:'#D1D5DB',lw:1,d:[97.11,104.93,111.90,105.99]};
-
-  var CAP=[
-    {y:2020,c:'#94A3B8',lw:1.2,d:[68.48,62.62,68.51,69.45]},
-    {y:2021,c:'#A3A3A3',lw:1.2,d:[66.65,67.01,71.34,69.86]},
-    {y:2022,c:'#8B5CF6',lw:1.5,d:[71.11,72.43,69.98,68.29]},
-    {y:2023,c:'#D97706',lw:1.5,d:[68.93,72.69,72.76,71.44]},
-    {y:2024,c:'#2563EB',lw:2,d:[70.21,69.62,71.02,63.38]},
-    {y:2025,c:'#0D9488',lw:2.5,d:[63.09,69.54,70.73,68.79]}
-  ];
-  var AVG_CAP={c:'#D1D5DB',lw:1,d:[71.54,72.39,73.78,72.51]};
-
-  var METRICS=[{label:'Producción',key:'prod'},{label:'Capacidad',key:'cap'}];
-  var curMetric=0;
-
-  function getData(){return curMetric===0?PROD:CAP}
-  function getAvg(){return curMetric===0?AVG_PROD:AVG_CAP}
-
-  var RANGES=[{label:'3A',from:2023},{label:'5A',from:2021},{label:'Todo',from:2020}];
-  var curRange=2,chart=null,curQ=-1;
-
-  function fval(v){if(v==null)return'—';return v.toFixed(1)}
-  function fpct(v){if(v==null)return'—';return(v>=0?'+':'')+v.toFixed(1)+'%'}
-
-  function lastData(){
-    var Y=getData();
-    for(var i=Y.length-1;i>=0;i--){
-      for(var q=3;q>=0;q--){
-        if(Y[i].d[q]!=null) return{y:Y[i].y,q:q,v:Y[i].d[q]};
-      }
-    }
-    return{y:2025,q:0,v:0};
-  }
-
-  function init(){
-    document.getElementById('app').innerHTML=buildHTML();
-    buildControls();
-    chart=echarts.init(document.getElementById('chart'));
-    buildChart();
-    var ld=lastData();
-    updatePanel(ld.q);
-    buildKPIs();
-    buildEdu();
-    window.addEventListener('resize',function(){chart&&chart.resize()});
-    new MutationObserver(function(){buildChart();buildKPIs()})
-      .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  }
-
-  function buildHTML(){
-    var d=dk();
-    return '<div class="section-header">'
-      +'<h2 class="section-title"><span class="accent-bar"></span>Industria Manufacturera</h2>'
-      +'<p class="section-subtitle">Índice de producción (base 2017) y utilización de capacidad instalada · Trimestral</p></div>'
-      +'<div class="kpi-grid" id="kpis"></div>'
-      +'<div class="main-grid">'
-      +'<div class="chart-card">'
-      +'<div class="chart-controls"><div class="toggle-group" id="metrics"></div><div class="toggle-group" id="ranges"></div></div>'
-      +'<div class="chart-area" id="chart"></div>'
-      +'<div class="chart-source"><span class="chart-source-text">'
-      +'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · Encuesta de la Industria Manufacturera · '
-      +'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a></span>'
-      +'<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
-      +'<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#C00000':'#8B1A1A')+'">P</text>'
-      +'<text x="92" y="87" font-family="\'Playfair Display\',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="'+(d?'#F5EFE0':'#3D2B1F')+'">opuli</text></svg></div>'
-      +'</div>'
-      +'<div class="panel">'
-      +'<div class="panel-header"><span class="panel-header-title">Lectura del indicador</span>'
-      +'<span class="panel-header-date" id="panel-date"></span></div>'
-      +'<div class="panel-body" id="panel-body"></div>'
-      +'<div class="panel-footer"><a href="https://populi.org.bo/monitor-actividad-economica" target="_blank" class="ampliar-btn"><span>Ampliar análisis</span>'
-      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-      +'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>'
-      +'</div></div>'
-      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px" id="edu"></div>';
-  }
-
-  function buildControls(){
-    var mEl=document.getElementById('metrics');
-    METRICS.forEach(function(m,i){
-      var b=document.createElement('button');
-      b.className='metric-btn'+(i===curMetric?' active':'');
-      b.textContent=m.label;
-      b.addEventListener('click',function(){curMetric=i;
-        document.querySelectorAll('.metric-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart();buildKPIs();
-        var ld=lastData();updatePanel(ld.q)});
-      mEl.appendChild(b);
-    });
-
-    var rEl=document.getElementById('ranges');
-    RANGES.forEach(function(r,i){
-      var b=document.createElement('button');
-      b.className='range-btn'+(i===curRange?' active':'');
-      b.textContent=r.label;
-      b.addEventListener('click',function(){curRange=i;
-        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart()});
-      rEl.appendChild(b);
-    });
-  }
-
-  function getVisibleYears(){
-    var from=RANGES[curRange].from;
-    return getData().filter(function(yr){return yr.y>=from});
-  }
-
-  function buildKPIs(){
-    var Y=getData();
-    var ld=lastData();
-    var isProd=curMetric===0;
-    var prev=null;
-    for(var i=0;i<Y.length;i++){if(Y[i].y===ld.y-1&&Y[i].d[ld.q]!=null){prev=Y[i].d[ld.q];break}}
-    var yoy=prev!=null?((ld.v/prev-1)*100):null;
-
-    var yr25=Y.find(function(yr){return yr.y===2025});
-    var avg25=0,cnt25=0;
-    if(yr25)yr25.d.forEach(function(v){if(v!=null){avg25+=v;cnt25++}});
-    avg25=cnt25>0?avg25/cnt25:null;
-
-    var yr24=Y.find(function(yr){return yr.y===2024});
-    var avg24=0,cnt24=0;
-    if(yr24)yr24.d.forEach(function(v){if(v!=null){avg24+=v;cnt24++}});
-    avg24=cnt24>0?avg24/cnt24:null;
-
-    var unitLabel=isProd?'Índice base 2017':'% capacidad';
-
-    document.getElementById('kpis').innerHTML=
-      '<div class="kpi-card" data-s="last"><div class="kpi-label">Último dato</div>'
-      +'<div class="kpi-value" style="color:var(--accent)">'+fval(ld.v)+'</div>'
-      +'<div class="kpi-sub">'+QTRS_FULL[ld.q]+' '+ld.y+' · '+unitLabel+'</div></div>'
-      +'<div class="kpi-card" data-s="yoy"><div class="kpi-label">Var. Interanual</div>'
-      +'<div class="kpi-value" style="color:'+(yoy!=null&&yoy>=0?'#059669':'#C71E1D')+'">'+fpct(yoy)+'</div>'
-      +'<div class="kpi-sub">vs. '+QTRS_FULL[ld.q]+' '+(ld.y-1)+'</div></div>'
-      +'<div class="kpi-card" data-s="avg25"><div class="kpi-label">Promedio 2025</div>'
-      +'<div class="kpi-value" style="color:#D97706">'+(avg25!=null?fval(avg25):'—')+'</div>'
-      +'<div class="kpi-sub">Media trimestral · '+unitLabel+'</div></div>'
-      +'<div class="kpi-card" data-s="avg24"><div class="kpi-label">Promedio 2024</div>'
-      +'<div class="kpi-value" style="color:var(--populi)">'+(avg24!=null?fval(avg24):'—')+'</div>'
-      +'<div class="kpi-sub">Media trimestral · '+unitLabel+'</div></div>';
-  }
+  var chartDom=document.getElementById('chart');
+  var chart=echarts.init(chartDom);
 
   function buildChart(){
-    var d=dk();
-    var vis=getVisibleYears();
-    var AVG=getAvg();
-    var isProd=curMetric===0;
 
-    var series=[];
-    series.push({
-      name:'Prom. 2017-19',type:'line',smooth:0.4,
-      data:AVG.d,symbol:'none',z:1,
-      lineStyle:{width:1,color:d?'#333':'#D1D5DB',type:[4,4]},
-      itemStyle:{color:d?'#333':'#D1D5DB'}
-    });
-    vis.forEach(function(yr){
-      series.push({
-        name:String(yr.y),type:'line',smooth:0.4,
-        data:yr.d,
-        symbol:'circle',symbolSize:yr.y>=2024?6:4,
-        lineStyle:{width:yr.lw,color:yr.c},
-        itemStyle:{color:yr.c},
-        emphasis:{focus:'series'},
-        z:yr.y>=2024?5:2
-      });
-    });
-
-    chart.setOption({
+    var dark=dk();
+    var option={
       backgroundColor:'transparent',
-      grid:{top:24,right:12,bottom:44,left:48},
-      legend:{show:true,bottom:2,itemWidth:12,itemHeight:2,itemGap:10,
-        type:'scroll',pageIconSize:10,pageTextStyle:{fontSize:9},
-        textStyle:{fontFamily:'Inter',fontSize:9,color:d?'#94A3B8':'#64748B',padding:[0,0,0,2]},
-        itemStyle:{borderWidth:0}},
       tooltip:{
         trigger:'axis',
-        backgroundColor:d?'#080808':'rgba(13,27,42,.96)',
-        borderColor:d?'#2A3A50':'#1A2940',
-        textStyle:{fontFamily:'Inter',fontSize:11,color:'#fff'},
-        padding:[12,16],
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:420px;overflow-y:auto;',
+        backgroundColor:dark?'#080808':'rgba(13,27,42,.96)',
+        borderColor:dark?'#2A3A50':'#1A2940',
+        textStyle:{color:'#E2E8F0',fontSize:12,fontFamily:'Inter'},
+        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
         formatter:function(params){
-          if(!params.length)return'';
-          var qi=params[0].dataIndex;
-          updatePanel(qi);
-          var suffix=isProd?' pts':'%';
-          var html='<div style="font-weight:700;margin-bottom:6px;color:#E9D8A6;font-size:12px">'+QTRS_FULL[qi]+'</div>';
-          var sorted=params.filter(function(p){return p.value!=null}).sort(function(a,b){return b.value-a.value});
-          sorted.forEach(function(p){
-            html+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
-              +'<span style="width:8px;height:2px;border-radius:1px;background:'+p.color+';display:inline-block"></span>'
-              +'<span style="font-size:10px;color:rgba(255,255,255,.6);flex:1">'+p.seriesName+'</span>'
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px">'+p.value.toFixed(1)+suffix+'</span></div>';
+          var s='<div style="color:#E9D8A6;font-weight:700;margin-bottom:6px;font-family:Playfair Display,serif">'+params[0].axisValue+'</div>';
+          params.forEach(function(p){
+            if(p.value!=null){
+              var unit=p.seriesIndex===0?' pts':' %';
+              s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
+              s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+p.color+'"></span>';
+              s+='<span style="color:#94A3B8;font-size:11px">'+p.seriesName+'</span>';
+              s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toFixed(1)+unit+'</span>';
+              s+='</div>';
+            }
           });
-          return html;
+          return s;
         }
       },
+      legend:{
+        data:['\u00cdndice de producci\u00f3n','Utilizaci\u00f3n capacidad (%)'],
+        bottom:8,
+        textStyle:{color:dark?'#64748B':'#94A3B8',fontSize:11,fontFamily:'Inter',fontWeight:500},
+        itemWidth:18,itemHeight:3,itemGap:14
+      },
+      grid:{left:60,right:60,top:20,bottom:50},
       xAxis:{
-        type:'category',data:QTRS,boundaryGap:false,
-        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
+        type:'category',data:["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3"],
+        axisLine:{lineStyle:{color:dark?'#2A3A50':'#E2DDD3'}},
         axisTick:{show:false},
-        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#64748B':'#94A3B8'}
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8',rotate:45}
       },
-      yAxis:{
-        type:'value',
-        min:'dataMin',
-        splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
-        axisLine:{show:false},axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
-          formatter:isProd?function(v){return v.toFixed(0)}:function(v){return v.toFixed(0)+'%'}}
-      },
-      series:series
-    },true);
-  }
-
-  function updatePanel(qi){
-    if(qi<0||qi>3)qi=0;
-    curQ=qi;
-    var d=dk();
-    var Y=getData();var AVG=getAvg();
-    var isProd=curMetric===0;
-    document.getElementById('panel-date').textContent=QTRS_FULL[qi];
-
-    var items=[];
-    Y.forEach(function(yr){
-      if(yr.d[qi]!=null){
-        var prev=null;
-        var pyr=Y.find(function(y2){return y2.y===yr.y-1});
-        if(pyr&&pyr.d[qi]!=null) prev=pyr.d[qi];
-        var chg=prev!=null?((yr.d[qi]/prev-1)*100):null;
-        items.push({y:yr.y,c:yr.c,v:yr.d[qi],chg:chg});
-      }
-    });
-
-    var latest=items.length>0?items[items.length-1]:null;
-    var metricName=isProd?'Índice de producción':'Utilización de capacidad';
-    var suffix=isProd?' puntos':'%';
-
-    var html='<div class="panel-block">'
-      +'<div class="panel-label" style="color:#0D9488;background:rgba(13,148,136,.08);border-left-color:#0D9488">'+QTRS_FULL[qi]+' — Comparación anual</div>';
-    if(latest){
-      html+='<div class="panel-val" style="color:#0D9488">'+fval(latest.v)+suffix+'</div>'
-        +'<p class="panel-desc">'+metricName+' en <strong>'+QTRS_FULL[qi]+' '+latest.y+'</strong>'
-        +(latest.chg!=null?' con variación interanual de <span class="delta-tag '+(latest.chg>=0?'dt-teal':'dt-red')+'">'+fpct(latest.chg)+'</span>':'')
-        +'.</p>';
-    }
-    html+='</div>';
-
-    html+='<div class="panel-block"><div style="font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">'+metricName+' en '+QTRS_FULL[qi]+' por año</div>';
-    for(var i=items.length-1;i>=0;i--){
-      var it=items[i];
-      var chgHtml='';
-      if(it.chg!=null){
-        var cc=it.chg>=0?(d?'#34D399':'#059669'):(d?'#F87171':'#C71E1D');
-        chgHtml='<span class="yr-chg" style="color:'+cc+';background:'+(it.chg>=0?'rgba(5,150,105,.08)':'rgba(199,30,29,.08)')+'">'+fpct(it.chg)+'</span>';
-      }
-      html+='<div class="yr-row"><span class="yr-dot" style="background:'+it.c+'"></span>'
-        +'<span class="yr-name">'+it.y+'</span>'
-        +'<span class="yr-val">'+fval(it.v)+suffix+'</span>'+chgHtml+'</div>';
-    }
-    html+='</div>';
-
-    var analysis='';
-    if(latest&&items.length>=2){
-      var prev=items[items.length-2];
-      if(latest.chg!=null){
-        if(isProd){
-          if(latest.chg>0){
-            analysis='<strong>Producción en expansión.</strong> El índice manufacturero alcanza <span class="delta-tag dt-teal">'+fval(latest.v)+'</span> en '+QTRS_FULL[qi]+' '+latest.y+', un <span class="delta-tag dt-green">'+fpct(latest.chg)+'</span> superior a '+prev.y+'.';
-          } else {
-            analysis='<strong>Producción en contracción.</strong> El índice manufacturero cae a <span class="delta-tag dt-red">'+fval(latest.v)+'</span> en '+QTRS_FULL[qi]+' '+latest.y+', un <span class="delta-tag dt-red">'+fpct(latest.chg)+'</span> respecto a '+prev.y+'.';
-          }
-        } else {
-          if(latest.chg>0){
-            analysis='<strong>Capacidad en aumento.</strong> La utilización de capacidad instalada sube a <span class="delta-tag dt-teal">'+fval(latest.v)+'%</span>, un <span class="delta-tag dt-green">'+fpct(latest.chg)+'</span> más que en '+prev.y+'.';
-          } else {
-            analysis='<strong>Capacidad ociosa en aumento.</strong> La utilización cae a <span class="delta-tag dt-red">'+fval(latest.v)+'%</span>, un <span class="delta-tag dt-red">'+fpct(latest.chg)+'</span> respecto a '+prev.y+'. Esto indica mayor holgura productiva.';
-          }
+      yAxis:[
+        {
+          type:'value',name:'\u00cdndice (base 2017)',
+          nameTextStyle:{fontFamily:'Inter',fontSize:10,color:'#0D9488'},
+          axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:'#0D9488'},
+          axisLine:{show:true,lineStyle:{color:'#0D9488'}},
+          splitLine:{lineStyle:{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+          axisTick:{show:false}
+        },
+        {
+          type:'value',name:'Capacidad (%)',
+          nameTextStyle:{fontFamily:'Inter',fontSize:10,color:'#D97706'},
+          axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:'#D97706',formatter:'{value}%'},
+          axisLine:{show:true,lineStyle:{color:'#D97706'}},
+          splitLine:{show:false},
+          axisTick:{show:false}
         }
-      }
-      var avgV=AVG.d[qi];
-      if(avgV!=null&&latest.v!=null){
-        var vsAvg=((latest.v/avgV-1)*100);
-        analysis+=' Respecto al promedio pre-pandemia (2017-19): <span class="delta-tag '+(vsAvg>=0?'dt-teal':'dt-red')+'">'+fpct(vsAvg)+'</span>.';
-      }
-    }
-    if(analysis) html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
-
-    document.getElementById('panel-body').innerHTML=html;
+      ],
+      series:[
+        {
+          name:'\u00cdndice de producci\u00f3n',type:'line',data:[91.44, 99.04, 107.74, 101.78, 96.59, 105.04, 106.88, 109.39, 103.31, 110.72, 121.08, 106.8, 99.33, 67.58, 103.6, 115.96, 97.57, 109.88, 126.55, 119.48, 112.33, 129.6, 139.63, 122.8, 122.73, 136.32, 147.56, 136.86, 107.96, 125.11, 136.86, 127.14, 101.48, 123.35, 143.47],
+          yAxisIndex:0,symbol:'circle',symbolSize:5,
+          lineStyle:{width:2.5,color:'#0D9488'},
+          itemStyle:{color:'#0D9488'},
+          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+            {offset:0,color:dark?'rgba(13,148,136,.2)':'rgba(13,148,136,.1)'},
+            {offset:1,color:'rgba(13,148,136,0)'}
+          ])}
+        },
+        {
+          name:'Utilizaci\u00f3n capacidad (%)',type:'line',data:[73.18, 75.37, 74.73, 72.78, 71.08, 72.56, 74.6, 73.33, 70.36, 69.23, 72.01, 71.41, 68.48, 62.62, 68.51, 69.45, 66.65, 67.01, 71.34, 69.86, 71.11, 72.43, 69.98, 68.29, 68.93, 72.69, 72.76, 71.44, 70.21, 69.62, 71.02, 63.38, 63.09, 69.54, 70.73],
+          yAxisIndex:1,symbol:'diamond',symbolSize:5,
+          lineStyle:{width:2.5,color:'#D97706'},
+          itemStyle:{color:'#D97706'}
+        }
+      ]
+    };
+    chart.setOption(option,true);
   }
 
-  function buildEdu(){
-    var items=[
-      {t:'¿Qué mide el índice de producción manufacturera?',
-       c:'<p>Mide el <strong>volumen físico de producción</strong> de la industria manufacturera boliviana con base en 2017. Un valor de 120 indica que la producción es un 20% mayor que el promedio de 2017.</p>'
-        +'<p>La encuesta cubre principalmente <strong>empresas grandes y medianas</strong>. Un trimestre con índice superior a 100 refleja expansión respecto al año base.</p>'},
-      {t:'¿Qué es la utilización de capacidad instalada?',
-       c:'<p>Indica el <strong>porcentaje de la capacidad productiva total</strong> que las empresas están usando efectivamente. Si la utilización es del 70%, significa que el 30% de la maquinaria y planta está ociosa.</p>'
-        +'<p>Una utilización <strong>por debajo del 70%</strong> sugiere holgura productiva significativa. Una utilización <strong>por encima del 80%</strong> puede indicar presiones de oferta y necesidad de nueva inversión.</p>'},
-      {t:'Estacionalidad de la manufactura',
-       c:'<p>La producción manufacturera tiene un patrón estacional claro: el <strong>III Trimestre</strong> (julio-septiembre) suele ser el pico del año, impulsado por la demanda previa a las fiestas de fin de año.</p>'
-        +'<p>El <strong>I Trimestre</strong> es típicamente el más bajo por el arranque del año y la menor demanda post-festividades.</p>'}
-    ];
-    document.getElementById('edu').innerHTML=items.map(function(e){
-      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
-        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.t+'</span>'
-        +'<span class="edu-box-arrow">&#9660;</span></div>'
-        +'<div class="edu-box-content">'+e.c+'</div></div>';
-    }).join('');
-  }
-
-  init();
+  buildChart();
+  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize',function(){chart.resize()});
 })();
 </script>
 </body>
