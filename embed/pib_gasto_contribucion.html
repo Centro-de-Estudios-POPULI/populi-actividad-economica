@@ -1,461 +1,171 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contribución del Gasto al PIB · Populi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-  <style>
-    :root{
-      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
-      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-      --navy:#0D1B2A;--navy-light:#1A2940;
-      --slate:#475569;--slate-light:#64748B;
-      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-      --border:#E2DDD3;--dark-border:#2A3A50;
-      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-      --accent:#0D9488;--radius:12px;
-    }
-    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
-    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-    .section-header{margin-bottom:16px}
-    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
-    [data-theme="dark"] .section-title{color:#fff}
-    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
-    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
-
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
-    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
-    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-    .kpi-card[data-s="pib"]::after{background:var(--accent)}
-    .kpi-card[data-s="best"]::after{background:#059669}
-    .kpi-card[data-s="worst"]::after{background:#C71E1D}
-    .kpi-card[data-s="count"]::after{background:#D97706}
-    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
-    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
-    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
-
-    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
-    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
-    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
-    @media(min-width:1100px){.main-grid{grid-template-rows:600px}}
-
-    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;height:100%;overflow:hidden}
-    [data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-    .chart-controls{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
-    .toggle-group{display:flex;gap:4px}
-    .view-btn{padding:4px 12px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
-    [data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
-    .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
-    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:#14B8A6;color:#14B8A6;background:rgba(13,148,136,.1)}
-    .range-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
-    [data-theme="dark"] .range-btn{border-color:var(--dark-border);color:#94A3B8}
-    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
-    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
-    .chart-area{flex:1;min-height:0}
-    .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px}
-    .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-    .chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-    .watermark{height:15px;width:auto;opacity:.18}
-    [data-theme="dark"] .watermark{opacity:.10}
-
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
-    [data-theme="dark"] .panel{background:#141414;border-color:var(--dark-border)}
-    .panel-header{background:var(--navy);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
-    [data-theme="dark"] .panel-header{background:var(--navy-light)}
-    .panel-header-title{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.8)}
-    .panel-header-date{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:600;color:var(--populi-light);background:rgba(199,30,29,.15);padding:2px 8px;border-radius:5px}
-    .panel-body{padding:14px;flex:1;overflow-y:auto}
-    .panel-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-    [data-theme="dark"] .panel-block{border-color:var(--dark-border)}
-    .panel-block:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
-    .panel-label{display:inline-flex;align-items:center;gap:4px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;padding:2px 9px 2px 6px;border-radius:4px;border-left:3px solid}
-    .panel-val{font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;margin-bottom:3px}
-    .panel-desc{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
-    [data-theme="dark"] .panel-desc{color:rgba(255,255,255,.45)}
-    .panel-desc strong{color:var(--navy)}
-    [data-theme="dark"] .panel-desc strong{color:#E2E8F0}
-    .delta-tag{font-family:'JetBrains Mono',monospace;font-weight:600;padding:1px 5px;border-radius:4px;font-size:.82em;white-space:nowrap}
-    .dt-teal{background:rgba(13,148,136,.08);color:#0D9488}
-    .dt-red{background:rgba(199,30,29,.08);color:#C71E1D}
-    .dt-green{background:rgba(5,150,105,.08);color:#059669}
-
-    .ctx-box{background:var(--cream);border-radius:6px;padding:8px 10px;border-left:3px solid var(--populi);margin-top:6px}
-    [data-theme="dark"] .ctx-box{background:var(--navy-light)}
-    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--slate-light)}
-    [data-theme="dark"] .ctx-box p{color:#94A3B8}
-    .ctx-box p strong{color:var(--navy)}
-    [data-theme="dark"] .ctx-box p strong{color:#E2E8F0}
-
-    .cb-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)}
-    [data-theme="dark"] .cb-row{border-color:var(--dark-border)}
-    .cb-row:last-child{border-bottom:none}
-    .cb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .cb-name{font-size:.62rem;font-weight:600;flex:1;color:var(--text)}
-    [data-theme="dark"] .cb-name{color:#CBD5E1}
-    .cb-val{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700}
-
-    .panel-footer{padding:10px 14px;border-top:1px solid var(--border)}
-    [data-theme="dark"] .panel-footer{border-color:var(--dark-border)}
-    .ampliar-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 0;border-radius:8px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--populi);background:rgba(139,26,26,.06);border:1.5px solid rgba(139,26,26,.15);transition:all .2s;text-decoration:none;cursor:pointer}
-    [data-theme="dark"] .ampliar-btn{background:rgba(192,0,0,.08);border-color:rgba(192,0,0,.2);color:var(--populi-light)}
-    .ampliar-btn:hover{background:rgba(139,26,26,.12);border-color:rgba(139,26,26,.3);transform:translateY(-1px)}
-    .ampliar-btn svg{width:13px;height:13px}
-
-    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);margin-top:4px;cursor:pointer;transition:all .2s}
-    [data-theme="dark"] .edu-box{background:var(--navy-light)}
-    .edu-box:hover{transform:translateY(-1px)}
-    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
-    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
-    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
-    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
-    .edu-box-content{display:none;margin-top:8px}
-    .edu-box.open .edu-box-content{display:block}
-    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
-    .edu-box-content p:last-child{margin-bottom:0}
-    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
-    .edu-box-content p strong{color:var(--navy)}
-    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Contribución al PIB por gasto</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
+  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+  --navy:#0D1B2A;--navy-light:#1A2940;
+  --slate:#475569;--slate-light:#64748B;
+  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+  --border:#E2DDD3;--dark-border:#2A3A50;
+  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
+  --radius:12px;
+  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
+  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
+  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
+}
+[data-theme="dark"]{
+  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
+  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+}
+.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.section-title{
+  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
+  color:var(--navy);display:flex;align-items:center;gap:10px;
+}
+[data-theme="dark"] .section-title{color:#fff}
+.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
+.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+.chart-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
+}
+[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+#chart{width:100%;height:460px}
+.chart-source{
+  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
+}
+.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+.watermark{height:15px;width:auto;opacity:.18}
+[data-theme="dark"] .watermark{opacity:.10}
+</style>
 </head>
 <body>
-<div class="embed-container" id="app"></div>
+<div class="embed-container">
+  <div class="section-title">
+    <span class="accent-bar" style="background:#EE9B00"></span>
+    Contribución al crecimiento del PIB por tipo de gasto
+  </div>
+  <div class="section-subtitle">Puntos porcentuales. Línea = crecimiento total del PIB</div>
+  <div class="chart-card">
+    <div id="chart"></div>
+    <div class="chart-source">
+      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
+  /* ── Theme ─────────────────────────────────────── */
   var params=new URLSearchParams(window.location.search);
   if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
   function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  var LABELS=["2018-T1","2018-T2","2018-T3","2018-T4","2019-T1","2019-T2","2019-T3","2019-T4","2020-T1","2020-T2","2020-T3","2020-T4","2021-T1","2021-T2","2021-T3","2021-T4","2022-T1","2022-T2","2022-T3","2022-T4","2023-T1","2023-T2","2023-T3","2023-T4","2024-T1","2024-T2","2024-T3","2024-T4","2025-T1","2025-T2","2025-T3","2025-T4"];
-
-  var PIB={
-    ia:[2.99,6.56,0.41,1.58,3.52,1.14,3.59,-2.18,-4.59,-25.9,-16.25,-2.7,-1.86,27.35,12.86,4.78,8.75,4.55,3.66,-1.65,-0.19,3.59,2.86,3.79,-2.39,0.85,-1.4,-1.7,-1.67,-2.77,-0.68,-1.14],
-    m12:[null,null,null,2.87,3.0,1.63,2.44,1.51,-0.45,-7.53,-12.54,-12.72,-12.17,0.0,7.96,10.03,12.86,7.6,5.38,3.75,1.6,1.39,1.2,2.52,1.97,1.26,0.17,-1.12,-0.95,-1.9,-1.72,-1.58],
-    acum:[2.99,4.83,3.3,2.87,3.52,2.27,2.72,1.51,-4.59,-15.64,-15.85,-12.72,-1.86,11.45,11.92,10.03,8.75,6.56,5.57,3.75,-0.19,1.74,2.12,2.52,-2.39,-0.7,-0.94,-1.12,-1.67,-2.25,-1.72,-1.58]
-  };
-
-  var G=[
-    {n:'Consumo Privado',c:'#2563EB',
-     ia:[1.28,3.0,0.78,3.31,4.13,2.72,2.06,-3.92,-2.05,-16.74,-9.5,-1.07,-3.83,16.18,7.88,2.89,4.55,4.21,5.28,1.45,2.95,1.15,0.08,2.95,-0.75,3.39,1.26,0.59,3.19,-0.14,1.35,0.36],
-     m12:[null,null,null,2.09,2.79,2.73,3.06,1.27,-0.24,-5.36,-8.29,-7.63,-8.1,-0.51,4.24,5.33,7.6,4.89,4.32,3.94,3.54,2.74,1.42,1.78,0.84,1.44,1.74,1.16,2.12,1.19,1.2,1.16],
-     acum:[1.28,2.16,1.68,2.09,4.13,3.39,2.94,1.25,-2.05,-9.67,-9.61,-7.58,-3.83,5.28,6.16,5.29,4.55,4.37,4.68,3.87,2.95,2.03,1.38,1.75,-0.75,1.4,1.35,1.17,3.19,1.43,1.4,1.15]},
-    {n:'Consumo Público',c:'#64748B',
-     ia:[-0.32,1.42,0.83,0.07,0.5,0.19,0.0,0.45,-0.48,-0.56,-0.16,-0.21,0.72,0.75,0.52,1.23,0.16,-0.17,0.93,0.19,0.71,1.54,0.27,0.15,0.09,-0.08,-0.13,0.54,-0.15,-0.2,0.7,-0.46],
-     m12:[null,null,null,0.52,0.7,0.39,0.17,0.26,0.05,-0.14,-0.18,-0.34,-0.06,0.21,0.38,0.75,0.61,0.4,0.51,0.27,0.39,0.82,0.66,0.66,0.51,0.1,0.0,0.09,0.04,0.0,0.21,-0.02],
-     acum:[-0.32,0.58,0.66,0.52,0.5,0.33,0.22,0.28,-0.48,-0.52,-0.4,-0.35,0.72,0.73,0.66,0.81,0.16,-0.01,0.31,0.28,0.71,1.14,0.85,0.68,0.09,0.0,-0.05,0.1,-0.15,-0.18,0.12,-0.02]},
-    {n:'Inversión',c:'#D97706',
-     ia:[0.03,2.18,-0.55,2.47,1.66,0.92,0.83,-5.48,-6.56,-13.83,-8.21,-1.85,-1.33,9.79,2.17,-0.23,0.78,-0.81,1.18,1.49,3.2,2.26,0.57,-1.55,-1.99,-2.53,-1.82,-1.59,-3.62,-0.26,-2.14,-1.4],
-     m12:[null,null,null,1.03,1.42,1.1,1.45,-0.52,-2.59,-6.61,-8.98,-8.14,-6.87,-1.13,1.91,2.39,2.98,0.44,0.23,0.68,1.31,2.12,1.94,1.18,-0.14,-1.41,-2.02,-2.01,-2.37,-1.74,-1.81,-1.76],
-     acum:[0.03,1.14,0.55,1.03,1.66,1.27,1.12,-0.51,-6.56,-10.33,-9.61,-7.76,-1.33,3.73,3.21,2.3,0.78,-0.05,0.37,0.65,3.2,2.72,2.0,1.15,-1.99,-2.27,-2.12,-1.99,-3.61,-1.85,-1.95,-1.82]},
-    {n:'Exportaciones',c:'#059669',
-     ia:[1.71,0.64,-0.43,-0.34,-1.16,-1.28,1.05,2.58,-0.45,-7.76,-6.77,-3.81,1.29,12.01,7.98,5.03,5.14,4.77,2.43,-1.83,-4.28,-3.21,-1.09,-0.41,-2.23,-2.04,-4.25,-4.47,-2.22,0.03,2.09,5.85],
-     m12:[null,null,null,0.37,-0.3,-0.77,-0.42,0.28,0.42,-1.23,-3.14,-4.62,-4.26,0.05,3.94,6.31,7.23,5.49,4.05,2.32,0.3,-1.48,-2.22,-1.84,-1.51,-1.3,-2.01,-2.92,-2.84,-2.36,-1.0,1.16],
-     acum:[1.71,1.16,0.61,0.37,-1.16,-1.22,-0.46,0.29,-0.45,-4.24,-5.1,-4.79,1.29,6.17,6.78,6.32,5.14,4.95,4.09,2.59,-4.28,-3.74,-2.85,-2.27,-2.23,-2.13,-2.85,-3.24,-2.22,-1.03,0.02,1.42]},
-    {n:'Importaciones',c:'#C71E1D',
-     ia:[0.29,-0.67,-0.22,-3.93,-1.61,-1.4,-0.35,4.19,4.96,12.99,8.38,4.23,1.3,-11.37,-5.7,-4.14,-1.88,-3.46,-6.16,-2.95,-2.76,1.84,3.04,2.66,2.5,2.11,3.53,3.24,1.13,-2.2,-2.67,-5.49],
-     m12:[null,null,null,-1.14,-1.59,-1.77,-1.8,0.2,1.78,5.55,7.76,7.79,6.96,1.4,-2.42,-4.7,-5.55,-3.74,-3.86,-3.49,-3.68,-2.44,-0.26,1.03,2.25,2.39,2.47,2.5,2.23,1.2,-0.17,-1.97],
-     acum:[0.29,-0.21,-0.21,-1.14,-1.61,-1.5,-1.11,0.2,4.96,9.13,8.87,7.77,1.3,-4.47,-4.89,-4.69,-1.88,-2.7,-3.88,-3.64,-2.76,-0.41,0.74,1.2,2.5,2.3,2.71,2.84,1.13,-0.63,-1.31,-2.32]}
-  ];
-
-  var VIEWS=[
-    {key:'ia',label:'Interanual',desc:'Contribución al crecimiento trimestral vs. mismo trimestre año anterior'},
-    {key:'m12',label:'12 Meses',desc:'Contribución al crecimiento a 12 meses'},
-    {key:'acum',label:'Acumulada',desc:'Contribución al crecimiento acumulado desde T1'}
-  ];
-  var RANGES=[{label:'3A',trim:12},{label:'5A',trim:20},{label:'Todo',trim:0}];
-  var curView=0,curRange=0,chart=null,curIdx=-1;
-
-  function fp(v){return v==null?'—':(v>=0?'+':'')+v.toFixed(2)+'%'}
-  function fpp(v){return v==null?'—':(v>=0?'+':'')+v.toFixed(2)+' pp'}
-  function fq(l){var p=l.split('-');var r={T1:'I',T2:'II',T3:'III',T4:'IV'};return r[p[1]]+' Trim. '+p[0]}
-
-  function init(){
-    document.getElementById('app').innerHTML=buildHTML();
-    buildControls();
-    chart=echarts.init(document.getElementById('chart'));
-    buildChart();
-    updatePanel(LABELS.length-1);
-    buildKPIs();
-    buildEdu();
-    window.addEventListener('resize',function(){chart&&chart.resize()});
-    new MutationObserver(function(){buildChart();updatePanel(curIdx);buildKPIs()})
-      .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  }
-
-  function buildHTML(){
-    var d=dk();
-    return '<div class="section-header">'
-      +'<h2 class="section-title"><span class="accent-bar"></span>Contribución del Gasto al Crecimiento</h2>'
-      +'<p class="section-subtitle">Puntos porcentuales de contribución al crecimiento del PIB por componente de gasto · Base 2017</p></div>'
-      +'<div class="kpi-grid" id="kpis"></div>'
-      +'<div class="main-grid">'
-      +'<div class="chart-card">'
-      +'<div class="chart-controls"><div class="toggle-group" id="views"></div>'
-      +'<div class="toggle-group" id="ranges"></div></div>'
-      +'<div class="chart-area" id="chart"></div>'
-      +'<div class="chart-source"><span class="chart-source-text">'
-      +'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · '
-      +'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a></span>'
-      +'<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
-      +'<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#C00000':'#8B1A1A')+'">P</text>'
-      +'<text x="92" y="87" font-family="\'Playfair Display\',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="'+(d?'#F5EFE0':'#3D2B1F')+'">opuli</text></svg></div>'
-      +'</div>'
-      +'<div class="panel">'
-      +'<div class="panel-header"><span class="panel-header-title">Lectura del indicador</span>'
-      +'<span class="panel-header-date" id="panel-date"></span></div>'
-      +'<div class="panel-body" id="panel-body"></div>'
-      +'<div class="panel-footer"><a href="https://populi.org.bo/monitor-actividad-economica" target="_blank" class="ampliar-btn"><span>Ampliar análisis</span>'
-      +'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-      +'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>'
-      +'</div></div>'
-      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px" id="edu"></div>';
-  }
-
-  function buildControls(){
-    var vEl=document.getElementById('views');
-    VIEWS.forEach(function(v,i){
-      var b=document.createElement('button');
-      b.className='view-btn'+(i===curView?' active':'');
-      b.textContent=v.label;
-      b.addEventListener('click',function(){curView=i;
-        document.querySelectorAll('.view-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart();updatePanel(curIdx);buildKPIs()});
-      vEl.appendChild(b);
-    });
-    var rEl=document.getElementById('ranges');
-    RANGES.forEach(function(r,i){
-      var b=document.createElement('button');
-      b.className='range-btn'+(i===curRange?' active':'');
-      b.textContent=r.label;
-      b.addEventListener('click',function(){curRange=i;
-        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart();updatePanel(curIdx);buildKPIs()});
-      rEl.appendChild(b);
-    });
-  }
-
-  function getSlice(){
-    var trim=RANGES[curRange].trim;
-    var si=trim>0?Math.max(0,LABELS.length-trim):0;
-    return{si:si,labels:LABELS.slice(si)};
-  }
-
-  function buildKPIs(){
-    var k=VIEWS[curView].key;
-    var li=LABELS.length-1;
-    var pv=PIB[k][li];
-    var bestS=null,bestV=-999,worstS=null,worstV=999,posCount=0;
-    G.forEach(function(s){
-      var v=s[k][li];if(v==null)return;
-      if(v>bestV){bestV=v;bestS=s}
-      if(v<worstV){worstV=v;worstS=s}
-      if(v>0)posCount++;
-    });
-    document.getElementById('kpis').innerHTML=
-      '<div class="kpi-card" data-s="pib"><div class="kpi-label">Crecimiento PIB</div>'
-      +'<div class="kpi-value" style="color:var(--accent)">'+fp(pv)+'</div>'
-      +'<div class="kpi-sub">'+VIEWS[curView].label+' · '+fq(LABELS[li])+'</div></div>'
-      +'<div class="kpi-card" data-s="best"><div class="kpi-label">Mayor contribución</div>'
-      +'<div class="kpi-value" style="color:'+(bestS?bestS.c:'#000')+'">'+fpp(bestV)+'</div>'
-      +'<div class="kpi-sub">'+(bestS?bestS.n:'—')+'</div></div>'
-      +'<div class="kpi-card" data-s="worst"><div class="kpi-label">Mayor resta</div>'
-      +'<div class="kpi-value" style="color:'+(worstS?worstS.c:'#000')+'">'+fpp(worstV)+'</div>'
-      +'<div class="kpi-sub">'+(worstS?worstS.n:'—')+'</div></div>'
-      +'<div class="kpi-card" data-s="count"><div class="kpi-label">Aportan positivo</div>'
-      +'<div class="kpi-value" style="color:#D97706">'+posCount+' <span style="font-size:.7rem;font-weight:400">de 5</span></div>'
-      +'<div class="kpi-sub">Componentes que suman al crecimiento</div></div>';
-  }
+  /* ── Chart ─────────────────────────────────────── */
+  var chartDom=document.getElementById('chart');
+  var chart=echarts.init(chartDom);
 
   function buildChart(){
-    var d=dk();
-    var k=VIEWS[curView].key;
-    var sl=getSlice();
-    var labels=sl.labels;var si=sl.si;
 
-    var series=[];
-    G.forEach(function(s){
-      series.push({
-        name:s.n,type:'bar',stack:'contrib',
-        data:s[k].slice(si),
-        itemStyle:{color:s.c},
-        emphasis:{focus:'series'},
-        barMaxWidth:28
-      });
-    });
-    series.push({
-      name:'PIB Total',type:'line',smooth:0.3,
-      data:PIB[k].slice(si),
-      symbol:'circle',symbolSize:4,z:10,
-      lineStyle:{width:2.5,color:d?'#E2E8F0':'#0D1B2A'},
-      itemStyle:{color:d?'#E2E8F0':'#0D1B2A',borderColor:d?'#141414':'#fff',borderWidth:1.5},
-      connectNulls:true
-    });
-
+    var labels=["2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
     chart.setOption({
       backgroundColor:'transparent',
-      grid:{top:24,right:12,bottom:44,left:48},
-      legend:{show:true,bottom:2,itemWidth:12,itemHeight:2,itemGap:10,
-        type:'scroll',pageIconSize:10,pageTextStyle:{fontSize:9},
-        textStyle:{fontFamily:'Inter',fontSize:9,color:d?'#94A3B8':'#64748B',padding:[0,0,0,2]},
-        itemStyle:{borderWidth:0}},
+      grid:{top:30,right:16,bottom:70,left:52},
       tooltip:{
-        trigger:'axis',
-        backgroundColor:d?'#080808':'rgba(13,27,42,.96)',
-        borderColor:d?'#2A3A50':'#1A2940',
-        textStyle:{fontFamily:'Inter',fontSize:11,color:'#fff'},
-        padding:[12,16],
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:420px;overflow-y:auto;',
-        formatter:function(params){
-          if(!params.length)return'';
-          var idx=params[0].dataIndex;
-          updatePanel(idx+si);
-          var lbl=labels[idx];
-          var html='<div style="font-weight:700;margin-bottom:6px;color:#E9D8A6;font-size:12px">'+fq(lbl)+'</div>';
-          var pibP=params.find(function(p){return p.seriesName==='PIB Total'});
-          if(pibP&&pibP.value!=null){
-            html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.1)">'
-              +'<span style="width:10px;height:2px;background:'+(d?'#E2E8F0':'#fff')+';display:inline-block"></span>'
-              +'<span style="font-size:10px;color:rgba(255,255,255,.6)">PIB Total</span>'
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:12px;margin-left:auto">'+fp(pibP.value)+'</span></div>';
+      trigger:'axis',
+      axisPointer:{type:'shadow'},
+      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
+      borderColor:dk()?'#2A3A50':'#1A2940',
+      borderWidth:1,
+      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
+      padding:[12,16],
+      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
+      formatter:function(params){
+        if(!params||!params.length) return '';
+        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
+        params.forEach(function(p){
+          if(p.value!=null){
+            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
+              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
+              +p.value.toFixed(2)+' pp</span><br/>';
           }
-          var items=params.filter(function(p){return p.seriesName!=='PIB Total'&&p.value!=null&&Math.abs(p.value)>=0.01})
-            .sort(function(a,b){return b.value-a.value});
-          items.forEach(function(p){
-            html+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">'
-              +'<span style="width:8px;height:8px;border-radius:50%;background:'+p.color+';display:inline-block"></span>'
-              +'<span style="font-size:10px;color:rgba(255,255,255,.6);flex:1">'+p.seriesName+'</span>'
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px;color:'+(p.value>=0?'#34D399':'#F87171')+'">'+fpp(p.value)+'</span></div>';
-          });
-          return html;
-        }
+        });
+        return s;
+      }
+    },
+      legend:{
+        data:["Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones (\u2212)", "PIB Total"],bottom:4,type:'scroll',
+        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}
       },
       xAxis:{
-        type:'category',data:labels,
-        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
-        axisTick:{show:false},
-        axisLabel:{fontFamily:'Inter',fontSize:9,fontWeight:500,color:d?'#64748B':'#94A3B8',
-          formatter:function(v,i){
-            if(i===0||i===labels.length-1)return v;
-            var step=Math.max(1,Math.round(labels.length/8));
-            return i%step===0?v:'';
-          },showMinLabel:true,showMaxLabel:true,rotate:35}
-      },
+      type:'category',
+      data:labels,
+      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
+      axisTick:{show:false},
+      axisLabel:{
+        fontFamily:'Inter',fontSize:10,fontWeight:500,
+        color:dk()?'#64748B':'#94A3B8',
+        rotate:45,
+        interval:1
+      }
+    },
       yAxis:{
-        type:'value',
-        splitLine:{lineStyle:{color:d?'#1E1E1E':'#F1F5F9',type:'dashed'}},
-        axisLine:{show:false},axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:10,color:d?'#64748B':'#94A3B8',
-          formatter:function(v){return(v>=0?'+':'')+v+'%'}}
-      },
-      series:series
+      type:'value',
+      name:'pp',
+      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8',padding:[0,0,0,0]},
+      splitLine:{lineStyle:{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+      axisLine:{show:false},
+      axisTick:{show:false},
+      axisLabel:{
+        fontFamily:'JetBrains Mono',fontSize:11,
+        color:dk()?'#64748B':'#94A3B8',
+        formatter:'{value}'
+      }
+    },
+      series:[{
+          name:'Consumo Gobierno',type:'bar',stack:'total',data:[-0.32, 1.42, 0.83, 0.07, 0.5, 0.19, -0.0, 0.45, -0.48, -0.56, -0.16, -0.21, 0.72, 0.75, 0.52, 1.23, 0.15, -0.17, 0.93, 0.19, 0.71, 1.54, 0.27, 0.15, 0.09, -0.08, -0.13, 0.54, -0.15, -0.2, 0.7, -0.46],
+          itemStyle:{color:'#005F73'},barMaxWidth:16
+        },{
+          name:'Consumo Hogares',type:'bar',stack:'total',data:[1.28, 3.0, 0.78, 3.31, 4.13, 2.72, 2.06, -3.92, -2.05, -16.74, -9.5, -1.07, -3.83, 16.18, 7.88, 2.89, 4.55, 4.21, 5.28, 1.45, 2.95, 1.15, 0.08, 2.95, -0.75, 3.39, 1.26, 0.59, 3.19, -0.14, 1.35, 0.36],
+          itemStyle:{color:'#0A9396'},barMaxWidth:16
+        },{
+          name:'FBK',type:'bar',stack:'total',data:[0.03, 2.18, -0.55, 2.47, 1.66, 0.92, 0.83, -5.48, -6.56, -13.83, -8.21, -1.85, -1.33, 9.79, 2.17, -0.23, 0.78, -0.81, 1.18, 1.49, 3.2, 2.26, 0.57, -1.55, -1.99, -2.53, -1.82, -1.59, -3.62, -0.26, -2.14, -1.4],
+          itemStyle:{color:'#EE9B00'},barMaxWidth:16
+        },{
+          name:'Exportaciones',type:'bar',stack:'total',data:[1.71, 0.64, -0.43, -0.34, -1.16, -1.28, 1.05, 2.58, -0.45, -7.76, -6.77, -3.81, 1.29, 12.01, 7.98, 5.03, 5.14, 4.77, 2.43, -1.83, -4.28, -3.21, -1.09, -0.41, -2.23, -2.04, -4.25, -4.47, -2.22, 0.03, 2.09, 5.85],
+          itemStyle:{color:'#0A9396'},barMaxWidth:16
+        },{
+          name:'Importaciones (−)',type:'bar',stack:'total',data:[0.29, -0.67, -0.22, -3.93, -1.61, -1.4, -0.35, 4.19, 4.96, 12.99, 8.38, 4.23, 1.3, -11.37, -5.7, -4.14, -1.88, -3.46, -6.16, -2.95, -2.76, 1.84, 3.04, 2.66, 2.5, 2.11, 3.53, 3.24, 1.13, -2.2, -2.67, -5.49],
+          itemStyle:{color:'#C71E1D'},barMaxWidth:16
+        },{
+      name:'PIB Total',type:'line',data:[2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14],
+      symbol:'circle',symbolSize:4,z:10,
+      lineStyle:{color:dk()?'#E2E8F0':'#0D1B2A',width:2},
+      itemStyle:{color:dk()?'#E2E8F0':'#0D1B2A'}
+    }]
     },true);
   }
 
-  function updatePanel(globalIdx){
-    if(globalIdx<0||globalIdx>=LABELS.length)globalIdx=LABELS.length-1;
-    curIdx=globalIdx;
-    var d=dk();
-    var k=VIEWS[curView].key;
-    var lbl=LABELS[globalIdx];
-    var pv=PIB[k][globalIdx];
-
-    document.getElementById('panel-date').textContent=fq(lbl);
-
-    var items=[];
-    G.forEach(function(s){items.push({n:s.n,c:s.c,v:s[k][globalIdx]})});
-    items.sort(function(a,b){return(b.v||0)-(a.v||0)});
-
-    var pos=items.filter(function(x){return x.v!=null&&x.v>0});
-    var neg=items.filter(function(x){return x.v!=null&&x.v<0});
-
-    var html='<div class="panel-block">'
-      +'<div class="panel-label" style="color:#0D9488;background:rgba(13,148,136,.08);border-left-color:#0D9488">PIB Total — '+VIEWS[curView].label+'</div>'
-      +'<div class="panel-val" style="color:#0D9488">'+fp(pv)+'</div>'
-      +'<p class="panel-desc">Descomposición del crecimiento en <strong>contribuciones por componente de gasto</strong> (puntos porcentuales).</p></div>';
-
-    if(pos.length){
-      html+='<div class="panel-block"><div style="font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#059669;margin-bottom:4px">&#9650; Aportan al crecimiento</div>';
-      pos.forEach(function(x){
-        var note='';
-        if(x.n==='Importaciones') note=' <span style="font-size:.5rem;color:var(--muted)">(caen)</span>';
-        html+='<div class="cb-row"><span class="cb-dot" style="background:'+x.c+'"></span>'
-          +'<span class="cb-name">'+x.n+note+'</span>'
-          +'<span class="cb-val" style="color:'+(d?'#34D399':'#059669')+'">'+fpp(x.v)+'</span></div>';
-      });
-      html+='</div>';
-    }
-    if(neg.length){
-      html+='<div class="panel-block"><div style="font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#C71E1D;margin-bottom:4px">&#9660; Restan al crecimiento</div>';
-      neg.forEach(function(x){
-        var note='';
-        if(x.n==='Importaciones') note=' <span style="font-size:.5rem;color:var(--muted)">(crecen)</span>';
-        html+='<div class="cb-row"><span class="cb-dot" style="background:'+x.c+'"></span>'
-          +'<span class="cb-name">'+x.n+note+'</span>'
-          +'<span class="cb-val" style="color:'+(d?'#F87171':'#C71E1D')+'">'+fpp(x.v)+'</span></div>';
-      });
-      html+='</div>';
-    }
-
-    var best=items[0],worst=items[items.length-1];
-    var analysis='';
-    if(pv!=null&&pv<0){
-      analysis='<strong>Economía en contracción.</strong> El PIB cae <span class="delta-tag dt-red">'+fp(pv)+'</span>. ';
-      if(worst&&worst.v!=null)analysis+='El principal lastre es <strong>'+worst.n+'</strong> restando <span class="delta-tag dt-red">'+fpp(worst.v)+'</span>.';
-      if(pos.length>0)analysis+=' Sin embargo, '+pos.length+' componente'+(pos.length>1?'s aún aportan':' aún aporta')+' positivamente.';
-    } else if(pv!=null){
-      analysis='<strong>Economía en expansión.</strong> El PIB crece <span class="delta-tag dt-teal">'+fp(pv)+'</span>. ';
-      if(best&&best.v!=null)analysis+='El principal motor es <strong>'+best.n+'</strong> aportando <span class="delta-tag dt-green">'+fpp(best.v)+'</span>.';
-    } else {
-      analysis='Datos no disponibles para este trimestre en la medida seleccionada.';
-    }
-
-    var demInt=((items.find(function(x){return x.n==='Consumo Privado'})||{}).v||0)
-      +((items.find(function(x){return x.n==='Consumo Público'})||{}).v||0)
-      +((items.find(function(x){return x.n==='Inversión'})||{}).v||0);
-    var demExt=((items.find(function(x){return x.n==='Exportaciones'})||{}).v||0)
-      +((items.find(function(x){return x.n==='Importaciones'})||{}).v||0);
-    if(pv!=null){
-      analysis+='<br><br><strong>Demanda interna</strong> (C+G+I): <span class="delta-tag '+(demInt>=0?'dt-teal':'dt-red')+'">'+fpp(demInt)+'</span>. ';
-      analysis+='<strong>Sector externo neto</strong> (X−M): <span class="delta-tag '+(demExt>=0?'dt-teal':'dt-red')+'">'+fpp(demExt)+'</span>.';
-    }
-    html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
-
-    document.getElementById('panel-body').innerHTML=html;
-  }
-
-  function buildEdu(){
-    var items=[
-      {t:'¿Qué es la contribución por gasto?',
-       c:'<p>Mide <strong>cuántos puntos porcentuales</strong> aporta cada componente del gasto al crecimiento total del PIB. Si el PIB crece 3% y el Consumo Privado contribuye 2.1 pp, significa que el consumo de hogares explica el 70% del crecimiento total.</p>'
-        +'<p>La identidad del gasto es: <strong>PIB = C + G + I + X − M</strong>, donde C es consumo privado, G consumo público, I inversión, X exportaciones y M importaciones.</p>'},
-      {t:'¿Por qué importaciones aparecen con signo invertido?',
-       c:'<p>En la identidad del gasto, las importaciones se <strong>restan</strong> del PIB. Por eso, cuando las importaciones <strong>crecen</strong>, su contribución al crecimiento es <strong>negativa</strong> (restan al PIB). Cuando <strong>caen</strong>, su contribución es <strong>positiva</strong> (suman al PIB).</p>'
-        +'<p>En el panel, cuando las importaciones aparecen en la sección verde significa que cayeron; si aparecen en la sección roja, significa que crecieron.</p>'},
-      {t:'Demanda interna vs. sector externo',
-       c:'<p>La <strong>demanda interna</strong> (C+G+I) refleja el gasto doméstico en consumo e inversión. El <strong>sector externo neto</strong> (X−M) refleja la contribución del comercio internacional.</p>'
-        +'<p>Cuando la demanda interna lidera, el crecimiento depende del mercado interno. Cuando el sector externo domina, el crecimiento está más expuesto a shocks de precios internacionales y términos de intercambio.</p>'}
-    ];
-    document.getElementById('edu').innerHTML=items.map(function(e){
-      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
-        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.t+'</span>'
-        +'<span class="edu-box-arrow">&#9660;</span></div>'
-        +'<div class="edu-box-content">'+e.c+'</div></div>';
-    }).join('');
-  }
-
-  init();
+  buildChart();
+  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize',function(){chart.resize()});
 })();
 </script>
 </body>

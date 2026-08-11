@@ -37,18 +37,21 @@ FILE_GASTO_CONTRIBUCION = DATOS_DIR / "pib_trimestral_base2017/encadenadas/22_pi
 FILE_BASE1990_VARIACION = DATOS_DIR / "pib_trimestral_base1990/actividad/04_pib_actividad_variacion_similar.xlsx"
 
 # ── Sector palette & names ──────────────────────────────────────────────────
+# Paleta oficial POPULI — ver Proyectos/populi-marca/paleta.py (fuente única).
+# 11 sectores > las 4 series validadas, así que va CATEGORICAL_12 (4 familias × 3
+# pasos). Admin. Pública queda en gris a propósito: no es un sector productivo.
 SECTOR_COLORS = {
-    "agro":    "#059669",
-    "extract": "#D97706",
-    "manuf":   "#2563EB",
-    "elec":    "#8B5CF6",
+    "agro":    "#0A9396",
+    "extract": "#A86E00",
+    "manuf":   "#005F73",
+    "elec":    "#EE9B00",
     "const":   "#C71E1D",
-    "comer":   "#0EA5E9",
-    "trans":   "#6366F1",
-    "aloja":   "#EC4899",
-    "finan":   "#F59E0B",
-    "admin":   "#64748B",
-    "comun":   "#14B8A6",
+    "comer":   "#94D2BD",
+    "trans":   "#9B2226",
+    "aloja":   "#DF5D25",
+    "finan":   "#E9D8A6",
+    "admin":   "#5C6B70",
+    "comun":   "#E8706B",
 }
 SECTOR_COLORS_LIST = list(SECTOR_COLORS.values())
 
@@ -74,13 +77,16 @@ GASTO_NAMES = [
     "Exportaciones",
     "Importaciones",
 ]
+# Los pares comparten familia para que la relación se lea en el color:
+# consumo (petróleo claro/oscuro) · inversión FBK-FBCF (ámbar) · comercio exterior
+# usa el par validado #0A9396/#C71E1D, que es el que mejor contrasta entre sí.
 GASTO_COLORS = {
-    "Consumo Gobierno": "#3B82F6",
-    "Consumo Hogares": "#0D9488",
-    "FBK": "#F59E0B",
-    "FBCF": "#F97316",
-    "Exportaciones": "#10B981",
-    "Importaciones": "#EF4444",
+    "Consumo Gobierno": "#005F73",
+    "Consumo Hogares": "#94D2BD",
+    "FBK": "#EE9B00",
+    "FBCF": "#A86E00",
+    "Exportaciones": "#0A9396",
+    "Importaciones": "#C71E1D",
 }
 
 
@@ -210,19 +216,19 @@ def classify_gasto(k):
     """Return (display_name, color) for an expenditure key, or None to skip."""
     ku = k.upper()
     if "PRODUCTO" in ku:
-        return ("PIB Total", "#0D9488")
+        return ("PIB Total", "#0A9396")
     if "ADMINISTRACI" in ku:
-        return ("Consumo Gobierno", "#3B82F6")
+        return ("Consumo Gobierno", "#005F73")
     if "HOGARES" in ku:
-        return ("Consumo Hogares", "#0D9488")
+        return ("Consumo Hogares", "#0A9396")
     if "FORMACI" in ku and "FIJO" not in ku:
-        return ("FBK", "#F59E0B")
+        return ("FBK", "#EE9B00")
     if "FIJO" in ku:
-        return ("FBCF", "#F97316")
+        return ("FBCF", "#A86E00")
     if "EXPORTACION" in ku:
-        return ("Exportaciones", "#10B981")
+        return ("Exportaciones", "#0A9396")
     if "IMPORTACION" in ku:
-        return ("Importaciones", "#EF4444")
+        return ("Importaciones", "#C71E1D")
     return None
 
 
@@ -246,7 +252,7 @@ def populi_html(title, chart_height, section_title, section_subtitle,
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
 :root{{
-  --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
   --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
   --navy:#0D1B2A;--navy-light:#1A2940;
   --slate:#475569;--slate-light:#64748B;
@@ -255,9 +261,9 @@ def populi_html(title, chart_height, section_title, section_subtitle,
   --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
   --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
   --radius:12px;
-  --ct-pib:#0D9488;--ct-agro:#059669;--ct-extract:#D97706;--ct-manuf:#2563EB;
-  --ct-elec:#8B5CF6;--ct-const:#C71E1D;--ct-comer:#0EA5E9;--ct-trans:#6366F1;
-  --ct-aloja:#EC4899;--ct-finan:#F59E0B;--ct-admin:#64748B;--ct-comun:#14B8A6;
+  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
+  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
+  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
 }}
 [data-theme="dark"]{{
   --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
@@ -303,7 +309,7 @@ body{{
     <div id="chart"></div>
     <div class="chart-source">
       <span class="chart-source-text">Fuente: <a>{source_label}</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#8B1A1A">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
     </div>
   </div>
 </div>
@@ -527,11 +533,11 @@ def build_chart1():
         {{
           name:'Base 2017',type:'line',data:d17,
           symbol:'none',z:3,
-          lineStyle:{{width:2.5,color:'#0D9488'}},
-          itemStyle:{{color:'#0D9488'}},
+          lineStyle:{{width:2.5,color:'#0A9396'}},
+          itemStyle:{{color:'#0A9396'}},
           areaStyle:{{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {{offset:0,color:'#0D948818'}},
-            {{offset:1,color:'#0D948802'}}
+            {{offset:0,color:'#0A939618'}},
+            {{offset:1,color:'#0A939602'}}
           ])}},
           connectNulls:false,
           markLine:{{
@@ -558,7 +564,7 @@ def build_chart1():
         chart_height=500,
         section_title="Crecimiento del PIB de Bolivia",
         section_subtitle="Variación interanual trimestral (%). Base 1990 desde 2000-T1 y Base 2017 desde 2018-T1",
-        accent_bar_color="#0D9488",
+        accent_bar_color="#0A9396",
         build_chart_js=chart_js,
         source_label="INE",
     )
@@ -614,7 +620,7 @@ def build_chart2():
         type:'bar',data:vals,
         itemStyle:{{
           color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {{offset:0,color:'#0D9488'}},
+            {{offset:0,color:'#0A9396'}},
             {{offset:1,color:dk()?'rgba(13,148,136,.4)':'rgba(13,148,136,.6)'}}
           ]),
           borderRadius:[3,3,0,0]
@@ -628,7 +634,7 @@ def build_chart2():
         chart_height=440,
         section_title="PIB Trimestral Encadenado",
         section_subtitle="Millones de bolivianos encadenados, año de referencia 2017",
-        accent_bar_color="#0D9488",
+        accent_bar_color="#0A9396",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_nivel_encadenado.html").write_text(html, encoding="utf-8")
@@ -747,7 +753,7 @@ def build_chart3():
         chart_height=700,
         section_title="Crecimiento del PIB por actividad económica",
         section_subtitle="Variación interanual (%). Línea de color = sector, línea gris punteada = PIB total",
-        accent_bar_color="#2563EB",
+        accent_bar_color="#005F73",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_crecimiento_sectores.html").write_text(html, encoding="utf-8")
@@ -804,7 +810,7 @@ def build_chart4():
         chart_height=480,
         section_title="Contribución al crecimiento del PIB",
         section_subtitle="Puntos porcentuales por actividad económica. Línea = crecimiento total del PIB",
-        accent_bar_color="#D97706",
+        accent_bar_color="#EE9B00",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_contribucion_sectores.html").write_text(html, encoding="utf-8")
@@ -882,7 +888,7 @@ def build_chart5():
         chart_height=480,
         section_title="Estructura del PIB por actividad económica",
         section_subtitle="Participación porcentual a precios corrientes",
-        accent_bar_color="#8B5CF6",
+        accent_bar_color="#9B2226",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_estructura_sectores.html").write_text(html, encoding="utf-8")
@@ -979,7 +985,7 @@ def build_chart6():
         chart_height=460,
         section_title="PIB por tipo de gasto",
         section_subtitle="Millones de Bs encadenados (referencia 2017). Importaciones se restan",
-        accent_bar_color="#10B981",
+        accent_bar_color="#0A9396",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_composicion.html").write_text(html, encoding="utf-8")
@@ -1062,7 +1068,7 @@ def build_chart7():
         chart_height=460,
         section_title="Crecimiento del PIB por componente de gasto",
         section_subtitle="Variación interanual (%) de cada componente de gasto",
-        accent_bar_color="#3B82F6",
+        accent_bar_color="#005F73",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_crecimiento.html").write_text(html, encoding="utf-8")
@@ -1137,7 +1143,7 @@ def build_chart8():
         chart_height=460,
         section_title="Contribución al crecimiento del PIB por tipo de gasto",
         section_subtitle="Puntos porcentuales. Línea = crecimiento total del PIB",
-        accent_bar_color="#F59E0B",
+        accent_bar_color="#EE9B00",
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_contribucion.html").write_text(html, encoding="utf-8")

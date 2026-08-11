@@ -1,382 +1,222 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estructura del PIB por Actividad · Populi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-  <style>
-    :root{
-      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
-      --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-      --navy:#0D1B2A;--navy-light:#1A2940;
-      --slate:#475569;--slate-light:#64748B;
-      --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-      --border:#E2DDD3;--dark-border:#2A3A50;
-      --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-      --accent:#0D9488;--radius:12px;
-    }
-    [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
-    .embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-    .section-header{margin-bottom:16px}
-    .section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
-    [data-theme="dark"] .section-title{color:#fff}
-    .accent-bar{width:4px;height:26px;background:var(--accent);border-radius:2px;flex-shrink:0}
-    .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-    [data-theme="dark"] .section-subtitle{color:rgba(255,255,255,.4)}
-
-    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-    @media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-    .kpi-card{background:var(--warm-white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;cursor:default;transition:transform .2s,box-shadow .2s}
-    [data-theme="dark"] .kpi-card{background:#141414;border-color:var(--dark-border)}
-    .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-    .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
-    .kpi-card[data-s="top1"]::after{background:var(--accent)}
-    .kpi-card[data-s="top2"]::after{background:#2563EB}
-    .kpi-card[data-s="up"]::after{background:#059669}
-    .kpi-card[data-s="down"]::after{background:#C71E1D}
-    .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-    [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
-    .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
-    .kpi-sub{font-size:.58rem;color:var(--muted);margin-top:2px}
-
-    .main-grid{display:grid;grid-template-columns:3fr 2fr;grid-template-rows:580px;gap:16px}
-    @media(max-width:900px){.main-grid{grid-template-columns:1fr;grid-template-rows:480px auto}}
-    @media(max-width:500px){.main-grid{grid-template-rows:380px auto}.section-title{font-size:1.2rem}.kpi-value{font-size:1rem}}
-
-    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;height:100%}
-    [data-theme="dark"] .chart-card{background:var(--card);border-color:var(--dark-border)}
-    .chart-toolbar{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:10px 14px 0;flex-wrap:wrap}
-    .toggle-group{display:flex;gap:4px}
-    .view-btn{padding:4px 12px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
-    [data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
-    .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
-    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.12)}
-    .range-btn{padding:4px 10px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
-    [data-theme="dark"] .range-btn{border-color:var(--dark-border);color:#94A3B8}
-    .range-btn:hover,.range-btn.active{border-color:var(--populi);color:var(--populi)}
-    [data-theme="dark"] .range-btn:hover,[data-theme="dark"] .range-btn.active{border-color:var(--populi-light);color:var(--populi-light)}
-    .chart-wrap{flex:1;min-height:0}
-
-    .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);height:100%;display:flex;flex-direction:column;overflow:hidden}
-    [data-theme="dark"] .panel{background:var(--card);border-color:var(--dark-border)}
-    .panel-header{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
-    .panel-header-title{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-    .panel-date{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(255,255,255,.12);padding:3px 8px;border-radius:4px}
-    .panel-body{flex:1;overflow-y:auto;padding:12px 14px}
-
-    .rank-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border)}
-    [data-theme="dark"] .rank-row{border-bottom-color:rgba(255,255,255,.06)}
-    .rank-row:last-child{border-bottom:none}
-    .rank-pos{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;color:var(--muted);width:14px;text-align:right;flex-shrink:0}
-    .rank-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .rank-name{font-size:.66rem;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .rank-pct{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;flex-shrink:0;min-width:42px;text-align:right}
-    .rank-chg{font-family:'JetBrains Mono',monospace;font-size:.52rem;font-weight:600;padding:1px 5px;border-radius:3px;flex-shrink:0;min-width:48px;text-align:center}
-    .rank-chg.up{color:#059669;background:rgba(5,150,105,.1)}
-    .rank-chg.down{color:#C71E1D;background:rgba(199,30,29,.1)}
-    .rank-chg.flat{color:var(--muted);background:rgba(100,116,139,.08)}
-    [data-theme="dark"] .rank-chg.up{background:rgba(5,150,105,.2)}
-    [data-theme="dark"] .rank-chg.down{background:rgba(199,30,29,.2)}
-    [data-theme="dark"] .rank-chg.flat{background:rgba(100,116,139,.15)}
-
-    .ctx-box{background:var(--cream);border-left:3px solid var(--populi);border-radius:0 8px 8px 0;padding:10px 12px;margin-top:10px}
-    .ctx-box p{font-size:.66rem;line-height:1.55;color:var(--text)}
-    .ctx-box strong{font-weight:700}
-
-    .panel-footer{padding:10px 14px;border-top:1px solid var(--border);text-align:center}
-    [data-theme="dark"] .panel-footer{border-top-color:var(--dark-border)}
-    .btn-ampliar{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;border:1.5px solid var(--populi);border-radius:8px;background:transparent;color:var(--populi);font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s}
-    .btn-ampliar:hover{background:var(--populi);color:#fff}
-
-    .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:16px}
-    .edu-box{background:var(--cream);border-radius:8px;padding:10px 12px;border-left:3px solid var(--populi);cursor:pointer;transition:all .2s}
-    [data-theme="dark"] .edu-box{background:var(--navy-light)}
-    .edu-box:hover{transform:translateY(-1px)}
-    .edu-box-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .edu-box-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--populi)}
-    [data-theme="dark"] .edu-box-title{color:var(--populi-light)}
-    .edu-box-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s}
-    .edu-box.open .edu-box-arrow{transform:rotate(180deg)}
-    .edu-box-content{display:none;margin-top:8px}
-    .edu-box.open .edu-box-content{display:block}
-    .edu-box-content p{font-size:.66rem;line-height:1.6;color:var(--slate-light);margin-bottom:6px}
-    .edu-box-content p:last-child{margin-bottom:0}
-    [data-theme="dark"] .edu-box-content p{color:#94A3B8}
-    .edu-box-content p strong{color:var(--navy)}
-    [data-theme="dark"] .edu-box-content p strong{color:#E2E8F0}
-    .edu-box-content .highlight{display:inline;font-family:'JetBrains Mono',monospace;font-size:.92em;font-weight:600;padding:0 4px;border-radius:3px}
-    .hl-teal{background:rgba(13,148,136,.08);color:#0D9488}
-
-    .source{text-align:center;margin-top:16px;font-size:.55rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
-    .watermark{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:.62rem;color:var(--populi);opacity:.7}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Estructura del PIB por sector</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
+  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+  --navy:#0D1B2A;--navy-light:#1A2940;
+  --slate:#475569;--slate-light:#64748B;
+  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+  --border:#E2DDD3;--dark-border:#2A3A50;
+  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
+  --radius:12px;
+  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
+  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
+  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
+}
+[data-theme="dark"]{
+  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
+  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+}
+.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.section-title{
+  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
+  color:var(--navy);display:flex;align-items:center;gap:10px;
+}
+[data-theme="dark"] .section-title{color:#fff}
+.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
+.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+.chart-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
+}
+[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+#chart{width:100%;height:480px}
+.chart-source{
+  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
+}
+.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+.watermark{height:15px;width:auto;opacity:.18}
+[data-theme="dark"] .watermark{opacity:.10}
+</style>
 </head>
 <body>
-<div class="embed-container" id="app"></div>
+<div class="embed-container">
+  <div class="section-title">
+    <span class="accent-bar" style="background:#9B2226"></span>
+    Estructura del PIB por actividad económica
+  </div>
+  <div class="section-subtitle">Participación porcentual a precios corrientes</div>
+  <div class="chart-card">
+    <div id="chart"></div>
+    <div class="chart-source">
+      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+    </div>
+  </div>
+</div>
 <script>
 (function(){
+  /* ── Theme ─────────────────────────────────────── */
   var params=new URLSearchParams(window.location.search);
   if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
   function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  var LABELS=["2017-T1","2017-T2","2017-T3","2017-T4","2018-T1","2018-T2","2018-T3","2018-T4","2019-T1","2019-T2","2019-T3","2019-T4","2020-T1","2020-T2","2020-T3","2020-T4","2021-T1","2021-T2","2021-T3","2021-T4","2022-T1","2022-T2","2022-T3","2022-T4","2023-T1","2023-T2","2023-T3","2023-T4","2024-T1","2024-T2","2024-T3","2024-T4","2025-T1","2025-T2","2025-T3","2025-T4"];
-
-  var S=[
-    {n:'Financieras',c:'#F59E0B',d:[15.13,14.62,14.24,15.01,15.5,14.17,14.27,14.54,15.72,15.15,14.61,16.15,16.46,18.02,16.37,15.14,15.68,14.05,15.2,15.49,16.07,14.64,15.15,15.43,15.68,14.54,15.22,17.03,16.88,14.7,14.84,15.01,14.49,12.75,12.87,13.07]},
-    {n:'Adm. Pública',c:'#64748B',d:[14.85,11.57,12.48,12.29,13.89,13.69,13.75,13.24,13.89,13.46,13.22,13.68,14.75,18.37,16.58,14.41,15.54,14.07,13.59,13.59,14.95,11.86,13.81,14.27,14.2,13.8,14.14,13.98,15.17,13.79,13.5,13.41,13.66,12.37,12.12,11.16]},
-    {n:'Manufactura',c:'#2563EB',d:[11.64,11.36,11.7,11.58,11.38,10.97,11.16,11.24,11.2,10.69,11.67,11.39,11.87,9.8,11.21,12.27,12.36,11.84,11.96,11.97,11.86,12.3,12.46,12.38,12.11,11.61,11.77,11.88,12.57,12.56,13.54,13.53,15.29,17.06,16.67,15.13]},
-    {n:'Extractiva',c:'#D97706',d:[8.72,9.59,10.33,10.9,11.08,10.44,10.52,9.93,10.07,9.6,10.66,10.9,9.54,6.12,8.59,10.49,10.35,10.76,11.93,13.12,13.76,13.24,11.99,11.97,12.06,10.51,9.87,9.57,10.05,10.37,10.53,11.57,11.19,10.58,12.27,16.42]},
-    {n:'Comercio',c:'#0EA5E9',d:[7.82,8.82,8.44,7.94,7.69,8.62,8.25,8.31,8.09,8.59,8.34,8.3,8.27,8.19,7.51,7.71,7.75,8.49,8.1,7.99,7.61,8.86,8.77,8.37,8.19,8.77,8.55,8.24,7.82,8.62,8.13,7.72,7.88,9.02,9.12,8.65]},
-    {n:'Agricultura',c:'#059669',d:[6.78,10.61,8.02,5.25,6.51,9.78,7.93,5.39,6.32,9.99,8.17,5.83,7.05,13.6,10.18,6.54,7.8,11.93,9.37,6.12,6.99,11.7,9.47,6.25,7.65,12.36,10.05,6.91,7.14,12.09,9.3,6.52,8.67,13.15,11.46,7.64]},
-    {n:'Transporte',c:'#6366F1',d:[7.05,6.87,6.78,7.03,6.79,6.31,6.74,7.15,6.69,6.47,6.69,6.49,6.21,5.34,6.01,6.52,5.9,5.74,6.09,6.4,5.91,5.38,6.03,6.34,6.12,5.91,5.94,6.32,6.15,5.85,6.3,7.22,7.39,6.71,7.39,7.39]},
-    {n:'Construcción',c:'#C71E1D',d:[7.03,6.5,6.99,7.81,6.33,6.46,7.46,7.88,6.97,7.21,7.44,6.81,5.15,3.5,5.31,6.27,4.88,5.14,5.67,5.77,4.69,4.79,5.32,5.82,5.08,5.12,5.5,6.23,5.39,4.92,5.78,6.26,4.61,4.75,5.36,5.3]},
-    {n:'Comunales',c:'#14B8A6',d:[4.56,4.17,4.44,4.79,4.64,4.18,3.89,5.18,4.67,4.04,4.59,5.18,5.75,3.38,4.58,6.02,5.18,4.27,4.12,4.51,4.24,4.18,4.54,4.95,4.68,4.14,4.52,4.88,4.81,4.21,4.53,4.99,4.67,3.66,3.62,3.81]},
-    {n:'Alojamiento',c:'#EC4899',d:[4.2,4.18,4.25,4.72,4.44,4.45,4.88,4.86,5.23,4.87,4.77,4.64,5.1,4.65,3.9,4.21,4.73,4.41,4.64,4.91,4.98,5.01,5.16,5.07,4.95,4.99,5.35,5.18,5.11,4.91,5.07,5.05,4.95,4.59,4.13,4.35]},
-    {n:'Electricidad',c:'#8B5CF6',d:[1.66,1.56,1.57,1.68,1.67,1.54,1.69,1.83,1.86,1.71,1.72,1.95,1.92,2.11,1.95,1.97,1.99,1.79,1.77,1.89,1.88,1.75,1.84,2.01,1.99,1.82,1.94,2.13,2.12,1.9,1.84,1.97,1.89,1.6,1.6,1.69]},
-    {n:'Impuestos',c:'#A3A3A3',d:[10.58,10.15,10.75,11.01,10.06,9.39,9.47,10.46,9.28,8.22,8.12,8.68,7.92,6.93,7.83,8.46,7.83,7.51,7.56,8.25,7.06,6.29,5.44,7.14,7.29,6.42,7.15,7.66,6.79,6.07,6.63,6.75,5.31,3.77,3.4,5.38]}
-  ];
-
-  var LABELS_A=["2017","2018","2019","2020","2021","2022","2023","2024","2025"];
-  var SA=S.map(function(s){
-    var ad=[];
-    for(var y=0;y<9;y++){
-      var sum=0;
-      for(var q=0;q<4;q++) sum+=s.d[y*4+q];
-      ad.push(Math.round(sum/4*100)/100);
-    }
-    return {n:s.n,c:s.c,d:ad};
-  });
-
-  var VIEWS=[{label:'Trimestral'},{label:'Anual'}];
-  var RANGES=[{label:'3A',trim:12,trimA:3},{label:'5A',trim:20,trimA:5},{label:'Todo',trim:0,trimA:0}];
-  var curView=0,curRange=0,chart=null,curIdx=-1;
-
-  function isAnnual(){return curView===1}
-  function curLabels(){return isAnnual()?LABELS_A:LABELS}
-  function curData(){return isAnnual()?SA:S}
-
-  function getSlice(){
-    var labs=curLabels();
-    var trim=isAnnual()?RANGES[curRange].trimA:RANGES[curRange].trim;
-    if(!trim) return {labels:labs,start:0};
-    var start=labs.length-trim;
-    return {labels:labs.slice(start),start:start};
-  }
-
-  function yagoIdx(idx){
-    return isAnnual()?idx-1:idx-4;
-  }
-
-  function buildKPIs(){
-    var labs=curLabels(),data=curData();
-    var last=labs.length-1;
-    var yago=yagoIdx(last);
-    var items=data.map(function(s){return {n:s.n,c:s.c,v:s.d[last],chg:yago>=0?(s.d[last]-s.d[yago]):0}});
-    items.sort(function(a,b){return b.v-a.v});
-    var top1=items[0],top2=items[1];
-    var byChg=items.slice().sort(function(a,b){return b.chg-a.chg});
-    var up=byChg[0],down=byChg[byChg.length-1];
-    var cmpLabel=yago>=0?labs[yago]:'—';
-    document.getElementById('kpi-area').innerHTML=
-      '<div class="kpi-card" data-s="top1"><div class="kpi-label">Mayor Sector</div>'
-      +'<div class="kpi-value" style="color:'+top1.c+'">'+top1.v.toFixed(1)+'%</div>'
-      +'<div class="kpi-sub">'+top1.n+' · '+labs[last]+'</div></div>'
-      +'<div class="kpi-card" data-s="top2"><div class="kpi-label">Segundo Sector</div>'
-      +'<div class="kpi-value" style="color:'+top2.c+'">'+top2.v.toFixed(1)+'%</div>'
-      +'<div class="kpi-sub">'+top2.n+' · '+labs[last]+'</div></div>'
-      +'<div class="kpi-card" data-s="up"><div class="kpi-label">Mayor Aumento</div>'
-      +'<div class="kpi-value" style="color:#059669">+'+up.chg.toFixed(1)+'pp</div>'
-      +'<div class="kpi-sub">'+up.n+' vs '+cmpLabel+'</div></div>'
-      +'<div class="kpi-card" data-s="down"><div class="kpi-label">Mayor Caída</div>'
-      +'<div class="kpi-value" style="color:#C71E1D">'+down.chg.toFixed(1)+'pp</div>'
-      +'<div class="kpi-sub">'+down.n+' vs '+cmpLabel+'</div></div>';
-  }
+  /* ── Chart ─────────────────────────────────────── */
+  var chartDom=document.getElementById('chart');
+  var chart=echarts.init(chartDom);
 
   function buildChart(){
-    var sl=getSlice();
-    var d=dk();
-    var data=curData();
-    var annual=isAnnual();
-    var series=data.map(function(s){
-      return {
-        name:s.n,type:'line',stack:'total',
-        areaStyle:{opacity:.82},
-        lineStyle:{width:annual?1:.5,color:s.c},
-        itemStyle:{color:s.c},
-        symbol:annual?'circle':'none',
-        symbolSize:annual?4:0,
-        emphasis:{focus:'series',blurScope:'global'},
-        data:s.d.slice(sl.start)
-      };
-    });
-    var opt={
+
+    var labels=["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
+    chart.setOption({
       backgroundColor:'transparent',
-      animation:true,animationDuration:400,
+      grid:{top:30,right:16,bottom:80,left:52},
       tooltip:{
         trigger:'axis',
-        axisPointer:{type:'line',lineStyle:{color:d?'rgba(255,255,255,.2)':'rgba(0,0,0,.15)',width:1,type:'dashed'}},
-        backgroundColor:d?'#1A2940':'#0D1B2A',
-        borderColor:d?'#2A3A50':'#1A2940',borderWidth:1,
-        textStyle:{fontFamily:'Inter',fontSize:11,color:'#E2E8F0'},
-        extraCssText:'max-height:420px;overflow-y:auto',
+        axisPointer:{type:'cross'},
+        backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
+        borderColor:dk()?'#2A3A50':'#1A2940',
+        borderWidth:1,
+        textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
+        padding:[12,16],
+        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
         formatter:function(params){
-          var realIdx=sl.start+params[0].dataIndex;
-          updatePanel(realIdx);
-          var sorted=params.slice().sort(function(a,b){return b.value-a.value});
-          var h='<div style="font-weight:700;margin-bottom:5px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:4px">'+params[0].axisValue+'</div>';
-          sorted.forEach(function(p){
-            h+='<div style="display:flex;align-items:center;gap:5px;padding:1.5px 0">'
-              +'<span style="width:7px;height:7px;border-radius:50%;background:'+p.color+';display:inline-block;flex-shrink:0"></span>'
-              +'<span style="flex:1;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.seriesName+'</span>'
-              +'<span style="font-family:JetBrains Mono;font-weight:700;font-size:10px;min-width:36px;text-align:right">'+p.value.toFixed(1)+'%</span>'
-              +'</div>';
+          if(!params||!params.length) return '';
+          var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
+          params.forEach(function(p){
+            if(p.value!=null){
+              s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
+                +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
+                +p.value.toFixed(1)+' %</span><br/>';
+            }
           });
-          return h;
+          return s;
         }
       },
-      grid:{left:42,right:12,top:10,bottom:32},
+      legend:{
+        data:["Agropecuaria", "Extractiva", "Manufactura", "Electricidad", "Construcci\u00f3n", "Comercio", "Transporte", "Alojamiento", "Financieras", "Admin. P\u00fablica", "Comunales"],bottom:4,type:'scroll',
+        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}
+      },
       xAxis:{
-        type:'category',data:sl.labels,
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:annual?10:9,color:d?'#64748B':'#94A3B8',
-          formatter:annual?null:function(v){var p=v.split('-');return p[1]==='T1'?p[0]:''}},
-        axisLine:{lineStyle:{color:d?'#2A3A50':'#E2DDD3'}},
-        axisTick:{show:false}
-      },
+      type:'category',
+      data:labels,
+      boundaryGap:false,
+      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
+      axisTick:{show:false},
+      axisLabel:{
+        fontFamily:'Inter',fontSize:10,fontWeight:500,
+        color:dk()?'#64748B':'#94A3B8',
+        rotate:45,
+        interval:1
+      }
+    },
       yAxis:{
-        type:'value',min:0,max:100,
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:d?'#64748B':'#94A3B8',
-          formatter:function(v){return v+'%'}},
-        splitLine:{lineStyle:{color:d?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)',type:'dashed'}},
-        axisLine:{show:false},axisTick:{show:false}
+        type:'value',max:100,
+        splitLine:{lineStyle:{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+        axisLine:{show:false},axisTick:{show:false},
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#94A3B8',formatter:'{value}%'}
       },
-      series:series
-    };
-    if(!chart){
-      chart=echarts.init(document.getElementById('chart'));
-      chart.getZr().on('globalout',function(){
-        var labs=curLabels();
-        updatePanel(labs.length-1);
-      });
-    }
-    chart.setOption(opt,true);
-    var labs=curLabels();
-    updatePanel(labs.length-1);
+      series:[{
+          name:'Agropecuaria',type:'line',stack:'total',data:[6.8, 10.6, 8.0, 5.2, 6.5, 9.8, 7.9, 5.4, 6.3, 10.0, 8.2, 5.8, 7.1, 13.6, 10.2, 6.5, 7.8, 11.9, 9.4, 6.1, 7.0, 11.7, 9.5, 6.2, 7.7, 12.4, 10.1, 6.9, 7.1, 12.1, 9.3, 6.5, 8.7, 13.2, 11.5, 7.6],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#0A9396'},
+          itemStyle:{color:'#0A9396'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Extractiva',type:'line',stack:'total',data:[8.7, 9.6, 10.3, 10.9, 11.1, 10.4, 10.5, 9.9, 10.1, 9.6, 10.7, 10.9, 9.5, 6.1, 8.6, 10.5, 10.4, 10.8, 11.9, 13.1, 13.8, 13.2, 12.0, 12.0, 12.1, 10.5, 9.9, 9.6, 10.0, 10.4, 10.5, 11.6, 11.2, 10.6, 12.3, 16.4],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#A86E00'},
+          itemStyle:{color:'#A86E00'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Manufactura',type:'line',stack:'total',data:[11.6, 11.4, 11.7, 11.6, 11.4, 11.0, 11.2, 11.2, 11.2, 10.7, 11.7, 11.4, 11.9, 9.8, 11.2, 12.3, 12.4, 11.8, 12.0, 12.0, 11.9, 12.3, 12.5, 12.4, 12.1, 11.6, 11.8, 11.9, 12.6, 12.6, 13.5, 13.5, 15.3, 17.1, 16.7, 15.1],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#005F73'},
+          itemStyle:{color:'#005F73'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Electricidad',type:'line',stack:'total',data:[1.7, 1.6, 1.6, 1.7, 1.7, 1.5, 1.7, 1.8, 1.9, 1.7, 1.7, 1.9, 1.9, 2.1, 2.0, 2.0, 2.0, 1.8, 1.8, 1.9, 1.9, 1.8, 1.8, 2.0, 2.0, 1.8, 1.9, 2.1, 2.1, 1.9, 1.8, 2.0, 1.9, 1.6, 1.6, 1.7],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#EE9B00'},
+          itemStyle:{color:'#EE9B00'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Construcción',type:'line',stack:'total',data:[7.0, 6.5, 7.0, 7.8, 6.3, 6.5, 7.5, 7.9, 7.0, 7.2, 7.4, 6.8, 5.2, 3.5, 5.3, 6.3, 4.9, 5.1, 5.7, 5.8, 4.7, 4.8, 5.3, 5.8, 5.1, 5.1, 5.5, 6.2, 5.4, 4.9, 5.8, 6.3, 4.6, 4.8, 5.4, 5.3],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#C71E1D'},
+          itemStyle:{color:'#C71E1D'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Comercio',type:'line',stack:'total',data:[7.8, 8.8, 8.4, 7.9, 7.7, 8.6, 8.3, 8.3, 8.1, 8.6, 8.3, 8.3, 8.3, 8.2, 7.5, 7.7, 7.8, 8.5, 8.1, 8.0, 7.6, 8.9, 8.8, 8.4, 8.2, 8.8, 8.6, 8.2, 7.8, 8.6, 8.1, 7.7, 7.9, 9.0, 9.1, 8.7],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#94D2BD'},
+          itemStyle:{color:'#94D2BD'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Transporte',type:'line',stack:'total',data:[7.0, 6.9, 6.8, 7.0, 6.8, 6.3, 6.7, 7.2, 6.7, 6.5, 6.7, 6.5, 6.2, 5.3, 6.0, 6.5, 5.9, 5.7, 6.1, 6.4, 5.9, 5.4, 6.0, 6.3, 6.1, 5.9, 5.9, 6.3, 6.2, 5.9, 6.3, 7.2, 7.4, 6.7, 7.4, 7.4],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#9B2226'},
+          itemStyle:{color:'#9B2226'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Alojamiento',type:'line',stack:'total',data:[4.2, 4.2, 4.3, 4.7, 4.4, 4.5, 4.9, 4.9, 5.2, 4.9, 4.8, 4.6, 5.1, 4.6, 3.9, 4.2, 4.7, 4.4, 4.6, 4.9, 5.0, 5.0, 5.2, 5.1, 4.9, 5.0, 5.4, 5.2, 5.1, 4.9, 5.1, 5.0, 4.9, 4.6, 4.1, 4.3],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#DF5D25'},
+          itemStyle:{color:'#DF5D25'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Financieras',type:'line',stack:'total',data:[15.1, 14.6, 14.2, 15.0, 15.5, 14.2, 14.3, 14.5, 15.7, 15.1, 14.6, 16.2, 16.5, 18.0, 16.4, 15.1, 15.7, 14.0, 15.2, 15.5, 16.1, 14.6, 15.2, 15.4, 15.7, 14.5, 15.2, 17.0, 16.9, 14.7, 14.8, 15.0, 14.5, 12.7, 12.9, 13.1],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#E9D8A6'},
+          itemStyle:{color:'#E9D8A6'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Admin. Pública',type:'line',stack:'total',data:[14.8, 11.6, 12.5, 12.3, 13.9, 13.7, 13.7, 13.2, 13.9, 13.5, 13.2, 13.7, 14.7, 18.4, 16.6, 14.4, 15.5, 14.1, 13.6, 13.6, 14.9, 11.9, 13.8, 14.3, 14.2, 13.8, 14.1, 14.0, 15.2, 13.8, 13.5, 13.4, 13.7, 12.4, 12.1, 11.2],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#5C6B70'},
+          itemStyle:{color:'#5C6B70'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        },{
+          name:'Comunales',type:'line',stack:'total',data:[4.6, 4.2, 4.4, 4.8, 4.6, 4.2, 3.9, 5.2, 4.7, 4.0, 4.6, 5.2, 5.8, 3.4, 4.6, 6.0, 5.2, 4.3, 4.1, 4.5, 4.2, 4.2, 4.5, 4.9, 4.7, 4.1, 4.5, 4.9, 4.8, 4.2, 4.5, 5.0, 4.7, 3.7, 3.6, 3.8],
+          symbol:'none',
+          lineStyle:{width:0.5,color:'#E8706B'},
+          itemStyle:{color:'#E8706B'},
+          areaStyle:{opacity:0.85},
+          emphasis:{focus:'series'}
+        }]
+    },true);
   }
 
-  function updatePanel(idx){
-    var labs=curLabels(),data=curData();
-    if(idx<0||idx>=labs.length) idx=labs.length-1;
-    curIdx=idx;
-    var yago=yagoIdx(idx);
-    var ranked=data.map(function(s){
-      return {n:s.n,c:s.c,v:s.d[idx],chg:yago>=0?(s.d[idx]-s.d[yago]):null};
-    });
-    ranked.sort(function(a,b){return b.v-a.v});
-
-    var html='';
-    ranked.forEach(function(r,i){
-      var cls=r.chg===null?'flat':(r.chg>0.05?'up':(r.chg<-0.05?'down':'flat'));
-      var txt=r.chg===null?'—':((r.chg>0?'+':'')+r.chg.toFixed(1)+'pp');
-      html+='<div class="rank-row">'
-        +'<span class="rank-pos">'+(i+1)+'</span>'
-        +'<span class="rank-dot" style="background:'+r.c+'"></span>'
-        +'<span class="rank-name">'+r.n+'</span>'
-        +'<span class="rank-pct">'+r.v.toFixed(1)+'%</span>'
-        +'<span class="rank-chg '+cls+'">'+txt+'</span>'
-        +'</div>';
-    });
-
-    var gainers=ranked.filter(function(r){return r.chg!==null&&r.chg>0.1});
-    var losers=ranked.filter(function(r){return r.chg!==null&&r.chg<-0.1});
-    var top3=ranked[0].v+ranked[1].v+ranked[2].v;
-    var period=isAnnual()?'promedio '+labs[idx]:labs[idx];
-    var cmpText=isAnnual()?'vs año anterior':'vs mismo trimestre año anterior';
-    var analysis='Los <strong>3 mayores sectores</strong> concentran el <strong>'+top3.toFixed(1)+'%</strong> del PIB ('+period+').';
-    if(gainers.length>0) analysis+=' Ganan participación '+cmpText+': '+gainers.map(function(g){return '<strong>'+g.n+'</strong> (+'+g.chg.toFixed(1)+'pp)'}).join(', ')+'.';
-    if(losers.length>0) analysis+=' Pierden: '+losers.map(function(l){return '<strong>'+l.n+'</strong> ('+l.chg.toFixed(1)+'pp)'}).join(', ')+'.';
-
-    html+='<div class="ctx-box"><p>'+analysis+'</p></div>';
-    document.getElementById('panel-body').innerHTML=html;
-    document.getElementById('panel-date').textContent=labs[idx];
-  }
-
-  function init(){
-    var c=document.getElementById('app');
-    c.innerHTML=
-      '<div class="section-header">'
-      +'<div class="section-title"><span class="accent-bar"></span>Estructura del PIB por Actividad Económica</div>'
-      +'<div class="section-subtitle">Participación porcentual a precios corrientes · Base 2017 — SCN 2008</div></div>'
-      +'<div class="kpi-grid" id="kpi-area"></div>'
-      +'<div class="main-grid">'
-      +'<div class="chart-card">'
-      +'<div class="chart-toolbar"><div class="toggle-group" id="views"></div><div class="toggle-group" id="ranges"></div></div>'
-      +'<div class="chart-wrap" id="chart"></div></div>'
-      +'<div class="panel">'
-      +'<div class="panel-header"><span class="panel-header-title">Lectura del Indicador</span><span class="panel-date" id="panel-date"></span></div>'
-      +'<div class="panel-body" id="panel-body"></div>'
-      +'<div class="panel-footer"><button class="btn-ampliar">Ampliar análisis →</button></div>'
-      +'</div></div>'
-      +'<div class="edu-grid" id="edu-boxes"></div>'
-      +'<div class="source"><span class="watermark">POPULI</span>Fuente: INE — Cuentas Nacionales Trimestrales</div>';
-
-    var vEl=document.getElementById('views');
-    VIEWS.forEach(function(v,i){
-      var b=document.createElement('button');
-      b.className='view-btn'+(i===curView?' active':'');
-      b.textContent=v.label;
-      b.addEventListener('click',function(){
-        curView=i;curIdx=-1;
-        document.querySelectorAll('.view-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart();buildKPIs();
-      });
-      vEl.appendChild(b);
-    });
-
-    var rEl=document.getElementById('ranges');
-    RANGES.forEach(function(r,i){
-      var b=document.createElement('button');
-      b.className='range-btn'+(i===curRange?' active':'');
-      b.textContent=r.label;
-      b.addEventListener('click',function(){curRange=i;
-        document.querySelectorAll('.range-btn').forEach(function(x){x.classList.remove('active')});
-        b.classList.add('active');buildChart()});
-      rEl.appendChild(b);
-    });
-
-    buildKPIs();
-    buildChart();
-    window.addEventListener('resize',function(){if(chart)chart.resize()});
-    new MutationObserver(function(){buildChart();buildKPIs()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  }
-
-  function buildEdu(){
-    var edu=[
-      {title:'¿Qué muestra la estructura del PIB?',
-       content:'<p>La <strong>estructura del PIB</strong> muestra qué porcentaje del valor total de la economía genera cada sector. Se calcula a <strong>precios corrientes</strong> (nominales), no en volúmenes encadenados, porque refleja el valor real de mercado de la producción.</p>'
-        +'<p>Si un sector aumenta su participación puede ser porque produce más, porque sus precios subieron, o ambos. Para distinguir entre estos efectos se usan las <strong>tasas de crecimiento en volumen</strong> (encadenados).</p>'},
-      {title:'¿Por qué los sectores son tan estacionales?',
-       content:'<p>Sectores como <strong>Agricultura</strong> muestran alta estacionalidad: su participación sube fuertemente en el segundo trimestre (cosecha) y cae en el cuarto. Esto es normal en economías con ciclos agrícolas marcados.</p>'
-        +'<p>La vista <strong>Anual</strong> promedia los 4 trimestres, eliminando esta volatilidad y mostrando la tendencia estructural de largo plazo con mayor claridad.</p>'},
-      {title:'¿Por qué los 12 sectores suman 100%?',
-       content:'<p>A diferencia de los <strong>volúmenes encadenados</strong> (donde los sectores no suman el PIB total por la no-aditividad del encadenamiento), a <strong>precios corrientes</strong> los 11 sectores productivos + impuestos netos suman exactamente el 100% del PIB.</p>'
-        +'<p>Esto permite visualizar la composición como un <strong>área apilada al 100%</strong>, donde cada banda representa el peso relativo de cada sector en la economía.</p>'}
-    ];
-    document.getElementById('edu-boxes').innerHTML=edu.map(function(e){
-      return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
-        +'<div class="edu-box-toggle"><span class="edu-box-title">'+e.title+'</span><span class="edu-box-arrow">&#9660;</span></div>'
-        +'<div class="edu-box-content">'+e.content+'</div></div>';
-    }).join('');
-  }
-
-  init();
-  buildEdu();
+  buildChart();
+  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize',function(){chart.resize()});
 })();
 </script>
 </body>

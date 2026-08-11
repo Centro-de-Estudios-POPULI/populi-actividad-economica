@@ -1,808 +1,193 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crecimiento del PIB · Populi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-  <style>
-    :root {
-      --populi:       #8B1A1A;
-      --populi-dark:  #6B0300;
-      --populi-light: #C00000;
-      --populi-gold:  #D4A017;
-      --cream:        #F5EFE0;
-      --brown:        #5C3D1E;
-      --brown-dark:   #3D2B1F;
-      --navy:         #0D1B2A;
-      --navy-light:   #1A2940;
-      --slate:        #475569;
-      --slate-light:  #64748B;
-      --warm-white:   #FAF8F3;
-      --light-gray:   #F1EDE5;
-      --border:       #E2DDD3;
-      --dark-border:  #2A3A50;
-      --bg:   var(--warm-white);
-      --card: #FFFFFF;
-      --text: var(--brown-dark);
-      --text2: var(--slate);
-      --muted: var(--slate-light);
-      --ct-b17: #0D9488;
-      --ct-b90: #9CA3AF;
-      --shadow: 0 1px 3px rgba(13,27,42,.04), 0 4px 16px rgba(13,27,42,.06);
-      --radius: 12px;
-    }
-    [data-theme="dark"] {
-      --bg:          #080808;
-      --card:        #141414;
-      --text:        #E2E8F0;
-      --text2:       #94A3B8;
-      --muted:       #64748B;
-      --border:      #2A3A50;
-      --light-gray:  #1A1A1A;
-      --cream:       #1A2940;
-      --shadow: 0 2px 8px rgba(0,0,0,.5), 0 6px 24px rgba(0,0,0,.4);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      padding: 0; margin: 0;
-      transition: background .25s ease, color .25s ease;
-    }
-    .embed-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
-    .section-header { margin-bottom: 16px; }
-    .section-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 1.55rem; font-weight: 700;
-      color: var(--navy);
-      display: flex; align-items: center; gap: 10px; line-height: 1.15;
-    }
-    [data-theme="dark"] .section-title { color: #fff; }
-    .section-title .accent-bar {
-      width: 4px; height: 26px; background: var(--ct-b17);
-      border-radius: 2px; flex-shrink: 0;
-    }
-    .section-subtitle {
-      font-size: 0.78rem; color: var(--muted);
-      padding-left: 14px; margin-top: 2px;
-    }
-    [data-theme="dark"] .section-subtitle { color: rgba(255,255,255,.4); }
-
-    .kpi-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 10px; margin-bottom: 16px;
-    }
-    @media (max-width: 700px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    .kpi-card {
-      background: var(--warm-white); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 14px;
-      position: relative; overflow: hidden;
-      cursor: default; transition: transform .2s, box-shadow .2s;
-    }
-    [data-theme="dark"] .kpi-card { background: #141414; border-color: var(--dark-border); }
-    .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.08); }
-    .kpi-card::after {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 100%; height: 3px;
-    }
-    .kpi-card[data-s="b17"]::after { background: var(--ct-b17); }
-    .kpi-card[data-s="b90"]::after { background: var(--ct-b90); }
-    .kpi-card[data-s="avg"]::after { background: var(--populi-gold); }
-    .kpi-card[data-s="max"]::after { background: var(--populi); }
-    .kpi-label {
-      font-size: 0.62rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--muted); margin-bottom: 4px;
-    }
-    [data-theme="dark"] .kpi-label { color: rgba(255,255,255,.4); }
-    .kpi-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.25rem; font-weight: 700;
-    }
-    .kpi-delta {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem; font-weight: 600;
-      padding: 1px 7px; border-radius: 5px; margin-top: 5px;
-    }
-    .kpi-delta.up   { background: rgba(5,150,105,.08); color: #059669; }
-    .kpi-delta.down { background: rgba(199,30,29,.08); color: #C71E1D; }
-    .kpi-delta.flat { background: rgba(100,116,139,.08); color: #64748B; }
-    [data-theme="dark"] .kpi-delta.up   { background: rgba(5,150,105,.15); }
-    [data-theme="dark"] .kpi-delta.down { background: rgba(199,30,29,.15); }
-
-    .main-grid {
-      display: grid; grid-template-columns: 3fr 2fr;
-      grid-template-rows: 540px; gap: 16px;
-    }
-    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; grid-template-rows: 420px auto; } }
-    @media (max-width: 500px) {
-      .main-grid { grid-template-rows: 340px auto; }
-      .section-title { font-size: 1.2rem; }
-      .section-subtitle { font-size: .7rem; }
-      .kpi-value { font-size: 1rem; }
-      .toggle-pill { padding: 3px 8px; font-size: .6rem; }
-      .range-btn { padding: 4px 10px; font-size: .6rem; }
-    }
-    @media (min-width: 1100px) { .main-grid { grid-template-rows: 580px; } }
-
-    .chart-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px;
-      display: flex; flex-direction: column; height: 100%; overflow: hidden;
-    }
-    [data-theme="dark"] .chart-card { background: #141414; border-color: var(--dark-border); }
-    .chart-controls {
-      display: flex; flex-wrap: wrap;
-      justify-content: space-between; align-items: center;
-      gap: 8px; margin-bottom: 10px;
-    }
-    .toggle-group { display: flex; gap: 6px; flex-wrap: wrap; }
-    .toggle-pill {
-      display: flex; align-items: center; gap: 5px;
-      padding: 4px 12px; border: 1.5px solid;
-      border-radius: 8px; background: transparent; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 0.68rem;
-      font-weight: 600; letter-spacing: 0.01em; transition: all .2s;
-    }
-    .toggle-pill:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .toggle-pill .line-prev {
-      width: 16px; height: 0;
-      border-top: 2.5px solid; border-radius: 1px;
-    }
-    .toggle-pill .line-prev.dashed { border-top-style: dashed; }
-    .controls-right { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .range-group { display: flex; gap: 4px; }
-    .range-btn {
-      padding: 4px 10px; border: 1.5px solid var(--border);
-      border-radius: 7px; background: transparent; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 0.65rem;
-      font-weight: 600; color: var(--muted); transition: all .2s;
-    }
-    [data-theme="dark"] .range-btn { border-color: var(--dark-border); color: #94A3B8; }
-    .range-btn:hover, .range-btn.active { border-color: var(--populi); color: var(--populi); }
-    [data-theme="dark"] .range-btn:hover, [data-theme="dark"] .range-btn.active {
-      border-color: var(--populi-light); color: var(--populi-light);
-    }
-    .chart-area { flex: 1; min-height: 0; }
-    .chart-source {
-      display: flex; align-items: center;
-      justify-content: space-between; margin-top: 8px; padding: 0 2px;
-    }
-    .chart-source-text { font-size: 0.58rem; color: var(--muted); opacity: .6; }
-    .chart-source-text a { color: var(--populi); font-weight: 600; text-decoration: none; }
-    .chart-source-text a:hover { text-decoration: underline; }
-
-    .panel {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden;
-      display: flex; flex-direction: column; height: 100%;
-    }
-    [data-theme="dark"] .panel { background: #141414; border-color: var(--dark-border); }
-    .panel-header {
-      background: var(--navy); padding: 8px 14px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    [data-theme="dark"] .panel-header { background: var(--navy-light); }
-    .panel-header-title {
-      font-size: 0.56rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.08em;
-      color: rgba(255,255,255,.8);
-    }
-    .panel-header-date {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.56rem; font-weight: 600;
-      color: var(--populi-light);
-      background: rgba(199,30,29,.15);
-      padding: 2px 8px; border-radius: 5px;
-    }
-    .panel-body { padding: 14px; flex: 1; overflow-y: auto; }
-    .panel-block {
-      margin-bottom: 10px; padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-    [data-theme="dark"] .panel-block { border-color: var(--dark-border); }
-    .panel-block:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .panel-label {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 0.58rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.06em;
-      margin-bottom: 2px; padding: 2px 9px 2px 6px;
-      border-radius: 4px; border-left: 3px solid;
-    }
-    .panel-val {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.92rem; font-weight: 700; margin-bottom: 3px;
-    }
-    .panel-desc {
-      font-size: 0.66rem; line-height: 1.55; color: var(--slate-light);
-    }
-    [data-theme="dark"] .panel-desc { color: rgba(255,255,255,.45); }
-    .panel-desc strong { color: var(--navy); }
-    [data-theme="dark"] .panel-desc strong { color: #E2E8F0; }
-    .delta-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 600; padding: 1px 5px;
-      border-radius: 4px; font-size: 0.82em; white-space: nowrap;
-    }
-    .dt-teal  { background: rgba(13,148,136,.08);  color: #0D9488; }
-    .dt-gray  { background: rgba(100,116,139,.08); color: #64748B; }
-    .dt-red   { background: rgba(199,30,29,.08);   color: #C71E1D; }
-    .dt-green { background: rgba(5,150,105,.08);   color: #059669; }
-
-    .ctx-box {
-      background: var(--cream); border-radius: 6px;
-      padding: 8px 10px; border-left: 3px solid var(--populi); margin-top: 6px;
-    }
-    [data-theme="dark"] .ctx-box { background: var(--navy-light); }
-    .ctx-box p { font-size: 0.66rem; line-height: 1.55; color: var(--slate-light); }
-    [data-theme="dark"] .ctx-box p { color: #94A3B8; }
-    .ctx-box p strong { color: var(--navy); }
-    [data-theme="dark"] .ctx-box p strong { color: #E2E8F0; }
-
-    .edu-box {
-      background: var(--cream); border-radius: 8px;
-      padding: 10px 12px; border-left: 3px solid var(--populi);
-      margin-top: 4px; cursor: pointer; transition: all .2s;
-    }
-    [data-theme="dark"] .edu-box { background: var(--navy-light); }
-    .edu-box:hover { transform: translateY(-1px); }
-    .edu-box-toggle {
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 8px;
-    }
-    .edu-box-title {
-      font-size: 0.62rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--populi);
-    }
-    [data-theme="dark"] .edu-box-title { color: var(--populi-light); }
-    .edu-box-arrow { font-size: 0.6rem; color: var(--muted); transition: transform .2s; }
-    .edu-box.open .edu-box-arrow { transform: rotate(180deg); }
-    .edu-box-content { display: none; margin-top: 8px; }
-    .edu-box.open .edu-box-content { display: block; }
-    .edu-box-content p {
-      font-size: 0.66rem; line-height: 1.6;
-      color: var(--slate-light); margin-bottom: 6px;
-    }
-    .edu-box-content p:last-child { margin-bottom: 0; }
-    [data-theme="dark"] .edu-box-content p { color: #94A3B8; }
-    .edu-box-content p strong { color: var(--navy); }
-    [data-theme="dark"] .edu-box-content p strong { color: #E2E8F0; }
-    .edu-box-content .highlight {
-      display: inline; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.92em; font-weight: 600; padding: 0 4px; border-radius: 3px;
-    }
-    .hl-teal { background: rgba(13,148,136,.08); color: #0D9488; }
-    .hl-gray { background: rgba(100,116,139,.08); color: #64748B; }
-    .hl-red  { background: rgba(199,30,29,.08);   color: #C71E1D; }
-
-    .panel-footer { padding: 10px 14px; border-top: 1px solid var(--border); }
-    [data-theme="dark"] .panel-footer { border-color: var(--dark-border); }
-    .ampliar-btn {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      width: 100%; padding: 8px 0; border-radius: 8px;
-      font-family: 'Inter', sans-serif; font-size: 0.66rem;
-      font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      color: var(--populi); background: rgba(139,26,26,.06);
-      border: 1.5px solid rgba(139,26,26,.15);
-      transition: all .2s; text-decoration: none; cursor: pointer;
-    }
-    [data-theme="dark"] .ampliar-btn {
-      background: rgba(192,0,0,.08); border-color: rgba(192,0,0,.2); color: var(--populi-light);
-    }
-    .ampliar-btn:hover {
-      background: rgba(139,26,26,.12); border-color: rgba(139,26,26,.3);
-      transform: translateY(-1px); box-shadow: 0 2px 8px rgba(139,26,26,.1);
-      text-decoration: none;
-    }
-    .ampliar-btn svg { width: 13px; height: 13px; }
-    .watermark { height: 15px; width: auto; opacity: .18; }
-    [data-theme="dark"] .watermark { opacity: .10; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PIB Bolivia - Serie larga</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
+  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
+  --navy:#0D1B2A;--navy-light:#1A2940;
+  --slate:#475569;--slate-light:#64748B;
+  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
+  --border:#E2DDD3;--dark-border:#2A3A50;
+  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
+  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
+  --radius:12px;
+  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
+  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
+  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
+}
+[data-theme="dark"]{
+  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
+  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
+}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+}
+.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
+.section-title{
+  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
+  color:var(--navy);display:flex;align-items:center;gap:10px;
+}
+[data-theme="dark"] .section-title{color:#fff}
+.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
+.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
+.chart-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
+}
+[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
+#chart{width:100%;height:500px}
+.chart-source{
+  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
+}
+.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
+.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
+.watermark{height:15px;width:auto;opacity:.18}
+[data-theme="dark"] .watermark{opacity:.10}
+</style>
 </head>
 <body>
-  <div class="embed-container" id="app"></div>
+<div class="embed-container">
+  <div class="section-title">
+    <span class="accent-bar" style="background:#0A9396"></span>
+    Crecimiento del PIB de Bolivia
+  </div>
+  <div class="section-subtitle">Variación interanual trimestral (%). Base 1990 desde 2000-T1 y Base 2017 desde 2018-T1</div>
+  <div class="chart-card">
+    <div id="chart"></div>
+    <div class="chart-source">
+      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  /* ── Theme ─────────────────────────────────────── */
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
+  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
+  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  <script>
-  (function() {
-    var params = new URLSearchParams(window.location.search);
-    if (params.get('theme') === 'dark') document.documentElement.dataset.theme = 'dark';
-    window.addEventListener('message', function(e) {
-      if (e.data && e.data.theme) document.documentElement.dataset.theme = e.data.theme;
-    });
-    function dk() { return document.documentElement.dataset.theme === 'dark'; }
+  /* ── Chart ─────────────────────────────────────── */
+  var chartDom=document.getElementById('chart');
+  var chart=echarts.init(chartDom);
 
-    var LABELS = [
-      "2012-T1","2012-T2","2012-T3","2012-T4",
-      "2013-T1","2013-T2","2013-T3","2013-T4",
-      "2014-T1","2014-T2","2014-T3","2014-T4",
-      "2015-T1","2015-T2","2015-T3","2015-T4",
-      "2016-T1","2016-T2","2016-T3","2016-T4",
-      "2017-T1","2017-T2","2017-T3","2017-T4",
-      "2018-T1","2018-T2","2018-T3","2018-T4",
-      "2019-T1","2019-T2","2019-T3","2019-T4",
-      "2020-T1","2020-T2","2020-T3","2020-T4",
-      "2021-T1","2021-T2","2021-T3","2021-T4",
-      "2022-T1","2022-T2","2022-T3","2022-T4",
-      "2023-T1","2023-T2","2023-T3","2023-T4",
-      "2024-T1","2024-T2","2024-T3","2024-T4",
-      "2025-T1","2025-T2","2025-T3","2025-T4"
-    ];
+  function buildChart(){
 
-    var B90 = [
-      4.94,4.97,4.81,5.12,
-      5.55,6.24,6.92,6.80,
-      6.57,5.98,5.68,5.46,
-      5.21,5.32,4.79,4.86,
-      4.99,4.46,4.72,4.26,
-      3.80,3.94,3.78,4.20,
-      4.56,4.83,4.74,4.22,
-      3.80,3.24,2.80,2.22,
-      1.55,-5.45,-8.74,-8.74,
-      -8.92,1.89,6.26,6.11,
-      7.47,3.63,3.38,3.61,
-      3.04,2.42,2.07,3.08,
-      2.82,3.21,2.82,0.73,
-      null,null,null,null
-    ];
-
-    var B17 = [
-      null,null,null,null,
-      null,null,null,null,
-      null,null,null,null,
-      null,null,null,null,
-      null,null,null,null,
-      null,null,null,null,
-      null,null,null,2.87,
-      3.00,1.63,2.44,1.51,
-      -0.45,-7.53,-12.54,-12.72,
-      -12.17,0.00,7.96,10.03,
-      12.86,7.60,5.38,3.75,
-      1.60,1.39,1.20,2.52,
-      1.97,1.26,0.17,-1.12,
-      -0.95,-1.90,-1.72,-1.58
-    ];
-
-    var SERIES_CFG = [
-      { key: 'b17', label: 'Base 2017', color: '#0D9488', dashed: false, data: B17 },
-      { key: 'b90', label: 'Base 1990', color: '#9CA3AF', dashed: true,  data: B90 }
-    ];
-
-    var RANGES = [
-      { label: '3A', trim: 12 },
-      { label: '5A', trim: 20 },
-      { label: 'Todo', trim: 0 }
-    ];
-
-    var active = new Set(['b17', 'b90']);
-    var curRange = 2;
-    var chart = null, curIdx = -1;
-
-    function fpct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
-    function fquarter(lbl) {
-      var parts = lbl.split('-');
-      var roman = { T1: 'I', T2: 'II', T3: 'III', T4: 'IV' };
-      return roman[parts[1]] + ' Trim. ' + parts[0];
-    }
-
-    function init() {
-      var app = document.getElementById('app');
-      app.innerHTML = buildHTML();
-      buildKPIs();
-      buildToggles();
-      buildRanges();
-      chart = echarts.init(document.getElementById('chart'));
-      buildChart();
-      updatePanel(LABELS.length - 1);
-      window.addEventListener('resize', function() { chart && chart.resize(); });
-      new MutationObserver(function() {
-        buildChart();
-        updatePanel(curIdx);
-        buildKPIs();
-      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    }
-
-    function buildHTML() {
-      var d = dk();
-      return '<div class="section-header">'
-        + '<h2 class="section-title"><span class="accent-bar"></span>Crecimiento del PIB de Bolivia</h2>'
-        + '<p class="section-subtitle">Tasa de crecimiento a 12 meses (%) · Trimestral · Base 1990 y Base 2017</p>'
-        + '</div>'
-        + '<div class="kpi-grid" id="kpis"></div>'
-        + '<div class="main-grid">'
-        +   '<div class="chart-card">'
-        +     '<div class="chart-controls">'
-        +       '<div class="toggle-group" id="toggles"></div>'
-        +       '<div class="controls-right">'
-        +         '<div class="range-group" id="ranges"></div>'
-        +       '</div>'
-        +     '</div>'
-        +     '<div class="chart-area" id="chart"></div>'
-        +     '<div class="chart-source">'
-        +       '<span class="chart-source-text">'
-        +         'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · '
-        +         'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a>'
-        +       '</span>'
-        +       '<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
-        +         '<text x="6" y="112" font-family="\'Playfair Display\', Georgia, serif" font-size="145" font-weight="700" fill="' + (d ? '#C00000' : '#8B1A1A') + '">P</text>'
-        +         '<text x="92" y="87" font-family="\'Playfair Display\', Georgia, serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="' + (d ? '#F5EFE0' : '#3D2B1F') + '">opuli</text>'
-        +       '</svg>'
-        +     '</div>'
-        +   '</div>'
-        +   '<div class="panel">'
-        +     '<div class="panel-header">'
-        +       '<span class="panel-header-title">Lectura del indicador</span>'
-        +       '<span class="panel-header-date" id="panel-date"></span>'
-        +     '</div>'
-        +     '<div class="panel-body" id="panel-body"></div>'
-        +     '<div class="panel-footer">'
-        +       '<a href="https://populi.org.bo/monitor-actividad-economica" target="_blank" class="ampliar-btn">'
-        +         '<span>Ampliar análisis</span>'
-        +         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-        +           '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'
-        +           '<polyline points="15 3 21 3 21 9"/>'
-        +           '<line x1="10" y1="14" x2="21" y2="3"/>'
-        +         '</svg>'
-        +       '</a>'
-        +     '</div>'
-        +   '</div>'
-        + '</div>'
-        + '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:10px; margin-top:16px;" id="edu-boxes"></div>';
-    }
-
-    function buildKPIs() {
-      var lastB17 = null, prevB17 = null, lastB90 = null, prevB90 = null;
-      for (var i = B17.length - 1; i >= 0; i--) { if (B17[i] != null) { lastB17 = B17[i]; if (prevB17 == null && i > 0) { for (var j = i - 1; j >= 0; j--) { if (B17[j] != null) { prevB17 = B17[j]; break; } } } break; } }
-      for (var i = B90.length - 1; i >= 0; i--) { if (B90[i] != null) { lastB90 = B90[i]; if (prevB90 == null && i > 0) { for (var j = i - 1; j >= 0; j--) { if (B90[j] != null) { prevB90 = B90[j]; break; } } } break; } }
-
-      var d1 = lastB17 - prevB17;
-      var d2 = lastB90 - prevB90;
-      var avg2024 = (B17[48] + B17[49] + B17[50] + B17[51]) / 4;
-      var avg2023 = (B17[44] + B17[45] + B17[46] + B17[47]) / 4;
-      var d3 = avg2024 - avg2023;
-
-      var negCount = 0;
-      for (var i = B17.length - 1; i >= 0; i--) {
-        if (B17[i] != null && B17[i] < 0) negCount++; else break;
+    var labels=["2000-T1", "2000-T2", "2000-T3", "2000-T4", "2001-T1", "2001-T2", "2001-T3", "2001-T4", "2002-T1", "2002-T2", "2002-T3", "2002-T4", "2003-T1", "2003-T2", "2003-T3", "2003-T4", "2004-T1", "2004-T2", "2004-T3", "2004-T4", "2005-T1", "2005-T2", "2005-T3", "2005-T4", "2006-T1", "2006-T2", "2006-T3", "2006-T4", "2007-T1", "2007-T2", "2007-T3", "2007-T4", "2008-T1", "2008-T2", "2008-T3", "2008-T4", "2009-T1", "2009-T2", "2009-T3", "2009-T4", "2010-T1", "2010-T2", "2010-T3", "2010-T4", "2011-T1", "2011-T2", "2011-T3", "2011-T4", "2012-T1", "2012-T2", "2012-T3", "2012-T4", "2013-T1", "2013-T2", "2013-T3", "2013-T4", "2014-T1", "2014-T2", "2014-T3", "2014-T4", "2015-T1", "2015-T2", "2015-T3", "2015-T4", "2016-T1", "2016-T2", "2016-T3", "2016-T4", "2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
+    var d90=[2.09, 4.84, 1.02, 1.98, -0.01, 0.9, 2.59, 3.17, 1.38, 3.86, 3.74, 0.9, 3.32, 3.24, 0.9, 3.37, 4.39, 3.65, 6.15, 2.66, 4.45, 3.98, 3.81, 5.46, 4.41, 3.87, 5.74, 5.19, 2.52, 4.09, 5.34, 6.1, 6.55, 6.89, 7.06, 4.19, 2.95, 2.2, 3.63, 4.63, 3.22, 3.78, 3.71, 5.66, 6.18, 4.26, 5.22, 5.29, 5.01, 4.39, 4.59, 6.43, 6.85, 7.08, 7.29, 6.01, 5.91, 4.8, 6.03, 5.18, 4.8, 5.25, 3.93, 5.41, 5.35, 3.23, 4.94, 3.69, 3.34, 3.79, 4.28, 5.23, 4.93, 4.85, 3.98, 3.27, 3.09, 2.64, 2.23, 1.06, 0.2, -24.74, -10.87, 0.96, -0.61, 23.12, 5.15, 0.51, 4.76, 4.58, 4.09, 1.33, 2.39, 2.03, 2.59, 5.11, 1.31, 3.64, 1.02, -2.6, null, null, null, null];
+    var d17=[null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14];
+    chart.setOption({
+      backgroundColor:'transparent',
+      grid:{top:30,right:16,bottom:44,left:52},
+      tooltip:{
+      trigger:'axis',
+      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
+      borderColor:dk()?'#2A3A50':'#1A2940',
+      borderWidth:1,
+      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
+      padding:[12,16],
+      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
+      formatter:function(params){
+        if(!params||!params.length) return '';
+        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
+        params.forEach(function(p){
+          if(p.value!=null){
+            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
+              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
+              +p.value.toFixed(2)+' %</span><br/>';
+          }
+        });
+        return s;
       }
-
-      function cls(d) { return Math.abs(d) < 0.05 ? 'flat' : (d > 0 ? 'up' : 'down'); }
-      function arrow(d) { return Math.abs(d) < 0.05 ? '&#8212;' : (d > 0 ? '&#9650;' : '&#9660;'); }
-
-      document.getElementById('kpis').innerHTML =
-        '<div class="kpi-card" data-s="b17">'
-        + '<div class="kpi-label">Crec. PIB Base 2017</div>'
-        + '<div class="kpi-value" style="color:#0D9488">' + fpct(lastB17) + '</div>'
-        + '<div class="kpi-delta ' + cls(d1) + '">' + arrow(d1) + ' ' + Math.abs(d1).toFixed(2) + ' pp</div>'
-        + '</div>'
-        + '<div class="kpi-card" data-s="b90">'
-        + '<div class="kpi-label">Crec. PIB Base 1990</div>'
-        + '<div class="kpi-value" style="color:#9CA3AF">' + fpct(lastB90) + '</div>'
-        + '<div class="kpi-delta ' + cls(d2) + '">' + arrow(d2) + ' ' + Math.abs(d2).toFixed(2) + ' pp</div>'
-        + '</div>'
-        + '<div class="kpi-card" data-s="avg">'
-        + '<div class="kpi-label">Promedio 2024 (B17)</div>'
-        + '<div class="kpi-value" style="color:#D4A017">' + fpct(avg2024) + '</div>'
-        + '<div class="kpi-delta ' + cls(d3) + '">' + arrow(d3) + ' ' + Math.abs(d3).toFixed(2) + ' pp vs 2023</div>'
-        + '</div>'
-        + '<div class="kpi-card" data-s="max">'
-        + '<div class="kpi-label">Trim. en contracción</div>'
-        + '<div class="kpi-value" style="color:#C71E1D">' + negCount + '</div>'
-        + '<div class="kpi-delta down">consecutivos</div>'
-        + '</div>';
-    }
-
-    function buildToggles() {
-      var el = document.getElementById('toggles');
-      SERIES_CFG.forEach(function(s) {
-        var btn = document.createElement('button');
-        btn.className = 'toggle-pill';
-        btn.dataset.key = s.key;
-        btn.innerHTML = '<span class="line-prev' + (s.dashed ? ' dashed' : '') + '" style="border-color:#fff"></span>' + s.label;
-        btn.addEventListener('click', function() {
-          if (active.has(s.key)) { if (active.size === 1) return; active.delete(s.key); }
-          else { active.add(s.key); }
-          syncPills();
-          rebuildAll();
-        });
-        el.appendChild(btn);
-      });
-      syncPills();
-    }
-
-    function syncPills() {
-      document.querySelectorAll('.toggle-pill').forEach(function(btn) {
-        var s = SERIES_CFG.find(function(x) { return x.key === btn.dataset.key; });
-        var on = active.has(s.key);
-        btn.style.backgroundColor = on ? s.color : 'transparent';
-        btn.style.color = on ? '#fff' : s.color;
-        btn.style.borderColor = s.color;
-        var line = btn.querySelector('.line-prev');
-        if (line) line.style.borderColor = on ? '#fff' : s.color;
-      });
-    }
-
-    function buildRanges() {
-      var el = document.getElementById('ranges');
-      RANGES.forEach(function(r, i) {
-        var btn = document.createElement('button');
-        btn.className = 'range-btn' + (i === curRange ? ' active' : '');
-        btn.textContent = r.label;
-        btn.addEventListener('click', function() {
-          curRange = i;
-          document.querySelectorAll('#ranges .range-btn').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          rebuildAll();
-        });
-        el.appendChild(btn);
-      });
-    }
-
-    function rebuildAll() {
-      buildChart();
-      updatePanel(curIdx);
-    }
-
-    function getSlicedData() {
-      var trim = RANGES[curRange].trim;
-      var start = trim > 0 ? Math.max(0, LABELS.length - trim) : 0;
-      var labels = LABELS.slice(start);
-      var series = {};
-      SERIES_CFG.forEach(function(s) {
-        series[s.key] = s.data.slice(start);
-      });
-      return { labels: labels, series: series, offset: start };
-    }
-
-    function buildChart() {
-      var container = document.getElementById('chart');
-      if (!chart) chart = echarts.init(container);
-      var d = dk();
-      var sliced = getSlicedData();
-      var labels = sliced.labels;
-      var seriesData = sliced.series;
-
-      var seriesEch = [];
-
-      SERIES_CFG.forEach(function(s) {
-        if (!active.has(s.key)) return;
-        var vals = seriesData[s.key];
-
-        var lastValidIdx = -1;
-        var lastValidVal = null;
-        for (var i = vals.length - 1; i >= 0; i--) {
-          if (vals[i] != null) { lastValidIdx = i; lastValidVal = vals[i]; break; }
-        }
-
-        seriesEch.push({
-          name: s.label,
-          type: 'line',
-          data: vals,
-          symbol: 'none',
-          z: s.key === 'b17' ? 4 : 2,
-          lineStyle: { width: s.key === 'b17' ? 2.5 : 1.8, type: s.dashed ? [6, 4] : 'solid' },
-          connectNulls: false,
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: s.key === 'b17'
-                ? (d ? 'rgba(13,148,136,.2)' : 'rgba(13,148,136,.1)')
-                : (d ? 'rgba(156,163,175,.12)' : 'rgba(156,163,175,.06)') },
-              { offset: 1, color: 'transparent' }
-            ])
+    },
+      legend:{
+        data:['Base 1990','Base 2017'],
+        bottom:4,
+        textStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8'}
+      },
+      xAxis:{
+      type:'category',
+      data:labels,
+      boundaryGap:false,
+      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
+      axisTick:{show:false},
+      axisLabel:{
+        fontFamily:'Inter',fontSize:10,fontWeight:500,
+        color:dk()?'#64748B':'#94A3B8',
+        rotate:45,
+        interval:3
+      }
+    },
+      yAxis:{
+      type:'value',
+      name:'%',
+      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8',padding:[0,0,0,0]},
+      splitLine:{lineStyle:{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+      axisLine:{show:false},
+      axisTick:{show:false},
+      axisLabel:{
+        fontFamily:'JetBrains Mono',fontSize:11,
+        color:dk()?'#64748B':'#94A3B8',
+        formatter:'{value}%'
+      }
+    },
+      series:[
+        {
+          name:'Base 1990',type:'line',data:d90,
+          symbol:'none',z:1,
+          lineStyle:{width:1.8,color:'#9CA3AF'},
+          itemStyle:{color:'#9CA3AF'},
+          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+            {offset:0,color:'#9CA3AF18'},
+            {offset:1,color:'#9CA3AF02'}
+          ])},
+          connectNulls:false
+        },
+        {
+          name:'Base 2017',type:'line',data:d17,
+          symbol:'none',z:3,
+          lineStyle:{width:2.5,color:'#0A9396'},
+          itemStyle:{color:'#0A9396'},
+          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+            {offset:0,color:'#0A939618'},
+            {offset:1,color:'#0A939602'}
+          ])},
+          connectNulls:false,
+          markLine:{
+            silent:true,symbol:'none',
+            lineStyle:{color:dk()?'#475569':'#94A3B8',type:'solid',width:1},
+            data:[{yAxis:0}],
+            label:{show:false}
           },
-          markPoint: lastValidIdx >= 0 ? {
-            data: [{ coord: [lastValidIdx, lastValidVal] }],
-            symbol: 'circle', symbolSize: 7,
-            itemStyle: { color: s.color, borderColor: d ? '#141414' : '#fff', borderWidth: 2 },
-            label: { show: false }
-          } : undefined
-        });
-      });
-
-      seriesEch.push({
-        name: 'Ref 0%',
-        type: 'line',
-        data: labels.map(function() { return 0; }),
-        symbol: 'none',
-        lineStyle: { width: 1.5, color: d ? '#475569' : '#CBD5E1', type: [5, 4] },
-        itemStyle: { color: d ? '#475569' : '#CBD5E1' },
-        z: 1
-      });
-
-      chart.setOption({
-        color: SERIES_CFG.filter(function(s) { return active.has(s.key); }).map(function(s) { return s.color; }),
-        backgroundColor: 'transparent',
-        grid: { top: 30, right: 16, bottom: 44, left: 52 },
-        tooltip: {
-          trigger: 'axis',
-          backgroundColor: d ? '#080808' : 'rgba(13,27,42,.96)',
-          borderColor: d ? '#2A3A50' : '#1A2940',
-          textStyle: { fontFamily: 'Inter', fontSize: 12, color: '#fff' },
-          padding: [12, 16],
-          extraCssText: 'border-radius:10px; box-shadow:0 8px 32px rgba(0,0,0,.3);',
-          formatter: function(params) {
-            if (!params.length) return '';
-            var idx = params[0].dataIndex;
-            var sliced = getSlicedData();
-            updatePanel(idx + sliced.offset);
-
-            var html = '<div style="font-weight:700; margin-bottom:6px; color:#E9D8A6; font-size:12px">' + fquarter(sliced.labels[idx]) + '</div>';
-            params.forEach(function(p) {
-              if (p.value == null || p.seriesName === 'Ref 0%') return;
-              html += '<div style="display:flex; align-items:center; gap:8px; margin:3px 0">'
-                + '<span style="width:8px;height:8px;border-radius:50%;background:' + p.color + ';display:inline-block"></span>'
-                + '<span style="flex:1;font-size:11px;color:rgba(255,255,255,.7)">' + p.seriesName + '</span>'
-                + '<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:12px">' + fpct(p.value) + '</span>'
-                + '</div>';
-            });
-            return html;
+          markPoint:{
+            data:[{
+              coord:['2020-T2',-25.9],
+              symbol:'pin',symbolSize:40,
+              itemStyle:{color:'#C71E1D'},
+              label:{show:true,formatter:'COVID-19',fontSize:9,fontWeight:700,color:'#fff'},
+            }],
+            animation:false
           }
-        },
-        xAxis: {
-          type: 'category',
-          data: labels,
-          boundaryGap: false,
-          axisLine: { lineStyle: { color: d ? '#2A3A50' : '#E2DDD3' } },
-          axisTick: { show: false },
-          axisLabel: {
-            fontFamily: 'Inter', fontSize: 10, fontWeight: 500,
-            color: d ? '#64748B' : '#94A3B8',
-            formatter: function(v, idx) {
-              var total = labels.length;
-              if (idx === 0 || idx === total - 1) return v;
-              var step = Math.max(1, Math.round(total / 8));
-              if (idx % step === 0) return v;
-              return '';
-            },
-            showMinLabel: true,
-            showMaxLabel: true,
-            rotate: 35
-          }
-        },
-        yAxis: {
-          type: 'value',
-          splitLine: { lineStyle: { color: d ? '#1E1E1E' : '#F1F5F9', type: 'dashed' } },
-          axisLine: { show: false },
-          axisTick: { show: false },
-          axisLabel: {
-            fontFamily: 'JetBrains Mono', fontSize: 11,
-            color: d ? '#64748B' : '#94A3B8',
-            formatter: function(v) { return (v >= 0 ? '+' : '') + v.toFixed(0) + '%'; }
-          }
-        },
-        series: seriesEch
-      }, true);
-    }
-
-    function updatePanel(globalIdx) {
-      if (globalIdx < 0 || globalIdx >= LABELS.length) globalIdx = LABELS.length - 1;
-      curIdx = globalIdx;
-
-      var label = LABELS[globalIdx];
-      var b17v = B17[globalIdx];
-      var b90v = B90[globalIdx];
-      var prevB17 = globalIdx > 0 ? B17[globalIdx - 1] : null;
-      var prevB90 = globalIdx > 0 ? B90[globalIdx - 1] : null;
-
-      document.getElementById('panel-date').textContent = fquarter(label);
-
-      var blocks = '';
-
-      if (active.has('b17')) {
-        var d17 = (b17v != null && prevB17 != null) ? b17v - prevB17 : null;
-        blocks += '<div class="panel-block">'
-          + '<div class="panel-label" style="color:#0D9488; background:rgba(13,148,136,.08); border-left-color:#0D9488">PIB — Base 2017</div>'
-          + '<div class="panel-val" style="color:#0D9488">' + (b17v != null ? fpct(b17v) : '—') + '</div>'
-          + '<p class="panel-desc">Tasa de crecimiento a 12 meses del PIB en <strong>medidas de volumen encadenadas</strong> (bolivianos encadenados, año base 2017). Metodología SCN 2008.'
-          + (d17 != null ? ' Cambio: <span class="delta-tag dt-teal">' + (d17 >= 0 ? '+' : '') + d17.toFixed(2) + ' pp</span>' : '')
-          + '</p></div>';
-      }
-
-      if (active.has('b90')) {
-        var d90 = (b90v != null && prevB90 != null) ? b90v - prevB90 : null;
-        blocks += '<div class="panel-block">'
-          + '<div class="panel-label" style="color:#9CA3AF; background:rgba(100,116,139,.08); border-left-color:#9CA3AF">PIB — Base 1990</div>'
-          + '<div class="panel-val" style="color:#9CA3AF">' + (b90v != null ? fpct(b90v) : '—') + '</div>'
-          + '<p class="panel-desc">Tasa de crecimiento a 12 meses del PIB a <strong>precios constantes</strong> de 1990. Serie histórica del INE, metodología anterior al SCN 2008.'
-          + (d90 != null ? ' Cambio: <span class="delta-tag dt-gray">' + (d90 >= 0 ? '+' : '') + d90.toFixed(2) + ' pp</span>' : '')
-          + '</p></div>';
-      }
-
-      var analysis = '';
-      if (b17v != null && b90v != null) {
-        var diff = Math.abs(b17v - b90v).toFixed(1);
-        if (b17v < -5) {
-          analysis = '<strong>Contracción severa de la actividad económica.</strong> La Base 2017 registra <span class="delta-tag dt-red">' + fpct(b17v) + '</span> mientras la Base 1990 muestra <span class="delta-tag dt-gray">' + fpct(b90v) + '</span>. La divergencia de ' + diff + ' pp entre ambas bases refleja diferencias metodológicas amplificadas en contextos de crisis.';
-        } else if (b17v < 0) {
-          analysis = '<strong>Economía en contracción.</strong> Base 2017 en <span class="delta-tag dt-red">' + fpct(b17v) + '</span> vs. Base 1990 en <span class="delta-tag dt-gray">' + fpct(b90v) + '</span>. La brecha de ' + diff + ' pp entre metodologías es relevante — los bolivianos encadenados (B17) capturan mejor los cambios en la estructura productiva.';
-        } else if (b17v < 3) {
-          analysis = '<strong>Crecimiento moderado.</strong> Base 2017: <span class="delta-tag dt-teal">' + fpct(b17v) + '</span>, Base 1990: <span class="delta-tag dt-gray">' + fpct(b90v) + '</span>. Ambas series muestran una economía creciendo por debajo de su promedio histórico (~4.5%). Divergencia: ' + diff + ' pp.';
-        } else if (b17v < 6) {
-          analysis = '<strong>Crecimiento sostenido.</strong> Con <span class="delta-tag dt-teal">' + fpct(b17v) + '</span> (B17) y <span class="delta-tag dt-gray">' + fpct(b90v) + '</span> (B90), la economía boliviana crece a un ritmo cercano a su promedio histórico. La diferencia de ' + diff + ' pp entre bases es normal.';
-        } else {
-          analysis = '<strong>Crecimiento acelerado.</strong> Base 2017 en <span class="delta-tag dt-teal">' + fpct(b17v) + '</span> — probablemente impulsado por efecto rebote post-pandemia. Base 1990 en <span class="delta-tag dt-gray">' + fpct(b90v) + '</span>. Las tasas elevadas suelen ser transitorias y reflejan una base de comparación deprimida.';
         }
-      } else if (b17v != null) {
-        if (b17v < -5) {
-          analysis = '<strong>Contracción severa.</strong> La tasa de <span class="delta-tag dt-red">' + fpct(b17v) + '</span> indica una fuerte caída en la actividad económica medida en bolivianos encadenados.';
-        } else if (b17v < 0) {
-          analysis = '<strong>Economía en contracción.</strong> Con <span class="delta-tag dt-red">' + fpct(b17v) + '</span>, el PIB se contrae respecto al año anterior. La persistencia de tasas negativas señala debilidad estructural, no solo un ajuste cíclico.';
-        } else if (b17v < 3) {
-          analysis = '<strong>Crecimiento débil.</strong> La tasa de <span class="delta-tag dt-teal">' + fpct(b17v) + '</span> está por debajo del promedio histórico boliviano (~4.5%), sugiriendo una desaceleración de la actividad económica.';
-        } else {
-          analysis = '<strong>Crecimiento positivo.</strong> El PIB en bolivianos encadenados crece <span class="delta-tag dt-teal">' + fpct(b17v) + '</span> a 12 meses.';
-        }
-      } else if (b90v != null) {
-        if (b90v < 0) {
-          analysis = '<strong>Contracción registrada en la Base 1990.</strong> La tasa de <span class="delta-tag dt-red">' + fpct(b90v) + '</span> refleja una caída significativa de la actividad económica a precios constantes de 1990.';
-        } else if (b90v < 3) {
-          analysis = '<strong>Crecimiento moderado (Base 1990).</strong> Con <span class="delta-tag dt-gray">' + fpct(b90v) + '</span>, la economía crece pero por debajo de su potencial estimado.';
-        } else {
-          analysis = '<strong>Crecimiento sólido (Base 1990).</strong> La tasa de <span class="delta-tag dt-gray">' + fpct(b90v) + '</span> muestra una economía en expansión saludable.';
-        }
-      } else {
-        analysis = 'Datos no disponibles para este trimestre.';
-      }
+      ]
+    },true);
+  }
 
-      document.getElementById('panel-body').innerHTML = blocks
-        + '<div class="ctx-box"><p>' + analysis + '</p></div>';
-    }
-
-    function buildEduBoxes() {
-      var lastB17 = null, lastB17Label = '';
-      for (var i = B17.length - 1; i >= 0; i--) { if (B17[i] != null) { lastB17 = B17[i]; lastB17Label = LABELS[i]; break; } }
-      var lastB90 = null, lastB90Label = '';
-      for (var i = B90.length - 1; i >= 0; i--) { if (B90[i] != null) { lastB90 = B90[i]; lastB90Label = LABELS[i]; break; } }
-
-      var eduData = [
-        {
-          title: '¿Qué es la tasa de crecimiento a 12 meses?',
-          content: '<p>La <strong>tasa de crecimiento a 12 meses</strong> compara la suma del PIB de los últimos 4 trimestres con la suma de los 4 trimestres inmediatamente anteriores. Esto elimina la estacionalidad y da una lectura más suave del ciclo económico que la variación trimestral.</p>'
-            + '<p>Fórmula: <span class="highlight hl-teal">((ΣQ<sub>t</sub> a Q<sub>t-3</sub>) / (ΣQ<sub>t-4</sub> a Q<sub>t-7</sub>) − 1) × 100</span></p>'
-            + '<p>Esta medida es la más utilizada por el INE y el BCB para comunicar el desempeño económico trimestral de Bolivia.</p>'
-        },
-        {
-          title: '¿Qué es el PIB?',
-          content: '<p>El <strong>Producto Interno Bruto (PIB)</strong> mide el valor total de bienes y servicios finales producidos en Bolivia durante un período. Es el indicador más amplio de actividad económica.</p>'
-            + '<p>El INE lo publica trimestralmente, desagregado por <strong>actividad económica</strong> (11 sectores) y por <strong>tipo de gasto</strong> (consumo, inversión, exportaciones). Un PIB creciente indica expansión económica; uno decreciente, recesión.</p>'
-        },
-        {
-          title: 'Base 1990 vs. Base 2017',
-          content: '<p>Bolivia actualizó su sistema de cuentas nacionales de la <strong>Base 1990</strong> a la <strong>Base 2017</strong>, adoptando el estándar internacional SCN 2008.</p>'
-            + '<p>La Base 1990 mide el PIB a <strong>precios constantes</strong> — valora toda la producción a los precios que tenía en 1990. La Base 2017 usa <strong>bolivianos encadenados</strong>, que actualizan las ponderaciones anualmente, reflejando mejor los cambios en la estructura de la economía.</p>'
-            + '<p>Actualmente: Base 2017 registra <span class="highlight hl-teal">' + fpct(lastB17) + '</span> (' + fquarter(lastB17Label) + ') vs. Base 1990 <span class="highlight hl-gray">' + fpct(lastB90) + '</span> (' + fquarter(lastB90Label) + '). Las diferencias son normales y esperables entre metodologías.</p>'
-        },
-        {
-          title: '¿Qué son los bolivianos encadenados?',
-          content: '<p>Las <strong>medidas de volumen encadenadas</strong> son un método para calcular el PIB real que evita los sesgos de los precios constantes. En lugar de fijar los precios de un solo año base, se encadenan variaciones anuales de volumen.</p>'
-            + '<p>Ventaja: cuando la estructura económica cambia (ej. el gas natural pierde peso y los servicios ganan), los precios constantes distorsionan las comparaciones. Los bolivianos encadenados se ajustan automáticamente, ofreciendo una medida más precisa del crecimiento real.</p>'
-            + '<p>Bolivia adoptó este método con la Base 2017, alineándose con las recomendaciones del FMI, Eurostat y la OCDE.</p>'
-        }
-      ];
-
-      document.getElementById('edu-boxes').innerHTML = eduData.map(function(e) {
-        return '<div class="edu-box" onclick="this.classList.toggle(\'open\')">'
-          + '<div class="edu-box-toggle">'
-          + '<span class="edu-box-title">' + e.title + '</span>'
-          + '<span class="edu-box-arrow">&#9660;</span>'
-          + '</div>'
-          + '<div class="edu-box-content">' + e.content + '</div>'
-          + '</div>';
-      }).join('');
-    }
-
-    init();
-    buildEduBoxes();
-  })();
-  </script>
+  buildChart();
+  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.addEventListener('resize',function(){chart.resize()});
+})();
+</script>
 </body>
 </html>

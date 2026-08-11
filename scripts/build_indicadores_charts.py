@@ -41,14 +41,16 @@ MESES_CORTO = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
 TRIMESTRES = {"i": 1, "ii": 2, "iii": 3, "iv": 4}
 
 # Year-by-line color palette (index 0 = most recent / current year)
-YEAR_COLORS = ['#0D9488', '#2563EB', '#6366F1', '#D97706', '#94A3B8', '#CBD5E1', '#E2E8F0']
+# Serie por año: los recientes con color de marca, los viejos apagándose a gris.
+# Es ORDINAL, no categórico — el degradé a gris es lo que comunica la antigüedad.
+YEAR_COLORS = ['#C71E1D', '#0A9396', '#EE9B00', '#005F73', '#B9BEC0', '#CFD3D4', '#E2DDD3']
 YEAR_WIDTHS = [3, 2.5, 2, 1.8, 1.5, 1.2, 1]
-YEAR_COLORS_DARK = ['#0D9488', '#3B82F6', '#818CF8', '#F59E0B', '#94A3B8', '#64748B', '#475569']
+YEAR_COLORS_DARK = ['#E8706B', '#0A9396', '#EE9B00', '#94D2BD', '#8A9699', '#6E7A7D', '#4A5457']
 
 # Special: 2020 dashed red
 COVID_YEAR = 2020
-COVID_COLOR = '#EF4444'
-COVID_COLOR_DARK = '#F87171'
+COVID_COLOR = '#C71E1D'
+COVID_COLOR_DARK = '#E8706B'
 
 
 # -- Helpers de parseo ----------------------------------------------------
@@ -242,7 +244,7 @@ def build_year_data(year_dict, years):
 
 # -- HTML Template (POPULI Design System) ---------------------------------
 
-def _html_template(title, subtitle, chart_js, accent_color="#0D9488"):
+def _html_template(title, subtitle, chart_js, accent_color="#0A9396"):
     """Genera HTML completo con POPULI design system."""
     return f'''<!DOCTYPE html>
 <html lang="es">
@@ -255,7 +257,7 @@ def _html_template(title, subtitle, chart_js, accent_color="#0D9488"):
 <style>
 *{{margin:0;padding:0;box-sizing:border-box}}
 :root{{
-  --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
   --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
   --navy:#0D1B2A;--navy-light:#1A2940;
   --slate:#475569;--slate-light:#64748B;
@@ -310,7 +312,7 @@ body{{
     <div id="chart"></div>
     <div class="chart-source">
       <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#8B1A1A">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
     </div>
   </div>
 </div>
@@ -487,7 +489,7 @@ def build_year_line_chart_js(year_data_list, y_axis_name="", y_formatter="null",
 
 # -- Chart builders -------------------------------------------------------
 
-def write_chart(filename, title, subtitle, chart_js, accent="#0D9488"):
+def write_chart(filename, title, subtitle, chart_js, accent="#0A9396"):
     """Escribe archivo HTML."""
     html = _html_template(title, subtitle, chart_js, accent)
     out = EMBED / filename
@@ -612,17 +614,17 @@ def build_manufactura():
       yAxis:[
         {{
           type:'value',name:'\\u00cdndice (base 2017)',
-          nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:'#0D9488'}},
-          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:'#0D9488'}},
-          axisLine:{{show:true,lineStyle:{{color:'#0D9488'}}}},
+          nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:'#0A9396'}},
+          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:'#0A9396'}},
+          axisLine:{{show:true,lineStyle:{{color:'#0A9396'}}}},
           splitLine:{{lineStyle:{{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
           axisTick:{{show:false}}
         }},
         {{
           type:'value',name:'Capacidad (%)',
-          nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:'#D97706'}},
-          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:'#D97706',formatter:'{{value}}%'}},
-          axisLine:{{show:true,lineStyle:{{color:'#D97706'}}}},
+          nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:'#EE9B00'}},
+          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:'#EE9B00',formatter:'{{value}}%'}},
+          axisLine:{{show:true,lineStyle:{{color:'#EE9B00'}}}},
           splitLine:{{show:false}},
           axisTick:{{show:false}}
         }}
@@ -631,8 +633,8 @@ def build_manufactura():
         {{
           name:'\\u00cdndice de producci\\u00f3n',type:'line',data:{prod_json},
           yAxisIndex:0,symbol:'circle',symbolSize:5,
-          lineStyle:{{width:2.5,color:'#0D9488'}},
-          itemStyle:{{color:'#0D9488'}},
+          lineStyle:{{width:2.5,color:'#0A9396'}},
+          itemStyle:{{color:'#0A9396'}},
           areaStyle:{{color:new echarts.graphic.LinearGradient(0,0,0,1,[
             {{offset:0,color:dark?'rgba(13,148,136,.2)':'rgba(13,148,136,.1)'}},
             {{offset:1,color:'rgba(13,148,136,0)'}}
@@ -641,8 +643,8 @@ def build_manufactura():
         {{
           name:'Utilizaci\\u00f3n capacidad (%)',type:'line',data:{cap_json},
           yAxisIndex:1,symbol:'diamond',symbolSize:5,
-          lineStyle:{{width:2.5,color:'#D97706'}},
-          itemStyle:{{color:'#D97706'}}
+          lineStyle:{{width:2.5,color:'#EE9B00'}},
+          itemStyle:{{color:'#EE9B00'}}
         }}
       ]
     }};"""
@@ -652,7 +654,7 @@ def build_manufactura():
         "Industria manufacturera: producción y capacidad instalada",
         "Trimestral 2017-2025 · Base 2017=100 (producción) / % (capacidad)",
         chart_js,
-        accent="#0D9488"
+        accent="#0A9396"
     )
 
 

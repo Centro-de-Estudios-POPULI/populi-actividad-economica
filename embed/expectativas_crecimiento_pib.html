@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
 :root{
-  --populi:#8B1A1A;--populi-light:#C00000;
+  --populi:#C71E1D;--populi-light:#E8706B;
   --cream:#F5EFE0;--brown-dark:#3D2B1F;
   --navy:#0D1B2A;--slate:#475569;--slate-light:#64748B;
   --warm-white:#FAF8F3;--light-gray:#F1EDE5;
@@ -31,7 +31,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .sec-hd{margin-bottom:16px}
 .sec-title{font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:10px;line-height:1.15}
 [data-theme="dark"] .sec-title{color:#fff}
-.accent-bar{width:4px;height:26px;background:#0D9488;border-radius:2px;flex-shrink:0}
+.accent-bar{width:4px;height:26px;background:#0A9396;border-radius:2px;flex-shrink:0}
 .sec-sub{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
 [data-theme="dark"] .sec-sub{color:rgba(255,255,255,.4)}
 
@@ -42,7 +42,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 [data-theme="dark"] .hz-grp{background:#1A1A1A;border-color:var(--dark-border)}
 .hz-btn{padding:5px 14px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
 .hz-btn:hover{color:var(--text)}
-.hz-btn.active{background:#0D9488;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25)}
+.hz-btn.active{background:#0A9396;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25)}
 
 /* ── KPIs ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
@@ -55,7 +55,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kpi-val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700}
 .kpi-d{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:.66rem;font-weight:600;padding:1px 7px;border-radius:5px;margin-top:4px}
 .kpi-d.up{background:rgba(199,30,29,.08);color:#C71E1D}
-.kpi-d.down{background:rgba(5,150,105,.08);color:#059669}
+.kpi-d.down{background:rgba(5,150,105,.08);color:#0A9396}
 .kpi-d.flat{background:rgba(100,116,139,.08);color:#64748B}
 [data-theme="dark"] .kpi-d.up{background:rgba(199,30,29,.15)}
 [data-theme="dark"] .kpi-d.down{background:rgba(5,150,105,.15)}
@@ -144,15 +144,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
   <!-- Edu -->
   <div class="edu-grid">
-    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+    <div class="edu" style="border-left-color:#0A9396" onclick="this.classList.toggle('open')">
       <div class="edu-t">&iquest;Qu&eacute; mide esta expectativa?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
       <div class="edu-body">La tasa de crecimiento anual del PIB esperada. Positivo = expansi&oacute;n, negativo = recesi&oacute;n.</div>
     </div>
-    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+    <div class="edu" style="border-left-color:#0A9396" onclick="this.classList.toggle('open')">
       <div class="edu-t">Contexto hist&oacute;rico<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
       <div class="edu-body">Bolivia creci&oacute; promedio <strong>4.5%</strong> (2006-2019). Tras la pandemia y la crisis cambiaria, las expectativas reflejan un entorno m&aacute;s desafiante.</div>
     </div>
-    <div class="edu" style="border-left-color:#0D9488" onclick="this.classList.toggle('open')">
+    <div class="edu" style="border-left-color:#0A9396" onclick="this.classList.toggle('open')">
       <div class="edu-t">D1 y D9 invertidos<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
       <div class="edu-body">Aqu&iacute; el <strong>Decil 9 son los optimistas</strong> (mayor crecimiento) y el <strong>Decil 1 los pesimistas</strong> (menor crecimiento o contracci&oacute;n).</div>
     </div>
@@ -162,7 +162,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   <div class="chart-source">
     <span class="chart-source-text">Fuente: <a href="https://www.bcb.gob.bo/?q=resultados-encuestas" target="_blank">BCB &mdash; EEE</a> &middot; Elaboraci&oacute;n: <a href="https://populi.bo" target="_blank">Centro de Estudios POPULI</a></span>
     <svg class="watermark" viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg">
-      <text x="6" y="112" font-family="'Playfair Display',Georgia,serif" font-size="145" font-weight="700" fill="#8B1A1A">P</text>
+      <text x="6" y="112" font-family="'Playfair Display',Georgia,serif" font-size="145" font-weight="700" fill="#C71E1D">P</text>
       <text x="92" y="87" font-family="'Playfair Display',Georgia,serif" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text>
     </svg>
   </div>
@@ -178,7 +178,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   var horizon = 'siguiente';
   var activeKeys = new Set(['mediana','decil9','decil1']);
   var chart = null;
-  var COLOR = '#0D9488';
+  var COLOR = '#0A9396';
 
   function dk(){ return document.documentElement.getAttribute('data-theme') === 'dark'; }
   function getS(){ if(!DATA) return []; return DATA['series_'+horizon] || DATA.series_siguiente || []; }
@@ -187,8 +187,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   /* ── Pills ── */
   (function(){
     var pills = document.getElementById('pills');
-    [{key:'mediana',label:'Mediana',color:'#0D9488',dash:false},
-     {key:'decil9',label:'Decil 9',color:'#059669',dash:true},
+    [{key:'mediana',label:'Mediana',color:'#0A9396',dash:false},
+     {key:'decil9',label:'Decil 9',color:'#0A9396',dash:true},
      {key:'decil1',label:'Decil 1',color:'#C71E1D',dash:true}].forEach(function(s){
       var btn = document.createElement('button');
       btn.className = 'pill';
@@ -208,7 +208,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   }
 
   function syncPills(){
-    var colors = {mediana:'#0D9488',decil9:'#059669',decil1:'#C71E1D'};
+    var colors = {mediana:'#0A9396',decil9:'#0A9396',decil1:'#C71E1D'};
     document.querySelectorAll('.pill').forEach(function(btn){
       var k = btn.dataset.key, c = colors[k], on = activeKeys.has(k);
       btn.style.borderColor = on ? c : 'var(--border)';
@@ -223,10 +223,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   function updateKPIs(){
     var S = getS(), N = S.length, last = S[N-1], prev = S[N-2];
     var items = [
-      {lbl:'Mediana',val:last.mediana.toFixed(1)+'%',d:last.mediana-prev.mediana,color:'#0D9488',inv:false},
-      {lbl:'Decil 9 (optimistas)',val:last.decil9.toFixed(1)+'%',d:last.decil9-prev.decil9,color:'#059669',inv:false},
+      {lbl:'Mediana',val:last.mediana.toFixed(1)+'%',d:last.mediana-prev.mediana,color:'#0A9396',inv:false},
+      {lbl:'Decil 9 (optimistas)',val:last.decil9.toFixed(1)+'%',d:last.decil9-prev.decil9,color:'#0A9396',inv:false},
       {lbl:'Decil 1 (pesimistas)',val:last.decil1.toFixed(1)+'%',d:last.decil1-prev.decil1,color:'#C71E1D',inv:false},
-      {lbl:'Rango D9–D1',val:(last.decil9-last.decil1).toFixed(1)+' pp',d:(last.decil9-last.decil1)-(prev.decil9-prev.decil1),color:'#0D9488',inv:true}
+      {lbl:'Rango D9–D1',val:(last.decil9-last.decil1).toFixed(1)+' pp',d:(last.decil9-last.decil1)-(prev.decil9-prev.decil1),color:'#0A9396',inv:true}
     ];
     var el = document.getElementById('kpis');
     el.innerHTML = items.map(function(i){
@@ -254,18 +254,18 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     var hdBg = dk() ? '#0A2A2A' : '#134E4A';
     var html = '<div class="panel" id="panel-pib">';
     html += '<div class="panel-hd" style="background:'+hdBg+'"><span class="panel-hd-t">Lectura del indicador</span>';
-    html += '<span class="panel-hd-d" style="color:#0D9488;background:#0D948822">'+d.label+'</span></div>';
+    html += '<span class="panel-hd-d" style="color:#0A9396;background:#0A939622">'+d.label+'</span></div>';
     html += '<div class="panel-body">';
-    html += '<div class="pb"><div class="pb-lbl" style="color:#0D9488;background:#0D948814;border-left-color:#0D9488">Mediana</div>';
-    html += '<div class="pb-val" style="color:#0D9488">'+fmt(d.mediana)+'</div>';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#0A9396;background:#0A939614;border-left-color:#0A9396">Mediana</div>';
+    html += '<div class="pb-val" style="color:#0A9396">'+fmt(d.mediana)+'</div>';
     html += '<p class="pb-desc">En <strong>'+d.label+'</strong>, expectativa mediana para <strong>'+d.target+'</strong>'+(prev?', '+(dMed>=0?'subiendo':'bajando')+' '+Math.abs(dMed).toFixed(2):'')+' vs. mes anterior.</p></div>';
     html += '<div class="pb"><div class="pb-lbl" style="color:#C71E1D;background:rgba(199,30,29,.08);border-left-color:#C71E1D">Decil extremo alto</div>';
     html += '<div class="pb-val" style="color:#C71E1D">'+fmt(d.decil9)+'</div>';
     html += '<p class="pb-desc">10% de encuestados con la expectativa más alta.</p></div>';
-    html += '<div class="pb"><div class="pb-lbl" style="color:#059669;background:rgba(5,150,105,.08);border-left-color:#059669">Decil extremo bajo</div>';
-    html += '<div class="pb-val" style="color:#059669">'+fmt(d.decil1)+'</div>';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#0A9396;background:rgba(5,150,105,.08);border-left-color:#0A9396">Decil extremo bajo</div>';
+    html += '<div class="pb-val" style="color:#0A9396">'+fmt(d.decil1)+'</div>';
     html += '<p class="pb-desc">10% de encuestados con la expectativa más baja.</p></div>';
-    html += '<div class="ctx" style="background:'+(dk()?'#0D94880D':'#0D948808')+';border-left-color:#0D9488"><p>'+pibAnalysis(d)+'</p></div>';
+    html += '<div class="ctx" style="background:'+(dk()?'#0A93960D':'#0A939608')+';border-left-color:#0A9396"><p>'+pibAnalysis(d)+'</p></div>';
     html += '</div></div>';
     document.getElementById('panel-wrap').innerHTML = html;
   }
@@ -283,15 +283,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       series.push({
         name:'Mediana',type:'line',data:medData,symbol:'none',
         lineStyle:{width:3,type:'solid'},
-        itemStyle:{color:'#0D9488'},z:3,
+        itemStyle:{color:'#0A9396'},z:3,
         areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-          {offset:0,color:'#0D9488'+(d?'20':'10')},
-          {offset:1,color:'#0D948800'}
+          {offset:0,color:'#0A9396'+(d?'20':'10')},
+          {offset:1,color:'#0A939600'}
         ])},
         markPoint:{
           data:[{coord:[lastIdx,medData[lastIdx]]}],
           symbol:'circle',symbolSize:7,
-          itemStyle:{color:'#0D9488',borderColor:d?'#101010':'#fff',borderWidth:2},
+          itemStyle:{color:'#0A9396',borderColor:d?'#101010':'#fff',borderWidth:2},
           label:{show:false}
         }
       });
@@ -301,11 +301,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
       series.push({
         name:'Decil 9',type:'line',data:d9Data,symbol:'none',
         lineStyle:{width:1.5,type:'dashed'},
-        itemStyle:{color:'#059669'},z:1,
+        itemStyle:{color:'#0A9396'},z:1,
         markPoint:{
           data:[{coord:[d9Data.length-1,d9Data[d9Data.length-1]]}],
           symbol:'circle',symbolSize:7,
-          itemStyle:{color:'#059669',borderColor:d?'#101010':'#fff',borderWidth:2},
+          itemStyle:{color:'#0A9396',borderColor:d?'#101010':'#fff',borderWidth:2},
           label:{show:false}
         }
       });

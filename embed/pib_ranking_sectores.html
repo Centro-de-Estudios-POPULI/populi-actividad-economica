@@ -10,14 +10,14 @@
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
   <style>
     :root{
-      --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+      --populi:#C71E1D;--populi-dark:#6B0300;--populi-light:#E8706B;--populi-gold:#EE9B00;
       --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
       --navy:#0D1B2A;--navy-light:#1A2940;
       --slate:#475569;--slate-light:#64748B;
       --warm-white:#FAF8F3;--light-gray:#F1EDE5;
       --border:#E2DDD3;--dark-border:#2A3A50;
       --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-      --accent:#0D9488;--radius:12px;
+      --accent:#0A9396;--radius:12px;
       --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
     }
     [data-theme="dark"]{--bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;--border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;--shadow:0 2px 8px rgba(0,0,0,.5),0 6px 24px rgba(0,0,0,.4)}
@@ -38,9 +38,9 @@
     .kpi-card:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
     .kpi-card::after{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
     .kpi-card[data-s="ref"]::after{background:var(--accent)}
-    .kpi-card[data-s="best"]::after{background:#059669}
+    .kpi-card[data-s="best"]::after{background:#0A9396}
     .kpi-card[data-s="worst"]::after{background:#C71E1D}
-    .kpi-card[data-s="spread"]::after{background:#D97706}
+    .kpi-card[data-s="spread"]::after{background:#EE9B00}
     .kpi-label{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
     [data-theme="dark"] .kpi-label{color:rgba(255,255,255,.4)}
     .kpi-value{font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700}
@@ -56,7 +56,7 @@
     .view-btn{padding:4px 14px;border:1.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;color:var(--muted);transition:all .2s}
     [data-theme="dark"] .view-btn{border-color:var(--dark-border);color:#94A3B8}
     .view-btn:hover,.view-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(13,148,136,.06)}
-    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:#14B8A6;color:#14B8A6;background:rgba(13,148,136,.1)}
+    [data-theme="dark"] .view-btn:hover,[data-theme="dark"] .view-btn.active{border-color:#0A9396;color:#0A9396;background:rgba(13,148,136,.1)}
     .chart-area{flex:1;min-height:0}
     .chart-source{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px}
     .chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
@@ -82,11 +82,11 @@
     .panel-desc strong{color:var(--navy)}
     [data-theme="dark"] .panel-desc strong{color:#E2E8F0}
     .delta-tag{font-family:'JetBrains Mono',monospace;font-weight:600;padding:1px 5px;border-radius:4px;font-size:.82em;white-space:nowrap}
-    .dt-teal{background:rgba(13,148,136,.08);color:#0D9488}
+    .dt-teal{background:rgba(13,148,136,.08);color:#0A9396}
     .dt-gray{background:rgba(100,116,139,.08);color:#64748B}
     .dt-red{background:rgba(199,30,29,.08);color:#C71E1D}
-    .dt-green{background:rgba(5,150,105,.08);color:#059669}
-    .dt-amber{background:rgba(217,119,6,.08);color:#D97706}
+    .dt-green{background:rgba(5,150,105,.08);color:#0A9396}
+    .dt-amber{background:rgba(217,119,6,.08);color:#EE9B00}
 
     .ctx-box{background:var(--cream);border-radius:6px;padding:8px 10px;border-left:3px solid var(--populi);margin-top:6px}
     [data-theme="dark"] .ctx-box{background:var(--navy-light)}
@@ -142,17 +142,17 @@
   var PIB={ia:-1.14,m12:-1.58,acum:-1.58};
 
   var S=[
-    {n:'Agricultura',       c:'#059669',ia:12.19, m12:6.66,  acum:6.66},
-    {n:'Extractiva',        c:'#D97706',ia:4.71,  m12:-4.32, acum:-4.32},
-    {n:'Manufactura',       c:'#2563EB',ia:0.50,  m12:0.74,  acum:0.74},
-    {n:'Electricidad',      c:'#8B5CF6',ia:-0.75, m12:-0.23, acum:-0.23},
+    {n:'Agricultura',       c:'#0A9396',ia:12.19, m12:6.66,  acum:6.66},
+    {n:'Extractiva',        c:'#EE9B00',ia:4.71,  m12:-4.32, acum:-4.32},
+    {n:'Manufactura',       c:'#005F73',ia:0.50,  m12:0.74,  acum:0.74},
+    {n:'Electricidad',      c:'#9B2226',ia:-0.75, m12:-0.23, acum:-0.23},
     {n:'Construcción',      c:'#C71E1D',ia:-17.66,m12:-13.57,acum:-13.57},
-    {n:'Comercio',          c:'#0EA5E9',ia:-6.05, m12:-0.87, acum:-0.87},
-    {n:'Transporte',        c:'#6366F1',ia:-1.37, m12:-0.90, acum:-0.90},
-    {n:'Alojamiento',       c:'#EC4899',ia:2.45,  m12:3.58,  acum:3.58},
-    {n:'Financieras',       c:'#F59E0B',ia:0.21,  m12:-3.45, acum:-3.45},
+    {n:'Comercio',          c:'#94D2BD',ia:-6.05, m12:-0.87, acum:-0.87},
+    {n:'Transporte',        c:'#005F73',ia:-1.37, m12:-0.90, acum:-0.90},
+    {n:'Alojamiento',       c:'#DF5D25',ia:2.45,  m12:3.58,  acum:3.58},
+    {n:'Financieras',       c:'#EE9B00',ia:0.21,  m12:-3.45, acum:-3.45},
     {n:'Adm. Pública',      c:'#64748B',ia:-1.47, m12:1.96,  acum:1.96},
-    {n:'Comunales',         c:'#14B8A6',ia:-3.71, m12:0.53,  acum:0.53}
+    {n:'Comunales',         c:'#0A9396',ia:-3.71, m12:0.53,  acum:0.53}
   ];
 
   var VIEWS=[
@@ -196,7 +196,7 @@
       +      'Fuente: <a href="https://www.ine.gob.bo" target="_blank">INE Bolivia</a> · '
       +      'Elaboración: <a href="https://populi.org.bo" target="_blank">Centro de Estudios POPULI</a></span>'
       +      '<svg viewBox="0 0 310 130" xmlns="http://www.w3.org/2000/svg" class="watermark">'
-      +        '<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#C00000':'#8B1A1A')+'">P</text>'
+      +        '<text x="6" y="112" font-family="\'Playfair Display\',Georgia,serif" font-size="145" font-weight="700" fill="'+(d?'#E8706B':'#C71E1D')+'">P</text>'
       +        '<text x="92" y="87" font-family="\'Playfair Display\',Georgia,serif" font-size="55" font-weight="400" font-style="italic" letter-spacing="1" fill="'+(d?'#F5EFE0':'#3D2B1F')+'">opuli</text></svg></div>'
       +  '</div>'
       +  '<div class="panel">'
@@ -255,7 +255,7 @@
       +'<div class="kpi-value" style="color:'+worst.c+'">'+fp(worst[k])+'</div>'
       +'<div class="kpi-sub">'+worst.n+'</div></div>'
       +'<div class="kpi-card" data-s="spread"><div class="kpi-label">Sobre PIB total</div>'
-      +'<div class="kpi-value" style="color:#D97706">'+above+' <span style="font-size:.7rem;font-weight:400">de 11</span></div>'
+      +'<div class="kpi-value" style="color:#EE9B00">'+above+' <span style="font-size:.7rem;font-weight:400">de 11</span></div>'
       +'<div class="kpi-sub">Sectores por encima del promedio</div></div>';
   }
 
@@ -283,7 +283,7 @@
           show:true,
           position:v>=0?'right':'left',
           fontFamily:'JetBrains Mono',fontSize:11,fontWeight:700,
-          color:d?(v>=0?'#34D399':'#F87171'):(v>=0?'#059669':'#C71E1D'),
+          color:d?(v>=0?'#34D399':'#E8706B'):(v>=0?'#0A9396':'#C71E1D'),
           formatter:function(p){return fp(p.value)}
         }
       };
@@ -309,10 +309,10 @@
             +'<div style="display:flex;gap:10px;align-items:center;margin:3px 0">'
             +'<span style="width:8px;height:8px;border-radius:50%;background:'+s.c+';display:inline-block"></span>'
             +'<span style="font-size:10px;color:rgba(255,255,255,.6)">'+VIEWS[curView].label+'</span>'
-            +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:12px;margin-left:auto;color:'+(v>=0?'#34D399':'#F87171')+'">'+fp(v)+'</span></div>'
+            +'<span style="font-family:\'JetBrains Mono\';font-weight:700;font-size:12px;margin-left:auto;color:'+(v>=0?'#34D399':'#E8706B')+'">'+fp(v)+'</span></div>'
             +'<div style="border-top:1px solid rgba(255,255,255,.1);margin:6px 0;padding-top:6px">'
             +'<div style="font-size:10px;color:rgba(255,255,255,.5)">vs PIB Total ('+fp(pv)+')</div>'
-            +'<div style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px;color:'+(diff>=0?'#34D399':'#F87171')+'">'+fp(diff)+' pp</div></div>';
+            +'<div style="font-family:\'JetBrains Mono\';font-weight:700;font-size:11px;color:'+(diff>=0?'#34D399':'#E8706B')+'">'+fp(diff)+' pp</div></div>';
         }
       },
       xAxis:{
@@ -341,7 +341,7 @@
             x:80,y:11,
             textAlign:'center',textVerticalAlign:'middle',
             fontFamily:'JetBrains Mono',fontSize:10,fontWeight:700,
-            fill:d?'#14B8A6':'#0D9488'
+            fill:d?'#0A9396':'#0A9396'
           }
         }]
       }],
@@ -374,8 +374,8 @@
     var html='';
 
     html+='<div class="panel-block">'
-      +'<div class="panel-label" style="color:#0D9488;background:rgba(13,148,136,.08);border-left-color:#0D9488">PIB Total — Referencia</div>'
-      +'<div class="panel-val" style="color:#0D9488">'+fp2(PIB[k])+'</div>'
+      +'<div class="panel-label" style="color:#0A9396;background:rgba(13,148,136,.08);border-left-color:#0A9396">PIB Total — Referencia</div>'
+      +'<div class="panel-val" style="color:#0A9396">'+fp2(PIB[k])+'</div>'
       +'<p class="panel-desc">Crecimiento '+VIEWS[curView].label.toLowerCase()+' del PIB agregado en el '+QTR+'. <strong>'+above+' de 11 sectores</strong> crecen por encima de este nivel.</p>'
       +'</div>';
 
@@ -410,7 +410,7 @@
         +'<span class="rank-pos">'+(i+1)+'</span>'
         +'<span class="rank-dot" style="background:'+s.c+'"></span>'
         +'<span class="rank-name">'+s.n+'</span>'
-        +'<span class="rank-val" style="color:'+(v>=0?(d?'#34D399':'#059669'):(d?'#F87171':'#C71E1D'))+'">'+fp(v)+'</span>'
+        +'<span class="rank-val" style="color:'+(v>=0?(d?'#34D399':'#0A9396'):(d?'#E8706B':'#C71E1D'))+'">'+fp(v)+'</span>'
         +'</li>';
     });
     html+='</ul></div>';
