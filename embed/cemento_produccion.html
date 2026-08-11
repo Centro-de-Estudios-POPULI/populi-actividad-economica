@@ -9,7 +9,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --populi:#8B1A1A;--populi-dark:#6B0300;--populi-light:#C00000;--populi-gold:#D4A017;
+  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
   --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
   --navy:#0D1B2A;--navy-light:#1A2940;
   --slate:#475569;--slate-light:#64748B;
@@ -39,7 +39,7 @@ body{
   color:var(--navy);display:flex;align-items:center;gap:10px;
 }
 [data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0;background:#0D9488}
+.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0;background:#0A9396}
 .section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
 #chart{width:100%;height:480px;margin-top:12px}
 .chart-source{
@@ -64,7 +64,7 @@ body{
     <div id="chart"></div>
     <div class="chart-source">
       <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#8B1A1A">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
     </div>
   </div>
 </div>
@@ -81,7 +81,7 @@ body{
   function buildChart(){
 
     var dark=dk();
-    var yColors={'2026':['#0D9488','#0D9488'],'2025':['#2563EB','#3B82F6'],'2024':['#6366F1','#818CF8'],'2023':['#D97706','#F59E0B'],'2022':['#94A3B8','#94A3B8'],'2021':['#CBD5E1','#64748B'],'2020':['#EF4444','#F87171']};
+    var yColors={'2026':['#C71E1D','#E8706B'],'2025':['#0A9396','#0A9396'],'2024':['#EE9B00','#EE9B00'],'2023':['#005F73','#94D2BD'],'2022':['#B9BEC0','#8A9699'],'2021':['#CFD3D4','#6E7A7D'],'2020':['#C71E1D','#E8706B']};
     var option={
       backgroundColor:'transparent',
       tooltip:{
@@ -138,14 +138,14 @@ body{
         data:[329779.62, 208039.15, 260004.07, 260891.02, null, null, null, null, null, null, null, null],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:3,color:dark?'#0D9488':'#0D9488',type:'solid',opacity:1.0},
-        itemStyle:{color:dark?'#0D9488':'#0D9488'},
+        lineStyle:{width:3,color:dark?'#E8706B':'#C71E1D',type:'solid',opacity:1.0},
+        itemStyle:{color:dark?'#E8706B':'#C71E1D'},
         emphasis:{lineStyle:{width:4}},
         markPoint:{
           data:[{
             coord:[3,260891.02],
             symbol:'circle',symbolSize:8,
-            itemStyle:{color:dark?'#0D9488':'#0D9488',borderColor:'#fff',borderWidth:2},
+            itemStyle:{color:dark?'#E8706B':'#C71E1D',borderColor:'#fff',borderWidth:2},
             label:{show:false}
           }]
         },
@@ -156,8 +156,8 @@ body{
         data:[333857.23, 317626.29, 286343.31, 321149.55, 338535.57, 325068.51, 364553.61, 359458.18, 355166.85, 378668.98, 407375.8, 311762.61],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:2.5,color:dark?'#3B82F6':'#2563EB',type:'solid',opacity:0.9},
-        itemStyle:{color:dark?'#3B82F6':'#2563EB'},
+        lineStyle:{width:2.5,color:dark?'#0A9396':'#0A9396',type:'solid',opacity:0.9},
+        itemStyle:{color:dark?'#0A9396':'#0A9396'},
         emphasis:{lineStyle:{width:3.5}},
         z:9
       },
@@ -166,8 +166,8 @@ body{
         data:[350531.4, 291543.13, 307643.97, 330186.18, 337130.52, 331854.43, 327430.01, 361957.46, 349571.82, 363784.08, 307116.29, 400371.6],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:2,color:dark?'#818CF8':'#6366F1',type:'solid',opacity:0.8},
-        itemStyle:{color:dark?'#818CF8':'#6366F1'},
+        lineStyle:{width:2,color:dark?'#EE9B00':'#EE9B00',type:'solid',opacity:0.8},
+        itemStyle:{color:dark?'#EE9B00':'#EE9B00'},
         emphasis:{lineStyle:{width:3}},
         z:8
       },
@@ -176,8 +176,8 @@ body{
         data:[339049.11, 227383.3, 348512.41, 287206.71, 330215.64, 301384.03, 347558.84, 346603.71, 364823.47, 383451.55, 359299.87, 341871.95],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:1.8,color:dark?'#F59E0B':'#D97706',type:'solid',opacity:0.7},
-        itemStyle:{color:dark?'#F59E0B':'#D97706'},
+        lineStyle:{width:1.8,color:dark?'#94D2BD':'#005F73',type:'solid',opacity:0.7},
+        itemStyle:{color:dark?'#94D2BD':'#005F73'},
         emphasis:{lineStyle:{width:2.8}},
         z:7
       },
@@ -186,8 +186,8 @@ body{
         data:[304376.29, 271867.34, 310044.87, 303855.87, 307943.5, 311693.63, 355479.0, 329271.75, 358096.11, 370281.65, 308767.13, 356893.79],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:1.5,color:dark?'#94A3B8':'#94A3B8',type:'solid',opacity:0.6},
-        itemStyle:{color:dark?'#94A3B8':'#94A3B8'},
+        lineStyle:{width:1.5,color:dark?'#8A9699':'#B9BEC0',type:'solid',opacity:0.6},
+        itemStyle:{color:dark?'#8A9699':'#B9BEC0'},
         emphasis:{lineStyle:{width:2.5}},
         z:6
       },
@@ -196,8 +196,8 @@ body{
         data:[244814.85, 223394.27, 297788.49, 276195.48, 307923.59, 299516.54, 321478.99, 317593.81, 342663.19, 361079.64, 333522.81, 280987.07],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:1.2,color:dark?'#64748B':'#CBD5E1',type:'solid',opacity:0.5},
-        itemStyle:{color:dark?'#64748B':'#CBD5E1'},
+        lineStyle:{width:1.2,color:dark?'#6E7A7D':'#CFD3D4',type:'solid',opacity:0.5},
+        itemStyle:{color:dark?'#6E7A7D':'#CFD3D4'},
         emphasis:{lineStyle:{width:2.2}},
         z:5
       },
@@ -206,8 +206,8 @@ body{
         data:[392216.77, 250820.64, 215629.42, 11579.06, 159201.15, 238639.83, 256231.23, 249579.07, 358376.34, 390321.28, 361362.94, 322875.93],
         symbol:'none',
         connectNulls:false,
-        lineStyle:{width:1.8,color:dark?'#F87171':'#EF4444',type:'dashed',opacity:0.7},
-        itemStyle:{color:dark?'#F87171':'#EF4444'},
+        lineStyle:{width:1.8,color:dark?'#E8706B':'#C71E1D',type:'dashed',opacity:0.7},
+        itemStyle:{color:dark?'#E8706B':'#C71E1D'},
         emphasis:{lineStyle:{width:2.8}},
         z:4
       }
