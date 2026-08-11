@@ -51,7 +51,7 @@ body{
 [data-theme="dark"] .chart-source-text a{color:#E9D8A6}
 .watermark{width:80px;height:auto;opacity:.18}
 [data-theme="dark"] .watermark text:first-child{fill:#E9D8A6}
-[data-theme="dark"] .watermark text:last-child{fill:#94A3B8}
+[data-theme="dark"] .watermark text:last-child{fill:#64748B}
 </style>
 </head>
 <body>
@@ -96,7 +96,7 @@ body{
               var unit=p.seriesIndex===0?' pts':' %';
               s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
               s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+p.color+'"></span>';
-              s+='<span style="color:#94A3B8;font-size:11px">'+p.seriesName+'</span>';
+              s+='<span style="color:#64748B;font-size:11px">'+p.seriesName+'</span>';
               s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toFixed(1)+unit+'</span>';
               s+='</div>';
             }
@@ -107,7 +107,7 @@ body{
       legend:{
         data:['\u00cdndice de producci\u00f3n','Utilizaci\u00f3n capacidad (%)'],
         bottom:8,
-        textStyle:{color:dark?'#64748B':'#94A3B8',fontSize:11,fontFamily:'Inter',fontWeight:500},
+        textStyle:{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'Inter',fontWeight:500},
         itemWidth:18,itemHeight:3,itemGap:14
       },
       grid:{left:60,right:60,top:20,bottom:50},
@@ -115,7 +115,7 @@ body{
         type:'category',data:["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3"],
         axisLine:{lineStyle:{color:dark?'#2A3A50':'#E2DDD3'}},
         axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8',rotate:45}
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B',rotate:45}
       },
       yAxis:[
         {
@@ -123,7 +123,7 @@ body{
           nameTextStyle:{fontFamily:'Inter',fontSize:10,color:'#0A9396'},
           axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:'#0A9396'},
           axisLine:{show:true,lineStyle:{color:'#0A9396'}},
-          splitLine:{lineStyle:{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+          splitLine:{lineStyle:{color:dark?'#141414':'#F1F5F9',type:'dashed'}},
           axisTick:{show:false}
         },
         {
@@ -142,8 +142,8 @@ body{
           lineStyle:{width:2.5,color:'#0A9396'},
           itemStyle:{color:'#0A9396'},
           areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:dark?'rgba(13,148,136,.2)':'rgba(13,148,136,.1)'},
-            {offset:1,color:'rgba(13,148,136,0)'}
+            {offset:0,color:dark?'rgba(10,147,150,.2)':'rgba(10,147,150,.1)'},
+            {offset:1,color:'rgba(10,147,150,0)'}
           ])}
         },
         {

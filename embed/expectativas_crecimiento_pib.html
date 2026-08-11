@@ -42,7 +42,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 [data-theme="dark"] .hz-grp{background:#1A1A1A;border-color:var(--dark-border)}
 .hz-btn{padding:5px 14px;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s}
 .hz-btn:hover{color:var(--text)}
-.hz-btn.active{background:#0A9396;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25)}
+.hz-btn.active{background:#0A9396;color:#fff;box-shadow:0 2px 8px rgba(10,147,150,.25)}
 
 /* ── KPIs ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
@@ -55,10 +55,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .kpi-val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700}
 .kpi-d{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:.66rem;font-weight:600;padding:1px 7px;border-radius:5px;margin-top:4px}
 .kpi-d.up{background:rgba(199,30,29,.08);color:#C71E1D}
-.kpi-d.down{background:rgba(5,150,105,.08);color:#0A9396}
+.kpi-d.down{background:rgba(10,147,150,.08);color:#0A9396}
 .kpi-d.flat{background:rgba(100,116,139,.08);color:#64748B}
 [data-theme="dark"] .kpi-d.up{background:rgba(199,30,29,.15)}
-[data-theme="dark"] .kpi-d.down{background:rgba(5,150,105,.15)}
+[data-theme="dark"] .kpi-d.down{background:rgba(10,147,150,.15)}
 
 /* ── Chart wrap: chart + panel ── */
 .chart-wrap{display:grid;grid-template-columns:1fr 340px;gap:16px;margin-bottom:20px}
@@ -262,7 +262,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     html += '<div class="pb"><div class="pb-lbl" style="color:#C71E1D;background:rgba(199,30,29,.08);border-left-color:#C71E1D">Decil extremo alto</div>';
     html += '<div class="pb-val" style="color:#C71E1D">'+fmt(d.decil9)+'</div>';
     html += '<p class="pb-desc">10% de encuestados con la expectativa más alta.</p></div>';
-    html += '<div class="pb"><div class="pb-lbl" style="color:#0A9396;background:rgba(5,150,105,.08);border-left-color:#0A9396">Decil extremo bajo</div>';
+    html += '<div class="pb"><div class="pb-lbl" style="color:#0A9396;background:rgba(10,147,150,.08);border-left-color:#0A9396">Decil extremo bajo</div>';
     html += '<div class="pb-val" style="color:#0A9396">'+fmt(d.decil1)+'</div>';
     html += '<p class="pb-desc">10% de encuestados con la expectativa más baja.</p></div>';
     html += '<div class="ctx" style="background:'+(dk()?'#0A93960D':'#0A939608')+';border-left-color:#0A9396"><p>'+pibAnalysis(d)+'</p></div>';
@@ -332,7 +332,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
           var pts=[];
           for(var i=0;i<S.length;i++) pts.push(api.coord([i,S[i].decil9]));
           for(var i=S.length-1;i>=0;i--) pts.push(api.coord([i,S[i].decil1]));
-          return {type:'polygon',shape:{points:pts},style:{fill:d?'rgba(13,148,136,.06)':'rgba(13,148,136,.08)'}};
+          return {type:'polygon',shape:{points:pts},style:{fill:d?'rgba(10,147,150,.06)':'rgba(10,147,150,.08)'}};
         },
         data:S.map(function(_,i){return[i,0];}),silent:true,z:0
       });
@@ -344,7 +344,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         type:'category',data:labels,
         axisLine:{lineStyle:{color:d?'#2A3A50':'#E2E8F0'}},
         axisTick:{show:false},
-        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#666':'#94A3B8',rotate:45,
+        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:d?'#666':'#64748B',rotate:45,
           formatter:function(v){var parts=v.split(' ');return parts[0]==='Ene'?parts[0]+' '+parts[1]:parts[0];}
         }
       },
@@ -352,7 +352,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
         type:'value',
         axisLine:{show:false},
         splitLine:{lineStyle:{color:d?'rgba(42,58,80,0.5)':'#F1F5F9'}},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:d?'#666':'#94A3B8',
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:d?'#666':'#64748B',
           formatter:function(v){return v.toFixed(1)+'%';}}
       },
       tooltip:{
@@ -367,7 +367,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
           if(!valid.length) return '';
           var idx=valid[0].dataIndex;
           var html='<div style="font-weight:700;margin-bottom:6px;color:#E9D8A6">'+valid[0].axisValue+'</div>';
-          html+='<div style="font-size:10px;color:#94A3B8;margin-bottom:6px">Expectativa para '+S[idx].target+'</div>';
+          html+='<div style="font-size:10px;color:#64748B;margin-bottom:6px">Expectativa para '+S[idx].target+'</div>';
           valid.forEach(function(p){
             html+='<div style="display:flex;align-items:center;gap:6px;margin-top:4px">';
             html+='<span style="width:8px;height:8px;border-radius:50%;background:'+p.color+';display:inline-block"></span>';

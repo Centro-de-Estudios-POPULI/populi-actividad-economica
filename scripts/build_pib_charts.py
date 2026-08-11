@@ -400,7 +400,7 @@ def js_xaxis(labels_var="labels", rotate=45, interval="'auto'"):
       axisTick:{{show:false}},
       axisLabel:{{
         fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         rotate:{rotate},
         interval:{interval}
       }}
@@ -415,7 +415,7 @@ def js_xaxis_bar(labels_var="labels", rotate=45, interval="'auto'"):
       axisTick:{{show:false}},
       axisLabel:{{
         fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         rotate:{rotate},
         interval:{interval}
       }}
@@ -426,13 +426,13 @@ def js_yaxis(name="", fmt="{value}", left_pad=52):
     return f"""{{
       type:'value',
       name:'{name}',
-      nameTextStyle:{{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8',padding:[0,0,0,0]}},
-      splitLine:{{lineStyle:{{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+      nameTextStyle:{{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]}},
+      splitLine:{{lineStyle:{{color:dk()?'#141414':'#F1F5F9',type:'dashed'}}}},
       axisLine:{{show:false}},
       axisTick:{{show:false}},
       axisLabel:{{
         fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         formatter:'{fmt}'
       }}
     }}"""
@@ -514,7 +514,7 @@ def build_chart1():
       legend:{{
         data:['Base 1990','Base 2017'],
         bottom:4,
-        textStyle:{{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis('labels',45,3)},
       yAxis:{js_yaxis('%','{value}%')},
@@ -542,7 +542,7 @@ def build_chart1():
           connectNulls:false,
           markLine:{{
             silent:true,symbol:'none',
-            lineStyle:{{color:dk()?'#475569':'#94A3B8',type:'solid',width:1}},
+            lineStyle:{{color:dk()?'#475569':'#64748B',type:'solid',width:1}},
             data:[{{yAxis:0}}],
             label:{{show:false}}
           }},
@@ -608,10 +608,10 @@ def build_chart2():
       yAxis:{{
         type:'value',
         name:'Millones Bs encadenados',
-        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}},
-        splitLine:{{lineStyle:{{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}},
+        splitLine:{{lineStyle:{{color:dk()?'#141414':'#F1F5F9',type:'dashed'}}}},
         axisLine:{{show:false}},axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#94A3B8',
+        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',
           formatter:function(v){{return (v/1000).toFixed(0)+'k'}}
         }},
         min:'dataMin'
@@ -621,7 +621,7 @@ def build_chart2():
         itemStyle:{{
           color:new echarts.graphic.LinearGradient(0,0,0,1,[
             {{offset:0,color:'#0A9396'}},
-            {{offset:1,color:dk()?'rgba(13,148,136,.4)':'rgba(13,148,136,.6)'}}
+            {{offset:1,color:dk()?'rgba(10,147,150,.4)':'rgba(10,147,150,.6)'}}
           ]),
           borderRadius:[3,3,0,0]
         }},
@@ -696,8 +696,8 @@ def build_chart3():
 
         yaxes_js.append(f"""{{
           type:'value',gridIndex:{idx},
-          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:9,color:dk()?'#64748B':'#94A3B8'}},
-          splitLine:{{lineStyle:{{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+          axisLabel:{{fontFamily:'JetBrains Mono',fontSize:9,color:dk()?'#64748B':'#64748B'}},
+          splitLine:{{lineStyle:{{color:dk()?'#141414':'#F1F5F9',type:'dashed'}}}},
           axisLine:{{show:false}},axisTick:{{show:false}}
         }}""")
 
@@ -721,7 +721,7 @@ def build_chart3():
         series_js.append(f"""{{
           type:'line',xAxisIndex:{idx},yAxisIndex:{idx},
           data:new Array(labels.length).fill(0),
-          symbol:'none',lineStyle:{{color:dk()?'#475569':'#CBD5E1',width:0.5}},
+          symbol:'none',lineStyle:{{color:dk()?'#475569':'#E2DDD3',width:0.5}},
           silent:true
         }}""")
 
@@ -798,7 +798,7 @@ def build_chart4():
       legend:{{
         data:{legend_names},
         bottom:4,type:'scroll',
-        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis_bar('labels',45,1)},
       yAxis:{js_yaxis('pp')},
@@ -871,14 +871,14 @@ def build_chart5():
       }},
       legend:{{
         data:{legend_names},bottom:4,type:'scroll',
-        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis('labels',45,1)},
       yAxis:{{
         type:'value',max:100,
-        splitLine:{{lineStyle:{{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+        splitLine:{{lineStyle:{{color:dk()?'#141414':'#F1F5F9',type:'dashed'}}}},
         axisLine:{{show:false}},axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#94A3B8',formatter:'{{value}}%'}}
+        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',formatter:'{{value}}%'}}
       }},
       series:[{','.join(area_series)}]
     }},true);"""
@@ -965,15 +965,15 @@ def build_chart6():
       }},
       legend:{{
         data:{legend_names},bottom:4,type:'scroll',
-        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis('labels',45,1)},
       yAxis:{{
         type:'value',name:'Millones Bs',
-        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}},
-        splitLine:{{lineStyle:{{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}},
+        splitLine:{{lineStyle:{{color:dk()?'#141414':'#F1F5F9',type:'dashed'}}}},
         axisLine:{{show:false}},axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#94A3B8',
+        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',
           formatter:function(v){{return (v/1000).toFixed(0)+'k'}}
         }}
       }},
@@ -1033,7 +1033,7 @@ def build_chart7():
     # Zero reference
     line_series.append("""{{
       type:'line',data:new Array(labels.length).fill(0),
-      symbol:'none',lineStyle:{{color:dk()?'#475569':'#CBD5E1',width:0.8}},
+      symbol:'none',lineStyle:{{color:dk()?'#475569':'#E2DDD3',width:0.8}},
       silent:true,name:''
     }}""".replace("{{", "{").replace("}}", "}"))
     # Fix: the replace above won't work inside f-string, let's use a different approach
@@ -1043,7 +1043,7 @@ def build_chart7():
     # Build zero line manually
     zero_line = """{
       type:'line',data:zeroLine,
-      symbol:'none',lineStyle:{color:dk()?'#475569':'#CBD5E1',width:0.8},
+      symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.8},
       silent:true,name:''
     }"""
 
@@ -1056,7 +1056,7 @@ def build_chart7():
       tooltip:{js_tooltip('%')},
       legend:{{
         data:{legend_names},bottom:4,type:'scroll',
-        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis('labels',45,1)},
       yAxis:{js_yaxis('%','{value}%')},
@@ -1131,7 +1131,7 @@ def build_chart8():
       tooltip:{js_tooltip_bar_stack('pp')},
       legend:{{
         data:{legend_names},bottom:4,type:'scroll',
-        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}}
+        textStyle:{{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}}
       }},
       xAxis:{js_xaxis_bar('labels',45,1)},
       yAxis:{js_yaxis('pp')},

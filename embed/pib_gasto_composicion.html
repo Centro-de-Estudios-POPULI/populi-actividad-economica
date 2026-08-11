@@ -112,7 +112,7 @@ body{
       },
       legend:{
         data:["Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones (\u2212)"],bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}
+        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
       },
       xAxis:{
       type:'category',
@@ -122,17 +122,17 @@ body{
       axisTick:{show:false},
       axisLabel:{
         fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         rotate:45,
         interval:1
       }
     },
       yAxis:{
         type:'value',name:'Millones Bs',
-        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'},
-        splitLine:{lineStyle:{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'},
+        splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
         axisLine:{show:false},axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#94A3B8',
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',
           formatter:function(v){return (v/1000).toFixed(0)+'k'}
         }
       },

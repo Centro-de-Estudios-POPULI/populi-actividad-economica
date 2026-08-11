@@ -299,7 +299,7 @@ body{{
 [data-theme="dark"] .chart-source-text a{{color:#E9D8A6}}
 .watermark{{width:80px;height:auto;opacity:.18}}
 [data-theme="dark"] .watermark text:first-child{{fill:#E9D8A6}}
-[data-theme="dark"] .watermark text:last-child{{fill:#94A3B8}}
+[data-theme="dark"] .watermark text:last-child{{fill:#64748B}}
 </style>
 </head>
 <body>
@@ -450,7 +450,7 @@ def build_year_line_chart_js(year_data_list, y_axis_name="", y_formatter="null",
               var color=c?(dark?c[1]:c[0]):p.color;
               s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
               s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+color+'"></span>';
-              s+='<span style="color:#94A3B8;font-size:11px;min-width:32px">'+p.seriesName+'</span>';
+              s+='<span style="color:#64748B;font-size:11px;min-width:32px">'+p.seriesName+'</span>';
               s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toLocaleString('es-BO',{{maximumFractionDigits:1}})+'{value_suffix}</span>';
               s+='</div>';
             }}
@@ -461,7 +461,7 @@ def build_year_line_chart_js(year_data_list, y_axis_name="", y_formatter="null",
       legend:{{
         data:{legend_data},
         bottom:8,
-        textStyle:{{color:dark?'#64748B':'#94A3B8',fontSize:11,fontFamily:'JetBrains Mono',fontWeight:500}},
+        textStyle:{{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'JetBrains Mono',fontWeight:500}},
         itemWidth:18,itemHeight:3,itemGap:14,
         type:'scroll'
       }},
@@ -471,16 +471,16 @@ def build_year_line_chart_js(year_data_list, y_axis_name="", y_formatter="null",
         data:{categories},
         axisLine:{{lineStyle:{{color:dark?'#2A3A50':'#E2DDD3'}}}},
         axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8'}}
+        axisLabel:{{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B'}}
       }},
       yAxis:{{
         type:'value',min:'dataMin',
         name:'{y_axis_name}',
-        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#94A3B8',padding:[0,0,0,0]}},
-        splitLine:{{lineStyle:{{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+        nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#64748B',padding:[0,0,0,0]}},
+        splitLine:{{lineStyle:{{color:dark?'#141414':'#F1F5F9',type:'dashed'}}}},
         axisLine:{{show:false}},
         axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dark?'#64748B':'#94A3B8'{(',' + y_formatter_js) if y_formatter_js else ''}}}
+        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:dark?'#64748B':'#64748B'{(',' + y_formatter_js) if y_formatter_js else ''}}}
       }},
       series:[{series_js}
       ]
@@ -590,7 +590,7 @@ def build_manufactura():
               var unit=p.seriesIndex===0?' pts':' %';
               s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
               s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+p.color+'"></span>';
-              s+='<span style="color:#94A3B8;font-size:11px">'+p.seriesName+'</span>';
+              s+='<span style="color:#64748B;font-size:11px">'+p.seriesName+'</span>';
               s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toFixed(1)+unit+'</span>';
               s+='</div>';
             }}
@@ -601,7 +601,7 @@ def build_manufactura():
       legend:{{
         data:['\\u00cdndice de producci\\u00f3n','Utilizaci\\u00f3n capacidad (%)'],
         bottom:8,
-        textStyle:{{color:dark?'#64748B':'#94A3B8',fontSize:11,fontFamily:'Inter',fontWeight:500}},
+        textStyle:{{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'Inter',fontWeight:500}},
         itemWidth:18,itemHeight:3,itemGap:14
       }},
       grid:{{left:60,right:60,top:20,bottom:50}},
@@ -609,7 +609,7 @@ def build_manufactura():
         type:'category',data:{labels_json},
         axisLine:{{lineStyle:{{color:dark?'#2A3A50':'#E2DDD3'}}}},
         axisTick:{{show:false}},
-        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8',rotate:45}}
+        axisLabel:{{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B',rotate:45}}
       }},
       yAxis:[
         {{
@@ -617,7 +617,7 @@ def build_manufactura():
           nameTextStyle:{{fontFamily:'Inter',fontSize:10,color:'#0A9396'}},
           axisLabel:{{fontFamily:'JetBrains Mono',fontSize:11,color:'#0A9396'}},
           axisLine:{{show:true,lineStyle:{{color:'#0A9396'}}}},
-          splitLine:{{lineStyle:{{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}}}},
+          splitLine:{{lineStyle:{{color:dark?'#141414':'#F1F5F9',type:'dashed'}}}},
           axisTick:{{show:false}}
         }},
         {{
@@ -636,8 +636,8 @@ def build_manufactura():
           lineStyle:{{width:2.5,color:'#0A9396'}},
           itemStyle:{{color:'#0A9396'}},
           areaStyle:{{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {{offset:0,color:dark?'rgba(13,148,136,.2)':'rgba(13,148,136,.1)'}},
-            {{offset:1,color:'rgba(13,148,136,0)'}}
+            {{offset:0,color:dark?'rgba(10,147,150,.2)':'rgba(10,147,150,.1)'}},
+            {{offset:1,color:'rgba(10,147,150,0)'}}
           ])}}
         }},
         {{

@@ -112,7 +112,7 @@ body{
     },
       legend:{
         data:["PIB Total", "Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones"],bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#94A3B8'}
+        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
       },
       xAxis:{
       type:'category',
@@ -122,7 +122,7 @@ body{
       axisTick:{show:false},
       axisLabel:{
         fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         rotate:45,
         interval:1
       }
@@ -130,13 +130,13 @@ body{
       yAxis:{
       type:'value',
       name:'%',
-      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#94A3B8',padding:[0,0,0,0]},
-      splitLine:{lineStyle:{color:dk()?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]},
+      splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
       axisLine:{show:false},
       axisTick:{show:false},
       axisLabel:{
         fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#94A3B8',
+        color:dk()?'#64748B':'#64748B',
         formatter:'{value}%'
       }
     },
@@ -190,11 +190,11 @@ body{
           ])}
         },{
       type:'line',data:new Array(labels.length).fill(0),
-      symbol:'none',lineStyle:{color:dk()?'#475569':'#CBD5E1',width:0.8},
+      symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.8},
       silent:true,name:''
     },{
       type:'line',data:zeroLine,
-      symbol:'none',lineStyle:{color:dk()?'#475569':'#CBD5E1',width:0.8},
+      symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.8},
       silent:true,name:''
     }]
     },true);

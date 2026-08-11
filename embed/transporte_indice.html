@@ -51,7 +51,7 @@ body{
 [data-theme="dark"] .chart-source-text a{color:#E9D8A6}
 .watermark{width:80px;height:auto;opacity:.18}
 [data-theme="dark"] .watermark text:first-child{fill:#E9D8A6}
-[data-theme="dark"] .watermark text:last-child{fill:#94A3B8}
+[data-theme="dark"] .watermark text:last-child{fill:#64748B}
 </style>
 </head>
 <body>
@@ -100,7 +100,7 @@ body{
               var color=c?(dark?c[1]:c[0]):p.color;
               s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
               s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+color+'"></span>';
-              s+='<span style="color:#94A3B8;font-size:11px;min-width:32px">'+p.seriesName+'</span>';
+              s+='<span style="color:#64748B;font-size:11px;min-width:32px">'+p.seriesName+'</span>';
               s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toLocaleString('es-BO',{maximumFractionDigits:1})+'</span>';
               s+='</div>';
             }
@@ -111,7 +111,7 @@ body{
       legend:{
         data:["2026", "2025", "2024", "2023", "2022", "2021", "2020"],
         bottom:8,
-        textStyle:{color:dark?'#64748B':'#94A3B8',fontSize:11,fontFamily:'JetBrains Mono',fontWeight:500},
+        textStyle:{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'JetBrains Mono',fontWeight:500},
         itemWidth:18,itemHeight:3,itemGap:14,
         type:'scroll'
       },
@@ -121,16 +121,16 @@ body{
         data:["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
         axisLine:{lineStyle:{color:dark?'#2A3A50':'#E2DDD3'}},
         axisTick:{show:false},
-        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#94A3B8'}
+        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B'}
       },
       yAxis:{
         type:'value',min:'dataMin',
         name:'Índice (2017=100)',
-        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#94A3B8',padding:[0,0,0,0]},
-        splitLine:{lineStyle:{color:dark?'#1E1E1E':'#F1F5F9',type:'dashed'}},
+        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#64748B',padding:[0,0,0,0]},
+        splitLine:{lineStyle:{color:dark?'#141414':'#F1F5F9',type:'dashed'}},
         axisLine:{show:false},
         axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dark?'#64748B':'#94A3B8',formatter:function(v){return v.toFixed(1)}}
+        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dark?'#64748B':'#64748B',formatter:function(v){return v.toFixed(1)}}
       },
       series:[
       {
