@@ -58,7 +58,7 @@ body{
 <body>
 <div class="embed-container">
   <div class="section-title">
-    <span class="accent-bar" style="background:#005F73"></span>
+    <span class="accent-bar" style="background:#0A9396"></span>
     Crecimiento del PIB por actividad económica
   </div>
   <div class="section-subtitle">Variación interanual (%). Línea de color = sector, línea gris punteada = PIB total</div>
@@ -77,6 +77,33 @@ body{
   if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
   function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  /* ── Alto real hacia el contenedor ─────────────── */
+  var _lastH=0;
+  function reportHeight(force){
+    if(window.parent===window) return;
+    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
+       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
+    var bottom=0, kids=document.body.children;
+    for(var i=0;i<kids.length;i++){
+      var r=kids[i].getBoundingClientRect();
+      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+    }
+    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
+    var h=Math.ceil(bottom + window.scrollY + pad);
+    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
+      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+    }
+  }
+  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
+     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
+  window.addEventListener('load',function(){reportHeight(true)});
+  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
+  window.addEventListener('resize',function(){reportHeight(false)});
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
+  });
+  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
 
   /* ── Chart ─────────────────────────────────────── */
   var chartDom=document.getElementById('chart');
@@ -114,21 +141,18 @@ body{
           textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#DF5D25'}
         },{
           text:'Financieras',left:'15.2%',top:'64.8%',textAlign:'center',
-          textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#E9D8A6'}
+          textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#8B1A1A'}
         },{
           text:'Admin. Pública',left:'38.8%',top:'64.8%',textAlign:'center',
           textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#5C6B70'}
         },{
           text:'Comunales',left:'62.2%',top:'64.8%',textAlign:'center',
           textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#E8706B'}
-        },{
-          text:'',left:'85.8%',top:'64.8%',textAlign:'center',
-          textStyle:{fontFamily:'Inter',fontSize:10,fontWeight:600,color:'#999'}
         }],
       tooltip:{
         trigger:'axis',show:false
       },
-      grid:[{left:'5.5%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'76.0%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'5.5%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'76.0%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'5.5%',top:'67.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'67.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'67.0%',width:'19.5%',height:'24.0%'},{left:'76.0%',top:'67.0%',width:'19.5%',height:'24.0%'}],
+      grid:[{left:'5.5%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'76.0%',top:'5.0%',width:'19.5%',height:'24.0%'},{left:'5.5%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'76.0%',top:'36.0%',width:'19.5%',height:'24.0%'},{left:'5.5%',top:'67.0%',width:'19.5%',height:'24.0%'},{left:'29.0%',top:'67.0%',width:'19.5%',height:'24.0%'},{left:'52.5%',top:'67.0%',width:'19.5%',height:'24.0%'}],
       xAxis:[{
           type:'category',gridIndex:0,data:labels,
           axisLabel:{show:false},axisTick:{show:false},
@@ -181,11 +205,6 @@ body{
           splitLine:{show:false}
         },{
           type:'category',gridIndex:10,data:labels,
-          axisLabel:{show:false},axisTick:{show:false},
-          axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-          splitLine:{show:false}
-        },{
-          type:'category',gridIndex:11,data:labels,
           axisLabel:{show:false},axisTick:{show:false},
           axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
           splitLine:{show:false}
@@ -242,11 +261,6 @@ body{
           axisLine:{show:false},axisTick:{show:false}
         },{
           type:'value',gridIndex:10,
-          axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:dk()?'#64748B':'#64748B'},
-          splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-          axisLine:{show:false},axisTick:{show:false}
-        },{
-          type:'value',gridIndex:11,
           axisLabel:{fontFamily:'JetBrains Mono',fontSize:9,color:dk()?'#64748B':'#64748B'},
           splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
           axisLine:{show:false},axisTick:{show:false}
@@ -381,10 +395,10 @@ body{
           silent:true
         },{
           type:'line',xAxisIndex:8,yAxisIndex:8,data:[9.06, 5.38, 0.87, -3.05, 0.72, 4.29, 3.52, 8.72, 2.02, -10.64, -6.03, -7.79, -5.4, 1.58, 8.1, 9.4, 10.89, 9.27, 2.83, -4.53, -3.21, 0.94, 1.59, 14.79, 5.36, 3.94, 1.63, -8.1, -6.72, -4.63, -2.55, 0.21],
-          symbol:'none',lineStyle:{color:'#E9D8A6',width:2},
-          itemStyle:{color:'#E9D8A6'},
+          symbol:'none',lineStyle:{color:'#8B1A1A',width:2},
+          itemStyle:{color:'#8B1A1A'},
           areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#E9D8A618'},{offset:1,color:'#E9D8A602'}
+            {offset:0,color:'#8B1A1A18'},{offset:1,color:'#8B1A1A02'}
           ])}
         },{
           type:'line',xAxisIndex:8,yAxisIndex:8,data:pibTotal,
@@ -424,22 +438,6 @@ body{
           itemStyle:{color:'#9CA3AF'}
         },{
           type:'line',xAxisIndex:10,yAxisIndex:10,
-          data:new Array(labels.length).fill(0),
-          symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.5},
-          silent:true
-        },{
-          type:'line',xAxisIndex:11,yAxisIndex:11,data:[],
-          symbol:'none',lineStyle:{color:'#999',width:2},
-          itemStyle:{color:'#999'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#99918'},{offset:1,color:'#99902'}
-          ])}
-        },{
-          type:'line',xAxisIndex:11,yAxisIndex:11,data:pibTotal,
-          symbol:'none',lineStyle:{color:'#9CA3AF',width:1,type:'dashed'},
-          itemStyle:{color:'#9CA3AF'}
-        },{
-          type:'line',xAxisIndex:11,yAxisIndex:11,
           data:new Array(labels.length).fill(0),
           symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.5},
           silent:true

@@ -58,7 +58,7 @@ body{
 <body>
 <div class="embed-container">
   <div class="section-title">
-    <span class="accent-bar" style="background:#EE9B00"></span>
+    <span class="accent-bar" style="background:#0A9396"></span>
     Contribución al crecimiento del PIB
   </div>
   <div class="section-subtitle">Puntos porcentuales por actividad económica. Línea = crecimiento total del PIB</div>
@@ -77,6 +77,33 @@ body{
   if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
   function dk(){return document.documentElement.dataset.theme==='dark'}
+
+  /* ── Alto real hacia el contenedor ─────────────── */
+  var _lastH=0;
+  function reportHeight(force){
+    if(window.parent===window) return;
+    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
+       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
+    var bottom=0, kids=document.body.children;
+    for(var i=0;i<kids.length;i++){
+      var r=kids[i].getBoundingClientRect();
+      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+    }
+    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
+    var h=Math.ceil(bottom + window.scrollY + pad);
+    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
+      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+    }
+  }
+  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
+     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
+  window.addEventListener('load',function(){reportHeight(true)});
+  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
+  window.addEventListener('resize',function(){reportHeight(false)});
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
+  });
+  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
 
   /* ── Chart ─────────────────────────────────────── */
   var chartDom=document.getElementById('chart');
@@ -166,7 +193,7 @@ body{
           itemStyle:{color:'#DF5D25'},barMaxWidth:16
         },{
           name:'Financieras',type:'bar',stack:'total',data:[1.35, 0.78, 0.12, -0.46, 0.1, 0.61, 0.51, 1.26, 0.32, -1.61, -0.9, -1.25, -0.89, 0.26, 1.32, 1.46, 1.68, 1.32, 0.43, -0.73, -0.51, 0.13, 0.24, 2.27, 0.84, 0.56, 0.24, -1.38, -1.13, -0.64, -0.38, 0.03],
-          itemStyle:{color:'#E9D8A6'},barMaxWidth:16
+          itemStyle:{color:'#8B1A1A'},barMaxWidth:16
         },{
           name:'Admin. Pública',type:'bar',stack:'total',data:[-1.34, 1.88, 0.23, 0.29, 0.05, -0.1, 0.16, 0.45, 0.01, -0.35, -0.07, -0.08, 0.61, 0.39, -0.08, 0.76, 1.37, -1.16, 1.04, 0.33, -0.81, 2.32, 0.34, 0.07, 0.54, 0.36, 0.12, 0.48, 0.12, 0.38, 0.77, -0.22],
           itemStyle:{color:'#5C6B70'},barMaxWidth:16

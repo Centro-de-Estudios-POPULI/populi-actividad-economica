@@ -410,6 +410,33 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   var params=new URLSearchParams(window.location.search);
   if(params.get('theme')==='dark') document.documentElement.setAttribute('data-theme','dark');
   window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.setAttribute('data-theme',e.data.theme);});
+
+  /* Alto real hacia el contenedor (mismo protocolo que los embeds generados) */
+  var _lastH=0;
+  function reportHeight(force){
+    if(window.parent===window) return;
+    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
+       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
+    var bottom=0, kids=document.body.children;
+    for(var i=0;i<kids.length;i++){
+      var r=kids[i].getBoundingClientRect();
+      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+    }
+    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
+    var h=Math.ceil(bottom + window.scrollY + pad);
+    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
+      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+    }
+  }
+  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
+     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
+  window.addEventListener('load',function(){reportHeight(true)});
+  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
+  window.addEventListener('resize',function(){reportHeight(false)});
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
+  });
+  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
   new MutationObserver(function(){
     if(chart){chart.dispose();chart=null;}
     refresh();

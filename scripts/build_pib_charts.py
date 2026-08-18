@@ -40,6 +40,10 @@ FILE_BASE1990_VARIACION = DATOS_DIR / "pib_trimestral_base1990/actividad/04_pib_
 # Paleta oficial POPULI — ver Proyectos/populi-marca/paleta.py (fuente única).
 # 11 sectores > las 4 series validadas, así que va CATEGORICAL_12 (4 familias × 3
 # pasos). Admin. Pública queda en gris a propósito: no es un sector productivo.
+# Acento del Monitor de Actividad. Las barras de titulo de TODOS los embeds lo usan:
+# cambiar la familia del monitor es cambiar esta linea.
+MONITOR_ACCENT = "#0A9396"
+
 SECTOR_COLORS = {
     "agro":    "#0A9396",
     "extract": "#A86E00",
@@ -49,7 +53,8 @@ SECTOR_COLORS = {
     "comer":   "#94D2BD",
     "trans":   "#9B2226",
     "aloja":   "#DF5D25",
-    "finan":   "#E9D8A6",
+    "finan":   "#8B1A1A",   # era #E9D8A6 (arena): la paleta lo documenta inusable como
+                            # serie (L 0,884) y sobre el crema desaparecia.
     "admin":   "#5C6B70",
     "comun":   "#E8706B",
 }
@@ -321,6 +326,33 @@ body{{
   window.addEventListener('message',function(e){{if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme}});
   function dk(){{return document.documentElement.dataset.theme==='dark'}}
 
+  /* ── Alto real hacia el contenedor ─────────────── */
+  var _lastH=0;
+  function reportHeight(force){{
+    if(window.parent===window) return;
+    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
+       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
+    var bottom=0, kids=document.body.children;
+    for(var i=0;i<kids.length;i++){{
+      var r=kids[i].getBoundingClientRect();
+      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+    }}
+    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
+    var h=Math.ceil(bottom + window.scrollY + pad);
+    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){{
+      _lastH=h; window.parent.postMessage({{populiEmbed:'height', height:h}},'*');
+    }}
+  }}
+  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
+     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
+  window.addEventListener('load',function(){{reportHeight(true)}});
+  [0,150,600,1600].forEach(function(ms){{setTimeout(function(){{reportHeight(true)}},ms)}});
+  window.addEventListener('resize',function(){{reportHeight(false)}});
+  window.addEventListener('message',function(e){{
+    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
+  }});
+  if(window.ResizeObserver) new ResizeObserver(function(){{reportHeight(false)}}).observe(document.body);
+
   /* ── Chart ─────────────────────────────────────── */
   var chartDom=document.getElementById('chart');
   var chart=echarts.init(chartDom);
@@ -509,7 +541,7 @@ def build_chart1():
     var d17={d17};
     chart.setOption({{
       backgroundColor:'transparent',
-      grid:{{top:30,right:16,bottom:44,left:52}},
+      grid:{{top:30,right:16,bottom:70,left:52}},
       tooltip:{js_tooltip('%')},
       legend:{{
         data:['Base 1990','Base 2017'],
@@ -549,9 +581,13 @@ def build_chart1():
           markPoint:{{
             data:[{{
               coord:['{all_labels[covid_idx] if covid_idx >= 0 else ""}',{json.dumps(json_safe([map_17.get(all_labels[covid_idx])])[0]) if covid_idx >= 0 else 'null'}],
-              symbol:'pin',symbolSize:40,
-              itemStyle:{{color:'#C71E1D'}},
-              label:{{show:true,formatter:'COVID-19',fontSize:9,fontWeight:700,color:'#fff'}},
+              symbol:'circle',symbolSize:9,
+              itemStyle:{{color:'#C71E1D',borderColor:dk()?'#141414':'#FFFFFF',borderWidth:2}},
+              label:{{
+                show:true,formatter:'COVID-19',position:'bottom',distance:8,
+                fontFamily:'Inter',fontSize:10,fontWeight:700,color:'#C71E1D',
+                backgroundColor:dk()?'#141414':'#FAF8F3',padding:[2,5],borderRadius:3
+              }},
             }}],
             animation:false
           }}
@@ -564,7 +600,7 @@ def build_chart1():
         chart_height=500,
         section_title="Crecimiento del PIB de Bolivia",
         section_subtitle="Variación interanual trimestral (%). Base 1990 desde 2000-T1 y Base 2017 desde 2018-T1",
-        accent_bar_color="#0A9396",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
         source_label="INE",
     )
@@ -634,7 +670,7 @@ def build_chart2():
         chart_height=440,
         section_title="PIB Trimestral Encadenado",
         section_subtitle="Millones de bolivianos encadenados, año de referencia 2017",
-        accent_bar_color="#0A9396",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_nivel_encadenado.html").write_text(html, encoding="utf-8")
@@ -656,11 +692,10 @@ def build_chart3():
     names = SECTOR_SHORT[:11]
     colors = SECTOR_COLORS_LIST[:11]
 
-    # If fewer than 12 cells, pad
-    while len(panels) < n_cols * n_rows:
-        panels.append(("", []))
-        names.append("")
-        colors.append("#999")
+    # Son 11 sectores en una grilla de 4x3: la celda 12 NO se dibuja. Antes se rellenaba
+    # con un panel fantasma (ejes sin titulo ni datos) cuyo color '#999' de 3 digitos
+    # ademas rompia el render de TODO el grafico al concatenarsele el alfa.
+    n_panels = len(panels)
 
     # Build grid, xAxis, yAxis, series, title arrays as JS
     grids_js = []
@@ -673,7 +708,7 @@ def build_chart3():
     cw = (100 - pad_l - pad_r) / n_cols
     ch = (100 - pad_t - pad_b) / n_rows
 
-    for idx in range(n_cols * n_rows):
+    for idx in range(n_panels):
         ri = idx // n_cols
         ci = idx % n_cols
         left = pad_l + ci * cw + 1.5
@@ -753,7 +788,7 @@ def build_chart3():
         chart_height=700,
         section_title="Crecimiento del PIB por actividad económica",
         section_subtitle="Variación interanual (%). Línea de color = sector, línea gris punteada = PIB total",
-        accent_bar_color="#005F73",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_crecimiento_sectores.html").write_text(html, encoding="utf-8")
@@ -810,7 +845,7 @@ def build_chart4():
         chart_height=480,
         section_title="Contribución al crecimiento del PIB",
         section_subtitle="Puntos porcentuales por actividad económica. Línea = crecimiento total del PIB",
-        accent_bar_color="#EE9B00",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_contribucion_sectores.html").write_text(html, encoding="utf-8")
@@ -888,7 +923,7 @@ def build_chart5():
         chart_height=480,
         section_title="Estructura del PIB por actividad económica",
         section_subtitle="Participación porcentual a precios corrientes",
-        accent_bar_color="#9B2226",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_estructura_sectores.html").write_text(html, encoding="utf-8")
@@ -985,7 +1020,7 @@ def build_chart6():
         chart_height=460,
         section_title="PIB por tipo de gasto",
         section_subtitle="Millones de Bs encadenados (referencia 2017). Importaciones se restan",
-        accent_bar_color="#0A9396",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_composicion.html").write_text(html, encoding="utf-8")
@@ -1068,7 +1103,7 @@ def build_chart7():
         chart_height=460,
         section_title="Crecimiento del PIB por componente de gasto",
         section_subtitle="Variación interanual (%) de cada componente de gasto",
-        accent_bar_color="#005F73",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_crecimiento.html").write_text(html, encoding="utf-8")
@@ -1143,7 +1178,7 @@ def build_chart8():
         chart_height=460,
         section_title="Contribución al crecimiento del PIB por tipo de gasto",
         section_subtitle="Puntos porcentuales. Línea = crecimiento total del PIB",
-        accent_bar_color="#EE9B00",
+        accent_bar_color=MONITOR_ACCENT,
         build_chart_js=chart_js,
     )
     (EMBED_DIR / "pib_gasto_contribucion.html").write_text(html, encoding="utf-8")
