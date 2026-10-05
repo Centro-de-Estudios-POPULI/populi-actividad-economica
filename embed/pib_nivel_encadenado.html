@@ -1,178 +1,250 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PIB Nivel Encadenado</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:440px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nivel del PIB · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    PIB Trimestral Encadenado
-  </div>
-  <div class="section-subtitle">Millones de bolivianos encadenados, año de referencia 2017</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Nivel del PIB</div>
+      <div class="sec-sub" id="sub"></div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-base"><span class="hz-lbl">Año base</span><div class="hz-grp" id="b-base"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="ley" id="ley"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el nivel del PIB…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C, NB = ' ';
+    // Lenguaje de los paneles del deck y del blog: la línea es UNA, en tinta; lo que lleva color es la distancia a la
+    // referencia (el año base, o el cero del crecimiento): turquesa por encima, rojo por debajo. La cifra final, rotulada
+    // junto a un punto hueco. Todo sobre la suma de 4 trimestres: el PIB de un año, sin el vaivén de las estaciones.
+    var TINTA = C.tinta;
+    var MEDIDAS = {
+      indice: { boton: 'Base = 100', serie: function () { return 'PIB, índice ' + estado.base + ' = 100'; } },
+      mmbs: { boton: 'Millones de Bs', serie: function () { return 'PIB, millones de Bs de 2017'; } },
+      crec: { boton: 'Crecimiento', serie: function () { return 'Crecimiento de 4 trimestres'; } }
+    };
+    var estado = { medida: 'indice', base: '2019', idx: null };
+    var T, M, N = {}, grafico;
+    var bs = function (v) { return PM.mm(v, 'Bs'); };
+
+    PM.cargar(['pib_actividad.json']).then(function (r) {
+      var J = r[0]; M = J.metadata;
+      var Q = J.nivel.pib;
+      // año móvil: la suma de los 4 trimestres que terminan en cada uno; el eje arranca con el primero completo
+      var s4 = Q.map(function (_, i) { if (i < 3) return null; var s = 0; for (var j = i - 3; j <= i; j++) { if (Q[j] == null) return null; s += Q[j]; } return s; });
+      T = J.trimestres.slice(3);
+      N.anual = s4.slice(3); N.trim = Q.slice(3);
+      // crecimiento del año móvil: frente a los 4 trimestres que terminan un año antes (por FECHA)
+      N.crec = N.anual.map(function (v, i) { var j = idxDe(i, -1); return j >= 0 && N.anual[j] != null ? (v / N.anual[j] - 1) * 100 : null; });
+      var bases = ['2017', '2019', '2024'].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
+      if (bases.indexOf(estado.base) < 0) estado.base = bases[0];
+      estado.idx = T.length - 1;
+      PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k].boton]; }),
+        estado.medida, function (v) { estado.medida = v; todo(); });
+      PM.botonera(document.getElementById('b-base'), bases.map(function (a) { return [a, a]; }),
+        estado.base, function (v) { estado.base = v; todo(); });
+      controles();
+      cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      grafico.chart.on('click', function (p) { if (p.dataIndex != null) panel(p.dataIndex); });
+      panel(estado.idx);
+      PM.alCambiarTema(function () { controles(); cifras(); panel(estado.idx); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
+
+    function todo() { controles(); cifras(); grafico.redibujar(); panel(estado.idx); }
+
+    // el mismo trimestre de otro año, por FECHA
+    function idxDe(i, anios) { var p = PM.periodo(T[i]); return T.indexOf((p.a + anios) + '-T' + p.t); }
+    var iBase = function () { return T.indexOf(estado.base + '-T4'); };
+    var indice = function (i) { var b = N.anual[iBase()]; return N.anual[i] == null ? null : N.anual[i] / b * 100; };
+    // «año 2025» si el año móvil cierra en el IV trimestre; si no, «4 trimestres a T2 2026»
+    function anioMovil(i) { var p = PM.periodo(T[i]); return p.t === 4 ? 'año ' + p.a : '4 trimestres a ' + PM.fecha(T[i]); }
+    function maximoHasta(i) { var m = null; for (var j = 0; j <= i; j++) if (N.anual[j] != null && (m == null || N.anual[j] > N.anual[m])) m = j; return m; }
+    var cambio = function (a, b) { return a != null && b != null ? (a / b - 1) * 100 : null; };
+    var pz = function () { return PM.dk() ? '#8A9699' : '#5C6B70'; };
+
+    function controles() {
+      var med = estado.medida;
+      document.getElementById('item-base').style.display = med === 'crec' ? 'none' : '';
+      document.getElementById('sub').textContent = {
+        indice: 'Cuánto produce la economía en un año frente a ' + estado.base + ' (= 100). Por encima de la raya, más que ese año; por debajo, menos',
+        mmbs: 'Cuánto produce la economía en un año, en miles de millones de bolivianos a precios de 2017. La raya marca el nivel de ' + estado.base,
+        crec: 'Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %'
+      }[med];
+      var ref = med === 'crec' ? 'Cero: ni crece ni cae' : 'Nivel de ' + estado.base + (med === 'indice' ? ' (= 100)' : '');
+      document.getElementById('ley').innerHTML =
+        '<span class="ref"><span class="lp" style="--pc:' + PM.col(TINTA) + '"></span>' + MEDIDAS[med].serie() + '</span>' +
+        '<span class="ref"><span class="lp dashed"></span>' + ref + '</span>' +
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(C.turquesa, PM.dk() ? 0.5 : 0.4) + '"></span>Por encima</span>' +
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(PM.dk() ? C.rojoClaro : C.rojo, PM.dk() ? 0.5 : 0.35) + '"></span>Por debajo</span>';
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+
+    function cifras() {
+      var n = T.length - 1, ix = indice(n), va = N.crec[n], mx = maximoHasta(n), dMax = cambio(N.anual[n], N.anual[mx]);
+      var p = PM.periodo(T[n]), cerrado = p.t === 4;
+      document.getElementById('kpis').innerHTML =
+        PM.kpi({ color: ix < 100 ? C.rojo : C.turquesa, rotulo: 'Nivel frente a ' + estado.base, valor: PM.num(ix, 1),
+          delta: (cerrado ? p.a : PM.fecha(T[n])) + ' · ' + estado.base + ' = 100', tono: ix < 100 ? 'malo' : 'bueno', serie: N.anual.map(function (_, i) { return indice(i); }) }) +
+        PM.kpi({ color: TINTA, rotulo: 'PIB del ' + anioMovil(n), valor: bs(N.anual[n]), delta: 'a precios de 2017', tono: 'neutro', serie: N.anual }) +
+        PM.kpi({ color: va < 0 ? C.rojo : C.turquesa, rotulo: 'Crecimiento', valor: PM.pct(va, 1, true),
+          delta: cerrado ? p.a + ' frente a ' + (p.a - 1) : 'frente a un año antes', tono: va < 0 ? 'malo' : 'bueno', serie: N.crec }) +
+        PM.kpi({ color: mx === n ? C.turquesa : C.rojo, rotulo: 'Distancia al máximo', valor: mx === n ? '0,0%' : PM.pct(dMax, 1, true),
+          delta: mx === n ? 'es el máximo de la serie' : 'máximo: ' + anioMovil(mx), tono: mx === n ? 'bueno' : 'malo' });
     }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
+    function valores() {
+      var med = estado.medida;
+      if (med === 'crec') return { v: N.crec, ref: 0 };
+      if (med === 'mmbs') return { v: N.anual.map(function (x) { return x == null ? null : x / 1000; }), ref: N.anual[iBase()] / 1000 };   // miles de MM Bs
+      return { v: N.anual.map(function (_, i) { var x = indice(i); return x == null ? null : +x.toFixed(3); }), ref: 100 };
+    }
+    // Escala redondeada que incluye la referencia (el 100 o el cero quedan sobre una marca): de los pasos 1-2-5 que
+    // dejan a lo sumo divs+1 tramos, el que menos aire desperdicia
+    function escala(vals, r, divs) {
+      var v = vals.filter(function (x) { return x != null; }).concat([r]);
+      var lo = Math.min.apply(null, v), hi = Math.max.apply(null, v), rg = (hi - lo) || 1;
+      lo -= rg * 0.05; hi += rg * 0.05;
+      // si ningún paso deja entre 3 y divs+1 tramos (rangos asimétricos), se acepta uno más (o dos tramos)
+      var mag = Math.pow(10, Math.floor(Math.log((hi - lo) / divs) / Math.LN10)), mejor = null;
+      [[3, divs + 1], [3, divs + 2], [2, divs + 2]].some(function (rg) {
+        [0.5, 1, 2, 5, 10, 20].forEach(function (m) {
+          var p = mag * m, a = Math.floor(lo / p) * p, b = Math.ceil(hi / p) * p, n = Math.round((b - a) / p);
+          if (n >= rg[0] && n <= rg[1] && (!mejor || b - a < mejor.max - mejor.min - 1e-9)) mejor = { min: a, max: b, interval: p };
+        });
+        return !!mejor;
+      });
+      return mejor || { min: lo, max: hi };
+    }
+    function texto(v) { var m = estado.medida; return m === 'crec' ? PM.pct(v, 1, true) : m === 'mmbs' ? PM.num(v * 1000, 0) : PM.num(v, 1); }
 
-  function buildChart(){
+    function opciones() {
+      var med = estado.medida, el = document.getElementById('chart'), dk = PM.dk(), chico = PM.pequeno();
+      var R = valores(), v = R.v, n = v.length - 1, card = PM.var('--card') || '#fff';
+      // Rótulo de la cifra final: arriba o abajo del punto según dónde haya lugar en el último tramo
+      var tramo = v.slice(Math.max(0, n - 4)).filter(function (x) { return x != null; });
+      var arriba = Math.max.apply(null, tramo) - v[n] <= v[n] - Math.min.apply(null, tramo);
+      var serie = PM.linea(TINTA, { ancho: 2.5, extra: {
+        name: MEDIDAS[med].serie(), data: v, z: 4, connectNulls: false,
+        markLine: { silent: true, symbol: 'none', animation: false, label: { show: false },
+          lineStyle: { color: dk ? 'rgba(226,232,240,.7)' : 'rgba(0,18,25,.65)', width: 1.25, type: [5, 4] }, data: [{ yAxis: R.ref }] },
+        markPoint: { silent: true, animation: false, symbol: 'circle', symbolSize: 9,
+          itemStyle: { color: card, borderColor: PM.col(TINTA), borderWidth: 2 },
+          label: { show: true, formatter: texto(v[n]), position: arriba ? 'top' : 'bottom', align: 'right', offset: [6, arriba ? -2 : 2],
+            color: PM.tx(TINTA), fontFamily: PM.mono(), fontSize: chico ? 11 : 12, fontWeight: 700 },
+          data: [{ coord: [n, v[n]] }] }
+      } });
+      // El relleno: la misma curva, sin trazo, con el área contra la referencia; el color lo pone un visualMap por
+      // tramos (así el cambio de color cae EXACTO en el cruce, sin interpolar a mano en un eje de categorías)
+      var area = { type: 'line', name: '_area', data: v, symbol: 'none', silent: true, z: 1, connectNulls: false,
+        lineStyle: { width: 0 }, areaStyle: { origin: R.ref, opacity: 1 }, tooltip: { show: false } };
+      var arr = PM.rgba(C.turquesa, dk ? 0.26 : 0.2), abj = PM.rgba(dk ? C.rojoClaro : C.rojo, dk ? 0.26 : 0.16);
+      var fmt = med === 'crec' ? function (x) { return PM.tick(x) + '%'; } : PM.tick;
+      return {
+        animationDuration: 450,
+        grid: PM.grid({ right: chico ? 16 : 14 }),
+        xAxis: PM.ejeTiempo(T, el),
+        yAxis: PM.ejeY({ unidad: med === 'mmbs' ? 'Miles de MM Bs' : '', fmt: fmt, extra: PM.mezclar(escala(v, R.ref, chico ? 4 : 5), { nameTextStyle: { align: 'left' } }) }),
+        visualMap: [{ show: false, type: 'piecewise', seriesIndex: 0, dimension: 1,
+          pieces: [{ gt: -1e9, lte: R.ref, color: abj }, { gt: R.ref, lte: 1e9, color: arr }] }],
+        tooltip: PM.tooltip(function (ps) {
+          if (!ps.length) return '';
+          var i = ps[0].dataIndex;
+          panel(i);
+          if (v[i] == null) return PM.ttTitulo(PM.fecha(T[i]), 'Sin dato');
+          var h = PM.ttTitulo(anioMovil(i), 'Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]));
+          h += PM.ttFila(TINTA, med === 'crec' ? 'Crecimiento' : med === 'mmbs' ? 'Millones de Bs' : 'Índice ' + estado.base + ' = 100', texto(v[i]), 'linea');
+          if (med !== 'crec') h += PM.ttTotal(med === 'indice' ? 'Frente a ' + estado.base : 'Crecimiento', PM.pct(med === 'indice' ? v[i] - 100 : N.crec[i], 1, true));
+          return h;
+        }),
+        series: [area, serie]
+      };
+    }
 
-    var labels=["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    var vals=[75234.2, 80176.5, 82560.6, 79387.2, 77481.3, 85436.5, 82898.8, 80644.2, 80209.9, 86412.4, 85874.1, 78883.2, 76531.5, 64029.1, 71919.6, 76749.6, 75108.5, 81540.8, 81169.0, 80418.6, 81682.4, 85248.0, 84140.7, 79091.3, 81529.0, 88308.2, 86547.4, 82086.0, 79583.9, 89057.6, 85333.1, 80693.8, 78258.3, 86588.5, 84754.5, 79771.4];
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:30,right:16,bottom:44,left:68},
-      tooltip:{
-        trigger:'axis',
-        backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-        borderColor:dk()?'#2A3A50':'#1A2940',
-        borderWidth:1,
-        textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-        padding:[12,16],
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-        formatter:function(params){
-          if(!params||!params.length) return '';
-          var p=params[0];
-          return '<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+p.axisValue+'</div>'
-            +p.marker+' <span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-            +p.value.toLocaleString('es-BO')+'</span> <span style="color:#ccc">MM Bs</span>';
-        }
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:1
-      }
-    },
-      yAxis:{
-        type:'value',
-        name:'Millones Bs encadenados',
-        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'},
-        splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-        axisLine:{show:false},axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',
-          formatter:function(v){return (v/1000).toFixed(0)+'k'}
-        },
-        min:'dataMin'
-      },
-      series:[{
-        type:'bar',data:vals,
-        itemStyle:{
-          color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#0A9396'},
-            {offset:1,color:dk()?'rgba(10,147,150,.4)':'rgba(10,147,150,.6)'}
-          ]),
-          borderRadius:[3,3,0,0]
-        },
-        barMaxWidth:18
-      }]
-    },true);
-  }
+    // Panel: la historia del año móvil bajo el cursor
+    function panel(i) {
+      if (i == null || !T || i < 0 || i >= T.length) return;
+      estado.idx = i;
+      var a = N.anual[i], ix = indice(i), va = N.crec[i], mx = maximoHasta(i), dMax = cambio(a, N.anual[mx]), am = anioMovil(i);
+      var h = PM.pb(ix < 100 ? C.rojo : C.turquesa, 'Frente a ' + estado.base, PM.num(ix, 1),
+        Math.abs(ix - 100) < 0.05 ? 'Igual que en ' + estado.base + '.' : 'El ' + am + ' produjo ' + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' más' : ' menos') + ' que ' + estado.base + '.');
+      h += PM.pb(TINTA, 'Lo producido', bs(a), 'Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]) + ', a precios de 2017.');
+      if (va != null) h += PM.pb(va < 0 ? C.rojo : C.turquesa, 'Crecimiento', PM.pct(va, 1, true), 'Frente a los 4 trimestres que terminan en ' + PM.fecha(T[idxDe(i, -1)]) + '.');
+      // la racha: desde cuándo el año móvil viene cayendo (o creciendo)
+      var desde = i;
+      if (va != null) while (desde > 0 && N.crec[desde - 1] != null && (N.crec[desde - 1] < 0) === (va < 0)) desde--;
+      // umbrales del crecimiento: ≤ −0,5% se achica · < 0,5% se estanca · en adelante crece
+      var t = 'En el <strong>' + am + '</strong> la economía ' + (va == null ? 'sumó ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>se achicó</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>se estancó</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>creció</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.';
+      if (va != null && desde < i) t += ' Viene ' + (va < 0 ? 'cayendo' : 'creciendo') + ' desde ' + PM.fecha(T[desde]) + '.';
+      t += mx === i ? ' Es el <strong>nivel más alto</strong> registrado hasta ese momento.' : ' Está ' + PM.pct(Math.abs(dMax), 1) + ' por debajo de su máximo (' + anioMovil(mx) + ').';
+      var i19 = T.indexOf('2019-T' + PM.periodo(T[i]).t), d19 = i19 >= 0 ? cambio(a, N.anual[i19]) : null;
+      if (estado.base !== '2019' && d19 != null && PM.periodo(T[i]).a > 2019) t += ' Frente a 2019, antes de la pandemia: ' + PM.pct(d19, 1, true) + '.';
+      document.getElementById('panel-fecha').textContent = PM.fecha(T[i]);
+      document.getElementById('panel').innerHTML = h + PM.ctx(t);
+    }
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    function preguntas() {
+      var n = T.length - 1, mx = maximoHasta(n), piso = 0;
+      N.anual.forEach(function (v, i) { if (v != null && v < N.anual[piso]) piso = i; });
+      // la estacionalidad, contada: qué trimestre fue el más alto de cada año completo
+      var anios = {}, veces = [0, 0, 0, 0], total = 0, ROM = ['I', 'II', 'III', 'IV'];
+      T.forEach(function (k, i) { var p = PM.periodo(k); (anios[p.a] = anios[p.a] || [])[p.t - 1] = N.trim[i]; });
+      Object.keys(anios).forEach(function (a) {
+        var q = anios[a]; if (q.length < 4 || q.some(function (x) { return x == null; })) return;
+        total++; var m = 0; q.forEach(function (x, j) { if (x > q[m]) m = j; }); veces[m]++;
+      });
+      var tope = veces.indexOf(Math.max.apply(null, veces));
+      return [
+        ['¿Cómo se lee «base = 100»?', '<p>Cada punto es lo producido en un año (los 4 trimestres que terminan en esa fecha) dividido por lo producido en el año base, por 100.</p>' +
+          '<p>100 es «lo mismo que el año base»; por encima, la economía produce más que entonces; por debajo, menos. El botón cambia el año base: 2019 es el último año antes de la pandemia.</p>'],
+        ['¿Por qué sumar 4 trimestres?', '<p>Porque el PIB de cada trimestre tiene estación: cosechas, fiestas y aguinaldos lo suben y bajan cada año. En ' + veces[tope] + ' de los ' + total + ' años completos de la serie el trimestre más alto fue el ' + ROM[tope] + '.</p>' +
+          '<p>La suma de los últimos 4 trimestres es el PIB de un año entero que se actualiza cada trimestre: no tiene estación y en el IV trimestre coincide con el año calendario.</p>'],
+        ['¿Qué son los «bolivianos de 2017»?', '<p>El PIB a precios constantes que publica el INE en <strong>bolivianos encadenados</strong>: cada año se valora con los precios del año anterior y los eslabones se unen hasta llevarlos a precios de 2017, el año de referencia.</p>' +
+          '<p>Así se compara el <strong>volumen</strong> producido sin el efecto de la inflación. Por eso mismo las partes (actividades o componentes del gasto) no suman exactamente el total.</p>'],
+        ['El máximo y el piso', '<p>El año más alto fue el ' + anioMovil(mx) + ' (' + bs(N.anual[mx]) + '); el más bajo, el de los 4 trimestres a ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), en plena pandemia.</p>'],
+        ['¿Qué mide «Crecimiento»?', '<p>Cuánto cambió lo producido en los últimos 4 trimestres frente a los 4 anteriores. En el IV trimestre es el crecimiento del año calendario.</p>' +
+          '<p>Es la lectura más limpia del ritmo de la economía: no tiene estación y no salta tanto como la variación de un solo trimestre.</p>']
+      ];
+    }
+
+    PM.leyendaImagen = function () {
+      var med = estado.medida;
+      return [{ name: MEDIDAS[med].serie(), itemStyle: { color: PM.col(TINTA) }, forma: 'linea' },
+        { name: med === 'crec' ? 'Cero' : 'Nivel de ' + estado.base, itemStyle: { color: pz() }, forma: 'punteada' }];
+    };
+  })();
+  </script>
 </body>
 </html>

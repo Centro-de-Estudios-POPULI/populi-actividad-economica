@@ -1,252 +1,71 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Consumo de energía eléctrica</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --radius:12px;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0;background:#0A9396}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-#chart{width:100%;height:480px;margin-top:12px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 4px 0;margin-top:8px;border-top:1px solid var(--border);
-}
-.chart-source-text{font-size:.72rem;color:var(--muted);letter-spacing:.01em}
-.chart-source-text a{color:var(--populi);text-decoration:none;font-weight:600}
-[data-theme="dark"] .chart-source-text a{color:#E9D8A6}
-.watermark{width:80px;height:auto;opacity:.18}
-[data-theme="dark"] .watermark text:first-child{fill:#E9D8A6}
-[data-theme="dark"] .watermark text:last-child{fill:#64748B}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumo de Energía Eléctrica · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
+  <script src="ind_mensual.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="chart-card">
-    <div class="section-title">
-      <span class="accent-bar"></span>Consumo de energía eléctrica
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Consumo de Energía Eléctrica</div>
+      <div class="sec-sub" id="sub">Índice de volumen del consumo (2017 = 100), un año por línea</div>
     </div>
-    <div class="section-subtitle">Índice general, comparación mensual por año (base 2017=100)</div>
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Categoría</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando consumo de energía eléctrica…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  IND.armar({
+    archivo: 'ind_energia.json',
+    tipo: 'indice',
+    unidad: 'indice',
+    umbrales: [1, 4],
+    fuente: 'INE — Índice de consumo de energía eléctrica',
+    series: [
+      { k: 'general', boton: 'Total', corto: 'Índice general', mide: 'Consumo de electricidad (índice: 100 = promedio de 2017)', acum: 'el consumo promedió {v}' },
+      { k: 'domestico', boton: 'Hogares', corto: 'Hogares', mide: 'Consumo de electricidad de los hogares (índice: 100 = promedio de 2017)', acum: 'el consumo de los hogares promedió {v}' },
+      { k: 'comercial', boton: 'Comercio', corto: 'Comercio y servicios', mide: 'Consumo de electricidad de comercio y servicios (índice: 100 = promedio de 2017)', acum: 'el consumo de comercio y servicios promedió {v}' },
+      { k: 'industria', boton: 'Industria', corto: 'Industria', mide: 'Consumo de electricidad de la industria (índice: 100 = promedio de 2017)', acum: 'el consumo de la industria promedió {v}' },
+      { k: 'mineria', boton: 'Minería', corto: 'Minería', mide: 'Consumo de electricidad de la minería (índice: 100 = promedio de 2017)', acum: 'el consumo de la minería promedió {v}' }
+    ],
+    preguntas: function (A) {
+      return [
+        ['¿Qué mide?', '<p>El <strong>volumen de electricidad</strong> que consumen los usuarios del sistema, expresado como índice: el promedio de 2017 vale 100, así que 120 es 20% más consumo que en 2017.</p>' +
+          '<p>Las categorías: <strong>Doméstico</strong> (hogares), <strong>General</strong> (comercio, servicios y entidades sin fines de lucro de mediana demanda), <strong>Industria</strong>, <strong>Minería</strong>, alumbrado público y otros (riego, servicios temporales, caminos). Los grandes consumidores no regulados se suman a la categoría de su actividad.</p>'],
+        ['¿Por qué adelanta al PIB?', 'La electricidad acompaña casi toda la producción y no se almacena: lo que se consume en el mes es actividad de ese mes. El consumo de la <strong>industria</strong> y de la <strong>minería</strong> sigue de cerca a esos sectores del PIB; el de comercio y servicios, al sector terciario. Y se publica meses antes que el PIB trimestral.'],
+        ['¿Por qué ver cada categoría?', 'El índice general mezcla hogares y empresas. Cuando los hogares consumen más (por ejemplo, por el calor) el total puede subir aunque las fábricas consuman menos: la categoría <strong>Industria</strong> es la que mejor muestra la actividad productiva.'],
+        ['Notas del INE', 'Índice de volumen con año de referencia 2017 (base móvil), elaborado con datos de la Autoridad de Fiscalización de Electricidad y Tecnología Nuclear (AETN). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p). Las variaciones de este gráfico se calculan desde el índice publicado.']
+      ];
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
-    }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
   });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
-
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
-
-  function buildChart(){
-
-    var dark=dk();
-    var yColors={'2026':['#C71E1D','#E8706B'],'2025':['#0A9396','#0A9396'],'2024':['#EE9B00','#EE9B00'],'2023':['#005F73','#94D2BD'],'2022':['#B9BEC0','#8A9699'],'2021':['#CFD3D4','#6E7A7D'],'2020':['#C71E1D','#E8706B']};
-    var option={
-      backgroundColor:'transparent',
-      tooltip:{
-        trigger:'axis',
-        backgroundColor:dark?'#080808':'rgba(13,27,42,.96)',
-        borderColor:dark?'#2A3A50':'#1A2940',
-        textStyle:{color:'#E2E8F0',fontSize:12,fontFamily:'Inter'},
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-        formatter:function(params){
-          var month=params[0].axisValue;
-          var s='<div style="color:#E9D8A6;font-weight:700;margin-bottom:6px;font-family:Playfair Display,serif">'+month+'</div>';
-          params.sort(function(a,b){return parseInt(b.seriesName)-parseInt(a.seriesName)});
-          params.forEach(function(p){
-            if(p.value!=null){
-              var c=yColors[p.seriesName];
-              var color=c?(dark?c[1]:c[0]):p.color;
-              s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
-              s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+color+'"></span>';
-              s+='<span style="color:#64748B;font-size:11px;min-width:32px">'+p.seriesName+'</span>';
-              s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toLocaleString('es-BO',{maximumFractionDigits:1})+'</span>';
-              s+='</div>';
-            }
-          });
-          return s;
-        }
-      },
-      legend:{
-        data:["2026", "2025", "2024", "2023", "2022", "2021", "2020"],
-        bottom:8,
-        textStyle:{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'JetBrains Mono',fontWeight:500},
-        itemWidth:18,itemHeight:3,itemGap:14,
-        type:'scroll'
-      },
-      grid:{left:65,right:20,top:20,bottom:55},
-      xAxis:{
-        type:'category',
-        data:["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
-        axisLine:{lineStyle:{color:dark?'#2A3A50':'#E2DDD3'}},
-        axisTick:{show:false},
-        axisLabel:{fontFamily:'Inter',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B'}
-      },
-      yAxis:{
-        type:'value',min:'dataMin',
-        name:'Índice (2017=100)',
-        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dark?'#64748B':'#64748B',padding:[0,0,0,0]},
-        splitLine:{lineStyle:{color:dark?'#141414':'#F1F5F9',type:'dashed'}},
-        axisLine:{show:false},
-        axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dark?'#64748B':'#64748B',formatter:function(v){return v.toFixed(1)}}
-      },
-      series:[
-      {
-        name:'2026',type:'line',
-        data:[129.39, 127.41, 129.07, 134.06, 122.19, 114.47, 120.23, null, null, null, null, null],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:3,color:dark?'#E8706B':'#C71E1D',type:'solid',opacity:1.0},
-        itemStyle:{color:dark?'#E8706B':'#C71E1D'},
-        emphasis:{lineStyle:{width:4}},
-        markPoint:{
-          data:[{
-            coord:[6,120.23],
-            symbol:'circle',symbolSize:8,
-            itemStyle:{color:dark?'#E8706B':'#C71E1D',borderColor:'#fff',borderWidth:2},
-            label:{show:false}
-          }]
-        },
-        z:10
-      },
-      {
-        name:'2025',type:'line',
-        data:[127.56, 130.35, 126.9, 123.33, 125.56, 119.54, 119.58, 123.89, 125.93, 134.66, 130.41, 130.69],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:2.5,color:dark?'#0A9396':'#0A9396',type:'solid',opacity:0.9},
-        itemStyle:{color:dark?'#0A9396':'#0A9396'},
-        emphasis:{lineStyle:{width:3.5}},
-        z:9
-      },
-      {
-        name:'2024',type:'line',
-        data:[133.87, 130.31, 127.91, 130.45, 128.23, 117.72, 117.39, 120.17, 119.94, 133.54, 131.55, 129.58],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:2,color:dark?'#EE9B00':'#EE9B00',type:'solid',opacity:0.8},
-        itemStyle:{color:dark?'#EE9B00':'#EE9B00'},
-        emphasis:{lineStyle:{width:3}},
-        z:8
-      },
-      {
-        name:'2023',type:'line',
-        data:[123.02, 115.87, 120.89, 123.81, 116.34, 115.06, 114.15, 117.83, 123.59, 130.26, 134.18, 131.67],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:1.8,color:dark?'#94D2BD':'#005F73',type:'solid',opacity:0.7},
-        itemStyle:{color:dark?'#94D2BD':'#005F73'},
-        emphasis:{lineStyle:{width:2.8}},
-        z:7
-      },
-      {
-        name:'2022',type:'line',
-        data:[118.55, 115.17, 119.2, 113.69, 114.3, 109.34, 110.41, 114.5, 112.87, 115.27, 116.41, 122.27],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:1.5,color:dark?'#8A9699':'#B9BEC0',type:'solid',opacity:0.6},
-        itemStyle:{color:dark?'#8A9699':'#B9BEC0'},
-        emphasis:{lineStyle:{width:2.5}},
-        z:6
-      },
-      {
-        name:'2021',type:'line',
-        data:[110.72, 102.68, 110.53, 109.71, 106.62, 104.61, 103.65, 105.3, 111.73, 117.95, 115.51, 114.4],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:1.2,color:dark?'#6E7A7D':'#CFD3D4',type:'solid',opacity:0.5},
-        itemStyle:{color:dark?'#6E7A7D':'#CFD3D4'},
-        emphasis:{lineStyle:{width:2.2}},
-        z:5
-      },
-      {
-        name:'2020',type:'line',
-        data:[114.79, 112.54, 110.28, 96.92, 88.47, 89.45, 92.09, 94.65, 99.08, 112.25, 115.75, 114.64],
-        symbol:'none',
-        connectNulls:false,
-        lineStyle:{width:1.8,color:dark?'#E8706B':'#C71E1D',type:'dashed',opacity:0.7},
-        itemStyle:{color:dark?'#E8706B':'#C71E1D'},
-        emphasis:{lineStyle:{width:2.8}},
-        z:4
-      }
-      ]
-    };
-    chart.setOption(option,true);
-  }
-
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+  </script>
 </body>
 </html>

@@ -1,236 +1,401 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Crecimiento PIB por gasto</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:460px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crecimiento del gasto · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <style>
+    /* Ranking del período en el panel de lectura: barras que salen de la base (100 o 0) hacia cada lado.
+       El mismo de pib_crecimiento_sectores.html. */
+    .rk { margin: 4px 0 10px; }
+    .rk-t { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 5px; }
+    .rk-f { display: grid; grid-template-columns: minmax(0, 1fr) 38% 3.9rem; align-items: center; gap: 8px; padding: 2px 4px; }
+    .rk-f.pib { border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 3px; }
+    .rk-f.sel { background: var(--suave); box-shadow: inset 2px 0 0 var(--acento); }
+    .rk-n { font-size: .68rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rk-f.pib .rk-n { font-weight: 700; color: var(--tinta); }
+    .rk-b { position: relative; height: 9px; }
+    .rk-b::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--tenue); }
+    .rk-b i { position: absolute; top: 0; bottom: 0; }
+    .rk-v { font: 600 .68rem/1.3 'JetBrains Mono', monospace; text-align: right; white-space: nowrap; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    Crecimiento del PIB por componente de gasto
-  </div>
-  <div class="section-subtitle">Variación interanual (%) de cada componente de gasto</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Crecimiento y nivel del gasto</div>
+      <div class="sec-sub" id="sub"></div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item" id="item-medida"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-base"><span class="hz-lbl">Año base</span><div class="hz-grp" id="b-base"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Escala</span><div class="hz-grp" id="b-escala"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el crecimiento del gasto…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C, NB = ' ';
+    // Mapa de colores del PIB por tipo de gasto: IDÉNTICO en composición, crecimiento y contribución, en el ORDEN DE
+    // RAMPA de la marca (populi-marca/paleta.py, rampa(6); README, regla 7). En ESTE gráfico de paneles no se usan:
+    // los paneles son los de pib_crecimiento_sectores.html (la lámina «Cada actividad contra su punto de partida» del
+    // deck): el nombre en tinta, la línea en tinta, y el color dice SÓLO arriba o abajo de la referencia.
+    var GASTO = {
+      hogares: { nombre: 'Consumo de los hogares', corto: 'Hogares', color: C.rojo },
+      gobierno: { nombre: 'Consumo del gobierno', corto: 'Gobierno', color: C.oro },
+      fbcf: { nombre: 'Inversión fija', corto: 'Inversión fija', color: C.menta },
+      existencias: { nombre: 'Existencias y otros', corto: 'Existencias', color: C.turquesa },
+      exportaciones: { nombre: 'Exportaciones', corto: 'Exportaciones', color: C.petroleo },
+      importaciones: { nombre: 'Importaciones', corto: 'Importaciones', color: C.tinta },
+      pib: { nombre: 'PIB', corto: 'PIB', color: C.tinta }
+    };
+    var ARRIBA = { claro: '#0A9396', oscuro: '#94D2BD' }, ABAJO = { claro: '#C71E1D', oscuro: '#E8706B' }, PIB = C.tinta;
+    // Un orden fijo, el de la identidad del gasto (el PIB, ancla, primero): no cambia con la medida ni el año base
+    var PANELES = ['pib', 'hogares', 'gobierno', 'fbcf', 'exportaciones', 'importaciones'];
+    var MIN = { pib: 'el PIB', hogares: 'el consumo de los hogares', gobierno: 'el consumo del gobierno', fbcf: 'la inversión fija', exportaciones: 'las exportaciones', importaciones: 'las importaciones' };
+    var MEDIDAS = { c4: '4 trimestres', var: 'Trimestral', anual: 'Anual' };
+    var FRENTE = { c4: 'frente a los 4 trimestres anteriores', var: 'frente al mismo trimestre del año anterior', anual: 'frente al año anterior' };
+    var estado = { vista: 'crec', medida: 'c4', base: '2019', escala: 'propia', idx: null, k: null };
+    // «Comparar con el PIB» es UNA pastilla: el molde no deja apagar la última encendida, así que el conjunto lleva
+    // una clave fija sin pastilla (como en el gráfico de actividades)
+    var activas = new Set(['pib', '_fija']);
+    var J, M, T, S4 = {}, DAT = {}, grafico, geo = [], hoverG = null;
+
+    PM.cargar(['pib_gasto.json']).then(function (r) {
+      J = r[0]; M = J.metadata; T = J.trimestres;
+      // año móvil de cada componente: la suma de sus 4 trimestres (en encadenados sirve para compararlo consigo mismo)
+      PANELES.forEach(function (k) {
+        var q = J.nivel[k];
+        S4[k] = q.map(function (_, i) { if (i < 3) return null; var s = 0; for (var j = i - 3; j <= i; j++) { if (q[j] == null) return null; s += q[j]; } return s; });
+      });
+      var bases = ['2017', '2019', '2024'].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
+      if (bases.indexOf(estado.base) < 0) estado.base = bases[0];
+      PM.botonera(document.getElementById('b-vista'), [['crec', 'Crecimiento'], ['nivel', 'Nivel (base = 100)']],
+        estado.vista, function (v) { estado.vista = v; todo(); });
+      PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k]]; }),
+        estado.medida, function (v) { estado.medida = v; todo(); });
+      PM.botonera(document.getElementById('b-base'), bases.map(function (a) { return [a, a]; }),
+        estado.base, function (v) { estado.base = v; todo(); });
+      PM.botonera(document.getElementById('b-escala'), [['propia', 'Por panel'], ['comun', 'Común']],
+        estado.escala, function (v) { estado.escala = v; grafico.redibujar(); });
+      PM.pastillas(document.getElementById('pastillas'), [{ k: 'pib', nombre: 'Comparar con el PIB', color: { claro: C.pizarra, oscuro: C.gris }, forma: 'punteada' }],
+        activas, function () { grafico.redibujar(); });
+      datos(); controles(); cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      // ¿sobre qué panel está el cursor? Se mide en la fase de captura, antes de que ECharts arme el tooltip
+      var donde = function (e) {
+        var b = el.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top;
+        hoverG = null;
+        geo.forEach(function (g, j) { if (x >= g.x0 && x <= g.x1 && y >= g.y0 && y <= g.y1) hoverG = j; });
+      };
+      el.addEventListener('pointermove', donde, true);
+      el.addEventListener('pointerdown', donde, true);
+      panel(estado.idx, null);
+      PM.alCambiarTema(function () { cifras(); panel(estado.idx, estado.k); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
+
+    function todo() { datos(); controles(); cifras(); grafico.redibujar(); panel(estado.idx, estado.k); }
+    var nivel = function () { return estado.vista === 'nivel'; };
+    var ref = function () { return nivel() ? 100 : 0; };
+    // en las medidas de año (4 trimestres, nivel) el IV trimestre es el dato del año: lleva su punto; en la anual, cada año
+    var anual = function () { return nivel() || estado.medida !== 'var'; };
+
+    // Las claves y los valores de la vista activa: {K, X (años decimales), v: {comp: [..]}}
+    function datos() {
+      var K = [], v = {}, i0, med = estado.medida;
+      if (nivel()) {
+        var ib = T.indexOf(estado.base + '-T4');
+        i0 = 3; K = T.slice(i0);
+        PANELES.forEach(function (k) { v[k] = S4[k].slice(i0).map(function (x) { return x == null ? null : x / S4[k][ib] * 100; }); });
+      } else if (med === 'anual') {
+        // el año completo: la variación acumulada al IV trimestre
+        T.forEach(function (k, i) { if (PM.periodo(k).t === 4 && J.var_acum.pib[i] != null) K.push(k.slice(0, 4)); });
+        PANELES.forEach(function (k) { v[k] = K.map(function (a) { return J.var_acum[k][T.indexOf(a + '-T4')]; }); });
+      } else if (med === 'var') {
+        i0 = 0; while (J.var.pib[i0] == null) i0++;
+        K = T.slice(i0);
+        PANELES.forEach(function (k) { v[k] = J.var[k].slice(i0); });
+      } else {
+        // 4 trimestres: el año móvil frente al año móvil de un año antes
+        i0 = 7; K = T.slice(i0);
+        PANELES.forEach(function (k) { v[k] = S4[k].slice(i0).map(function (x, j) { var a = S4[k][i0 + j - 4]; return x == null || a == null ? null : (x / a - 1) * 100; }); });
+      }
+      // cada período en el eje X como año decimal («2025-T4» → 2025,75; «2025» → 2025): permite el cruce interpolado
+      var X = K.map(function (k) { var p = PM.periodo(k); return p.f === 'a' ? p.a : p.a + (p.t - 1) / 4; });
+      DAT = { K: K, X: X, v: v, anualFrec: med === 'anual' && !nivel() };
+      estado.idx = K.length - 1;
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+
+    var per = function (k) { return PM.fecha(k); };
+    function controles() {
+      var crec = !nivel();
+      document.getElementById('item-medida').style.display = crec ? '' : 'none';
+      document.getElementById('item-base').style.display = crec ? 'none' : '';
+      document.getElementById('sub').textContent = crec
+        ? 'Cuánto creció cada destino de la producción ' + FRENTE[estado.medida] + ', en %: sobre el cero, crece; debajo, cae. La raya gris repite el PIB'
+        : 'Cada destino de la producción frente a ' + estado.base + ' (= 100), con la suma de los últimos 4 trimestres: sobre la raya punteada, más que ese año. La raya gris repite el PIB';
     }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
+    function fmt(v) { return v == null ? '—' : nivel() ? PM.num(v, 1) : PM.pct(v, 1, true); }
+    function lado(v) { return v == null ? PIB : v >= ref() ? ARRIBA : ABAJO; }
 
-  function buildChart(){
+    function cifras() {
+      var n = DAT.K.length - 1, v = DAT.v, f = per(DAT.K[n]), R = ref();
+      var comps = PANELES.slice(1).filter(function (k) { return v[k][n] != null; });
+      var orden = comps.slice().sort(function (a, b) { return v[b][n] - v[a][n]; }), hi = orden[0], lo = orden[orden.length - 1];
+      var pa = PM.periodo(DAT.K[n]), med = estado.medida;
+      // la línea chica dice qué período mide la cifra; el color, de qué lado de la referencia está (no el componente)
+      var linea = nivel() ? f + ' · ' + estado.base + ' = 100' : med === 'anual' ? 'año ' + DAT.K[n] : med === 'c4' ? (pa.t === 4 ? 'año ' + pa.a : '4 trim. a ' + f) : f + ' vs. T' + pa.t + NB + (pa.a - 1);
+      var serie = function (k) { return PM.ultimos(v[k], 12); };
+      var kpi = function (k, rot, delta) { return PM.kpi({ color: lado(v[k][n]), rotulo: rot, valor: fmt(v[k][n]), delta: delta, tono: v[k][n] < R ? 'malo' : 'bueno', serie: serie(k) }); };
+      document.getElementById('kpis').innerHTML =
+        kpi('pib', 'PIB', linea) +
+        kpi('hogares', 'Consumo de los hogares', linea) +
+        kpi(hi, nivel() ? 'Más arriba' : 'Lo que más creció', GASTO[hi].nombre) +
+        kpi(lo, nivel() ? 'Más abajo' : 'Lo que más cayó', GASTO[lo].nombre);
+    }
 
-    var labels=["2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    var zeroLine=new Array(labels.length).fill(0);
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:30,right:16,bottom:70,left:52},
-      tooltip:{
-      trigger:'axis',
-      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-      borderColor:dk()?'#2A3A50':'#1A2940',
-      borderWidth:1,
-      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-      padding:[12,16],
-      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-      formatter:function(params){
-        if(!params||!params.length) return '';
-        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
-        params.forEach(function(p){
-          if(p.value!=null){
-            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-              +p.value.toFixed(2)+' %</span><br/>';
+    // Escala redondeada (la de los paneles de actividades y del deck): poco aire y más divisiones en la común; con el
+    // 12% de holgura de un panel suelto el redondeo no se come el rango.
+    function escala(vals, base, aire, divs) {
+      var v = vals.filter(function (x) { return x != null; });
+      var lo = Math.min.apply(null, v.concat([base])), hi = Math.max.apply(null, v.concat([base])), r = (hi - lo) || 1;
+      lo -= r * aire; hi += r * aire;
+      var paso = Math.pow(10, Math.floor(Math.log10((hi - lo) / divs)));
+      [1, 2, 2.5, 5, 10].some(function (m) { if ((hi - lo) / (paso * m) <= divs) { paso *= m; return true; } return false; });
+      return { lo: Math.floor(lo / paso + 1e-9) * paso, hi: Math.ceil(hi / paso - 1e-9) * paso, paso: paso };
+    }
+    // Corta la serie por el signo respecto de la base e inserta el cruce interpolado: sin eso el relleno inventa un
+    // escalón en el período en que la línea atraviesa la base.
+    function cortar(pts, base) {
+      var aug = [];
+      for (var i = 0; i < pts.length; i++) {
+        aug.push(pts[i]);
+        if (i < pts.length - 1) {
+          var y0 = pts[i][1], y1 = pts[i + 1][1];
+          if ((y0 - base) * (y1 - base) < 0) { var t = (base - y0) / (y1 - y0); aug.push([pts[i][0] + t * (pts[i + 1][0] - pts[i][0]), base]); }
+        }
+      }
+      return { arriba: aug.map(function (p) { return [p[0], Math.max(p[1], base)]; }), abajo: aug.map(function (p) { return [p[0], Math.min(p[1], base)]; }) };
+    }
+    var medidor;
+    function ancho(t, fuente) { medidor = medidor || document.createElement('canvas').getContext('2d'); medidor.font = fuente; return medidor.measureText(t).width; }
+
+    function opciones() {
+      var el = document.getElementById('chart'), ch = echarts.getInstanceByDom(el);
+      // Durante la descarga el molde dibuja el lienzo fuera de pantalla con un tamaño fijo: se usa ESE tamaño y no se
+      // toca el alto del div (lo restaura el molde). Se reconoce por el corrimiento a −40000 px.
+      var exp = el.style.left === '-40000px', chico = PM.pequeno(), dk = PM.dk(), R = ref();
+      // columnas por el ancho REAL del lienzo (las mismas medidas que los paneles de actividades): tres con el panel
+      // de lectura al costado (PC), dos en el teléfono; seis paneles en la imagen de descarga: tres columnas
+      var W = el.clientWidth, cols = exp ? 3 : W >= 900 ? 4 : W >= 470 ? 3 : 2;
+      var n = PANELES.length, filas = Math.ceil(n / cols);
+      // cabeza de cada panel: el nombre y DEBAJO la cifra grande (como la lámina del deck)
+      var fN = chico ? 11 : 11.5, fC = chico ? 16 : 18, CAB = Math.round(fN + 4 + fC + 15);   // +15: aire entre la cifra y el primer rótulo del eje
+      var EJE = 18, SEPY = chico ? 14 : 16, SEPX = chico ? 14 : 18, izq = chico ? 10 : 2, der = chico ? 12 : 8, alto;
+      if (exp) alto = Math.floor((el.clientHeight - filas * (CAB + EJE) - (filas - 1) * SEPY) / filas);
+      else {
+        // ⛔ ECharts no agranda el lienzo si sólo cambia el alto del div: se fija el alto y se llama resize()
+        alto = cols === 2 ? 92 : cols === 3 ? 108 : 96;
+        var H = filas * (CAB + alto + EJE) + (filas - 1) * SEPY;
+        if (Math.abs(el.clientHeight - H) > 1) el.style.height = H + 'px';
+        if (ch && Math.abs(ch.getHeight() - el.clientHeight) > 1) ch.resize();
+      }
+      var conPib = activas.has('pib'), X = DAT.X, pts = {};
+      PANELES.forEach(function (k) { pts[k] = DAT.v[k].map(function (y, i) { return [X[i], y]; }).filter(function (p) { return p[1] != null; }); });
+      var todos = []; PANELES.forEach(function (k) { pts[k].forEach(function (p) { todos.push(p[1]); }); });
+      var comun = escala(todos, R, 0.05, 5);
+      var esc = PANELES.map(function (k) {
+        if (estado.escala === 'comun') return comun;
+        var v = pts[k].map(function (p) { return p[1]; });
+        if (conPib && k !== 'pib') v = v.concat(pts.pib.map(function (p) { return p[1]; }));
+        return escala(v, R, 0.12, 3);
+      });
+      // margen del eje Y: el número más ancho de TODOS los paneles (todos miden lo mismo); ese número queda al ras del
+      // nombre del panel y los números van alineados a la derecha, pegados al dibujo
+      var fA = chico ? 9.5 : 10, fuenteEje = '500 ' + fA + 'px ' + PM.mono(), MARG = 6, gut = 0;
+      var dec = function (s) { return Math.abs(s.paso - Math.round(s.paso)) > 1e-9 ? 1 : 0; };
+      esc.forEach(function (s) { for (var v = s.lo; v <= s.hi + s.paso / 2; v += s.paso) gut = Math.max(gut, ancho(PM.num(v, dec(s)), fuenteEje)); });
+      gut = Math.ceil(gut) + MARG;
+      var cw = (W - izq - der - (cols - 1) * SEPX) / cols, plotW = cw - gut;
+      // años del eje: el paso que deja un rótulo cada ~38 px del ancho real del panel
+      var x0a = X[0], x1a = X[X.length - 1], span = Math.floor(x1a) - Math.ceil(x0a), caben = Math.max(2, Math.floor(plotW / 38));
+      var paso = [1, 2, 3, 4, 5].filter(function (t) { return Math.floor(span / t) + 1 <= caben; })[0] || 5;
+      var pz = dk ? '#8A9699' : '#5C6B70', tinta = PM.col(C.tinta), card = PM.var('--card') || '#ffffff';
+      var grilla = dk ? '#2A3A50' : '#E2DDD3', lineaEje = dk ? '#3A4549' : '#C9CDCE';
+      var fNom = '700 ' + fN + 'px ' + PM.inter(), fCif = '700 ' + fC + 'px ' + PM.mono();
+      geo = [];
+      var grid = [], xAxis = [], yAxis = [], series = [], graphic = [];
+      PANELES.forEach(function (k, g) {
+        var r = Math.floor(g / cols), c = g % cols, x0 = izq + c * (cw + SEPX), y0 = r * (CAB + alto + EJE + SEPY);
+        geo.push({ k: k, x0: x0, x1: x0 + cw, y0: y0, y1: y0 + CAB + alto + EJE });
+        grid.push({ left: Math.round(x0 + gut), top: y0 + CAB, width: Math.floor(plotW), height: alto, containLabel: false });
+        // marcas en cada período; sólo se rotulan los años del paso elegido
+        xAxis.push({ type: 'value', gridIndex: g, min: x0a, max: x1a, interval: DAT.anualFrec ? 1 : 0.25,
+          axisLine: { onZero: false, lineStyle: { color: lineaEje } }, axisTick: { show: false }, splitLine: { show: false },
+          axisLabel: { fontFamily: PM.mono(), fontSize: fA, fontWeight: 600, color: dk ? 'rgba(226,232,240,.75)' : 'rgba(0,18,25,.7)', margin: 6,
+            showMinLabel: false, showMaxLabel: false,
+            formatter: function (v) { var y = Math.round(v); return Math.abs(v - y) < 1e-6 && y % paso === 0 ? String(y) : ''; } },
+          axisPointer: { show: true, type: 'line', snap: true, label: { show: false }, lineStyle: { color: dk ? 'rgba(226,232,240,.32)' : 'rgba(0,18,25,.22)', width: 1 } } });
+        var s = esc[g], d = dec(s);
+        yAxis.push({ type: 'value', gridIndex: g, min: s.lo, max: s.hi, interval: s.paso,
+          axisLine: { show: false }, axisTick: { show: false },
+          splitLine: { lineStyle: { color: grilla, type: [3, 3], opacity: dk ? 0.7 : 1 } },
+          axisLabel: { color: pz, fontFamily: PM.mono(), fontSize: fA, fontWeight: 500, margin: MARG, align: 'right', formatter: function (v) { return PM.num(v, d); } } });
+        var dat = pts[k], cut = cortar(dat, R);
+        // áreas por signo: el color va acá, no en la línea
+        var area = function (datos, col, id) {
+          return { type: 'line', id: id + g, xAxisIndex: g, yAxisIndex: g, data: datos, silent: true, symbol: 'none', z: 1,
+            lineStyle: { width: 0 }, areaStyle: { origin: R, color: PM.rgba(col, dk ? 0.3 : 0.18) }, tooltip: { show: false }, emphasis: { disabled: true } };
+        };
+        series.push(area(cut.arriba, C.turquesa, 'arr'), area(cut.abajo, C.rojo, 'aba'));
+        if (conPib && k !== 'pib') series.push({ type: 'line', id: 'pib' + g, name: '_pib' + g, xAxisIndex: g, yAxisIndex: g, data: pts.pib, silent: true, z: 2,
+          symbol: 'none', lineStyle: { width: 1, color: pz, type: [5, 4] }, tooltip: { show: false }, emphasis: { disabled: true } });
+        // la serie: TINTA, con el punto hueco en el cierre de cada año y en el último dato
+        var ult = dat.length - 1;
+        series.push({ type: 'line', id: 'l' + g, name: GASTO[k].nombre, xAxisIndex: g, yAxisIndex: g, z: 4,
+          data: dat.map(function (p, j) {
+            var cierre = DAT.anualFrec || (anual() && Math.abs(p[0] % 1 - 0.75) < 1e-6) || j === ult;
+            return cierre ? { value: p, symbol: 'circle', symbolSize: j === ult ? 7 : 5 } : { value: p, symbol: 'none' };
+          }),
+          showSymbol: true, symbol: 'none', lineStyle: { width: 1.5, color: tinta, cap: 'round', join: 'round' },
+          itemStyle: { color: card, borderColor: tinta, borderWidth: 1.25 }, emphasis: { disabled: true },
+          markLine: { silent: true, symbol: 'none', animation: false, label: { show: false },
+            lineStyle: { color: dk ? 'rgba(226,232,240,.7)' : 'rgba(0,18,25,.65)', width: 0.9, type: [4, 3] }, data: [{ yAxis: R }] } });
+        // cabeza: el nombre en tinta y, debajo, la cifra del último dato en el color de su lado de la referencia
+        var nom = k === 'pib' ? 'Producto interno bruto' : GASTO[k].nombre;
+        if (ancho(nom, fNom) > cw) nom = GASTO[k].corto;
+        var v = dat[ult][1];
+        graphic.push({ type: 'text', silent: true, x: x0, y: y0, style: { text: nom, font: fNom, fill: tinta, align: 'left', verticalAlign: 'top' } });
+        graphic.push({ type: 'text', silent: true, x: x0, y: y0 + fN + 4, style: { text: fmt(v), font: fCif, fill: PM.col(lado(v)), align: 'left', verticalAlign: 'top' } });
+      });
+      return {
+        animationDuration: 450,
+        grid: grid, xAxis: xAxis, yAxis: yAxis, series: series, graphic: graphic,
+        // el cursor en un panel marca el mismo período en los seis
+        axisPointer: { link: [{ xAxisIndex: 'all' }] },
+        tooltip: PM.tooltip(function (ps) {
+          var g = hoverG != null ? hoverG : 0, k = PANELES[g];
+          var p = ps.filter(function (q) { return q.seriesId === 'l' + g; })[0] || ps.filter(function (q) { return /^l\d+$/.test(q.seriesId); })[0];
+          if (!p) return '';
+          var i = DAT.X.indexOf(p.value[0]);
+          if (i < 0) { var dm = Infinity; DAT.X.forEach(function (x, j) { if (Math.abs(x - p.value[0]) < dm) { dm = Math.abs(x - p.value[0]); i = j; } }); }
+          var v = DAT.v[k][i], pv = DAT.v.pib[i];
+          if (v == null) return '';
+          panel(i, k);
+          var h = PM.ttTitulo(GASTO[k].nombre + ' · ' + per(DAT.K[i]), nivel() ? 'Cuatro trimestres · ' + estado.base + ' = 100' : 'Crecimiento ' + FRENTE[estado.medida]);
+          h += PM.ttFila(PIB, GASTO[k].nombre, fmt(v), 'linea');
+          if (k !== 'pib' && pv != null) h += PM.ttFila(pz, 'PIB', fmt(pv), 'punteada');
+          var dif = v - R;
+          return h + PM.ttTotal(nivel() ? 'Frente a ' + estado.base : (dif >= 0 ? 'Crece' : 'Cae'), nivel() ? PM.pct(dif, 1, true) : PM.pct(Math.abs(dif), 1));
+        }, chico ? {
+          axisPointer: { type: 'line' },
+          // en el teléfono el lienzo es más alto que la pantalla: el vidrio va justo encima del panel tocado (o debajo,
+          // en la primera fila), no arriba de todo el lienzo, donde quedaría fuera de la vista
+          position: function (pt, params, dom, rect, size) {
+            var w = size.contentSize[0], h = size.contentSize[1], Wv = size.viewSize[0], g = geo[hoverG != null ? hoverG : 0];
+            var y = g.y0 - h - 6 >= 0 ? g.y0 - h - 6 : g.y1 + 6;
+            return [Math.min(Math.max(pt[0] - w / 2, 4), Math.max(4, Wv - w - 4)), y];
           }
-        });
-        return s;
-      }
-    },
-      legend:{
-        data:["PIB Total", "Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones"],bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      boundaryGap:false,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:1
-      }
-    },
-      yAxis:{
-      type:'value',
-      name:'%',
-      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]},
-      splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-      axisLine:{show:false},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#64748B',
-        formatter:'{value}%'
-      }
-    },
-      series:[{
-          name:'PIB Total',type:'line',data:[2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14],
-          symbol:'none',z:10,
-          lineStyle:{width:2.5,color:'#0A9396',},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#0A939618'},{offset:1,color:'#0A939602'}
-          ])}
-        },{
-          name:'Consumo Gobierno',type:'line',data:[-1.95, 9.69, 5.64, 0.49, 2.85, 1.25, -0.06, 3.03, -2.9, -3.56, -1.01, -1.25, 4.38, 3.13, 2.63, 7.39, 1.03, -1.09, 5.48, 1.12, 4.37, 9.88, 1.65, 0.92, 0.48, -0.49, -0.76, 3.2, -0.8, -1.41, 4.24, -2.54],
-          symbol:'none',z:2,
-          lineStyle:{width:1.8,color:'#005F73',},
-          itemStyle:{color:'#005F73'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#005F7318'},{offset:1,color:'#005F7302'}
-          ])}
-        },{
-          name:'Consumo Hogares',type:'line',data:[1.86, 4.48, 1.19, 4.94, 6.18, 4.17, 3.15, -5.7, -2.99, -24.95, -14.62, -1.6, -5.43, 23.83, 11.93, 4.31, 6.79, 6.44, 8.14, 2.19, 4.45, 1.73, 0.11, 4.27, -1.12, 5.12, 1.91, 0.78, 4.55, -0.23, 1.94, 0.54],
-          symbol:'none',z:2,
-          lineStyle:{width:1.8,color:'#0A9396',},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#0A939618'},{offset:1,color:'#0A939602'}
-          ])}
-        },{
-          name:'FBK',type:'line',data:[-2.62, 8.23, -1.89, 13.59, 16.6, 13.36, 11.01, -17.86, -32.79, -66.31, -42.79, -16.0, -9.29, 99.24, 21.11, 4.74, 9.76, -3.48, 6.36, 6.58, 17.59, 12.12, 2.64, -5.48, -4.33, -6.21, -1.89, -2.17, -17.61, -2.51, -14.04, -10.75],
-          symbol:'none',z:2,
-          lineStyle:{width:1.8,color:'#EE9B00',},
-          itemStyle:{color:'#EE9B00'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#EE9B0018'},{offset:1,color:'#EE9B0002'}
-          ])}
-        },{
-          name:'Exportaciones',type:'line',data:[9.44, 3.21, -2.1, -1.74, -5.68, -6.31, 4.81, 13.11, -2.64, -42.11, -32.17, -16.67, 7.39, 85.37, 48.51, 27.22, 24.28, 21.45, 9.79, -7.96, -15.46, -11.46, -4.01, -1.02, -11.34, -9.14, -17.36, -19.85, -10.36, -0.24, 9.28, 29.41],
-          symbol:'none',z:2,
-          lineStyle:{width:1.8,color:'#0A9396',},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#0A939618'},{offset:1,color:'#0A939602'}
-          ])}
-        },{
-          name:'Importaciones',type:'line',data:[-1.05, 2.77, 0.86, 14.43, 6.09, 6.03, 1.37, -13.65, -18.41, -53.17, -33.66, -15.63, -5.66, 73.54, 28.82, 17.66, 8.29, 16.07, 26.17, 10.13, 12.38, -5.85, -10.2, -9.08, -8.78, -9.0, -12.95, -10.85, -4.38, 10.18, 10.79, 19.63],
-          symbol:'none',z:2,
-          lineStyle:{width:1.8,color:'#C71E1D',},
-          itemStyle:{color:'#C71E1D'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#C71E1D18'},{offset:1,color:'#C71E1D02'}
-          ])}
-        },{
-      type:'line',data:new Array(labels.length).fill(0),
-      symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.8},
-      silent:true,name:''
-    },{
-      type:'line',data:zeroLine,
-      symbol:'none',lineStyle:{color:dk()?'#475569':'#E2DDD3',width:0.8},
-      silent:true,name:''
-    }]
-    },true);
-  }
+        } : { axisPointer: { type: 'line' } })
+      };
+    }
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    // Panel de lectura: el RANKING de los seis en el período bajo el cursor, con barras que salen de la referencia
+    // (el mismo de los paneles de actividades), y la historia del período con la conclusión calculada
+    function panel(i, k) {
+      if (i == null || !DAT.K || i < 0 || i >= DAT.K.length || DAT.v.pib[i] == null) return;
+      estado.idx = i; estado.k = k && k !== 'pib' ? k : null;
+      var v = DAT.v, f = per(DAT.K[i]), R = ref(), pib = v.pib[i];
+      var fil = PANELES.slice(1).map(function (c) { return { k: c, v: v[c][i] }; }).filter(function (x) { return x.v != null; }).sort(function (a, b) { return b.v - a.v; });
+      var filas = [{ k: 'pib', v: pib }].concat(fil);
+      var tope = Math.max.apply(null, filas.map(function (x) { return Math.abs(x.v - R); })) || 1;
+      var titulo = nivel() ? 'Nivel · ' + estado.base + ' = 100' : { c4: 'Crecimiento de 4 trimestres', var: 'Variación interanual', anual: 'Crecimiento del año' }[estado.medida];
+      var html = '<div class="rk"><div class="rk-t">' + titulo + '</div>' + filas.map(function (x) {
+        var dv = x.v - R, w = Math.abs(dv) / tope * 50, col = PM.col(lado(x.v));
+        var barra = '<i style="background:' + (x.k === 'pib' ? PM.col(PIB) : col) + ';' + (dv >= 0 ? 'left:50%' : 'left:' + (50 - w) + '%') + ';width:' + w + '%"></i>';
+        return '<div class="rk-f' + (x.k === 'pib' ? ' pib' : '') + (x.k === estado.k ? ' sel' : '') + '"><span class="rk-n">' + GASTO[x.k].nombre +
+          '</span><span class="rk-b">' + barra + '</span><span class="rk-v" style="color:' + (x.k === 'pib' ? PM.col(PIB) : PM.tx(lado(x.v))) + '">' + fmt(x.v) + '</span></div>';
+      }).join('') + '</div>';
+      var sube = fil.filter(function (o) { return o.v > R; }), baja = fil.filter(function (o) { return o.v <= R; }).reverse();
+      var t;
+      if (nivel()) {
+        var d = pib - 100;
+        t = 'En los 4 trimestres a <strong>' + f + '</strong> la economía produjo ' + (Math.abs(d) < 0.05 ? 'lo mismo que' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' más' : ' menos') + ' que') + ' en ' + estado.base + '.';
+        if (sube.length) t += ' Lo que más se alejó hacia arriba: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')';
+        if (baja.length) t += (sube.length ? '; ' : ' ') + 'hacia abajo, ' + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')';
+        t += '.';
+      } else {
+        // umbrales del PIB: ≤ −0,5% cae · < 0,5% casi no cambia · en adelante crece
+        t = 'En <strong>' + f + '</strong> el PIB ' + (pib <= -0.5 ? '<strong>cayó</strong>' : pib < 0.5 ? '<strong>casi no cambió</strong>' : '<strong>creció</strong>') + ' (' + PM.dt(lado(pib), fmt(pib)) + ').';
+        if (sube.length) t += ' Lo que más creció fue ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')';
+        if (baja.length) t += (sube.length ? '; lo que más cayó, ' : ' Lo que más cayó fue ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')';
+        t += '.';
+        var im = v.importaciones[i];
+        if (im != null && im >= 1) t += ' Que crezcan las importaciones no resta PIB por sí mismo: lo importado ya estaba dentro del consumo y la inversión (ver «Una identidad no explica causas»).';
+      }
+      document.getElementById('panel-fecha').textContent = f;
+      document.getElementById('panel').innerHTML = html + PM.ctx(t);
+    }
+
+    function preguntas() {
+      return [
+        ['¿Cómo se lee?', '<p>Cada panel es un destino de lo que produce el país, con el <strong>PIB primero</strong>: el consumo de los hogares, el del gobierno, la inversión fija, las exportaciones y las importaciones. La línea es el componente; el relleno <strong>turquesa</strong> marca cuándo está sobre la referencia (el cero en el crecimiento, el 100 en el nivel) y el <strong>rojo</strong> cuándo está debajo. La raya gris punteada repite el PIB.</p>' +
+          '<p>El cursor sobre un período lo marca en los seis paneles, y la lectura de la derecha los ordena para ese período.</p>'],
+        ['4 trimestres, trimestral o anual', '<p><strong>4 trimestres</strong> compara lo de los últimos 4 trimestres con los 4 anteriores: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> es la tasa que publica el INE (cada trimestre frente al mismo del año anterior). <strong>Anual</strong>, el año calendario completo.</p>'],
+        ['¿Qué responde «Nivel (base = 100)»?', '<p>Si cada componente está por encima o por debajo de donde estaba en el año base. Con 2019, el último año antes de la pandemia: ¿quién se recuperó y quién no?</p>' +
+          '<p>Se calcula con los valores a precios constantes de cada componente (bolivianos encadenados de 2017): sirven para comparar un componente consigo mismo, no para sumar componentes entre sí.</p>'],
+        ['¿Qué es la inversión fija?', '<p>Lo que se gasta en construcción, maquinaria y equipo: la <strong>formación bruta de capital fijo</strong> (FBCF) de las cuentas nacionales. Es la que amplía la capacidad de producir.</p>' +
+          '<p>La formación bruta de capital total suma además la variación de existencias, una partida chica y volátil sin tasa propia: aparece en la contribución al crecimiento.</p>'],
+        ['Una identidad no explica causas', '<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
+          '<p>El caso típico son las importaciones. Llevan signo menos porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo sólo evita contarlo como producción nacional. Importar más no resta PIB por sí mismo. Si un arancel recorta las importaciones, también recorta el consumo y la inversión que se hacían con ellas; el efecto neto depende de cómo responda cada componente.</p>' +
+          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
+        ['¿Escala por panel o común?', '<p><strong>Por panel</strong>, cada componente usa su propia escala: se ve bien la forma de cada uno. <strong>Común</strong>, todos comparten la misma: se ve cuál se mueve más (la inversión y el comercio exterior oscilan mucho más que el consumo).</p>']
+      ];
+    }
+
+    // Imagen: los paneles llevan su nombre; la leyenda explica los rellenos y la raya del PIB
+    PM.leyendaImagen = function () {
+      var b = nivel() ? estado.base : null;
+      return [{ name: b ? 'Sobre ' + b : 'Crece', color: PM.rgba(C.turquesa, 0.45), forma: 'area' },
+              { name: b ? 'Bajo ' + b : 'Cae', color: PM.rgba(C.rojo, 0.4), forma: 'area' }]
+        .concat(activas.has('pib') ? [{ name: 'PIB', color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }] : []);
+    };
+    // Datos: el eje X es numérico (años decimales), así que la tabla se declara
+    PM.tablaDatos = function () {
+      var u = nivel() ? 'índice de 4 trimestres, ' + estado.base + ' = 100' : { c4: 'crecimiento de 4 trimestres, %', var: 'variación interanual, %', anual: 'crecimiento del año, %' }[estado.medida];
+      return { cols: ['Período (' + u + ')'].concat(PANELES.map(function (k) { return GASTO[k].nombre; })),
+        filas: DAT.K.map(function (k, i) { return [k].concat(PANELES.map(function (c) { return DAT.v[c][i] == null ? null : +DAT.v[c][i].toFixed(3); })); }) };
+    };
+  })();
+  </script>
 </body>
 </html>

@@ -1,224 +1,341 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PIB Bolivia - Serie larga</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:500px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crecimiento del PIB · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    Crecimiento del PIB de Bolivia
-  </div>
-  <div class="section-subtitle">Variación interanual trimestral (%). Base 1990 desde 2000-T1 y Base 2017 desde 2018-T1</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Crecimiento del PIB</div>
+      <div class="sec-sub" id="sub"></div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Rango</span><div class="hz-grp" id="b-rango"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div><span id="aviso" style="font:500 .62rem/1.4 Inter,sans-serif;color:var(--muted)"></span></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el crecimiento del PIB…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C, NB = ' ';
+    // Dos mediciones del mismo PIB que NO se empalman: cada una es su propia línea. La vigente (año de referencia
+    // 2017) en tinta, con el lenguaje de los paneles del deck y del blog: el área contra el cero en turquesa (crece)
+    // o rojo (cae) y la cifra final junto a un punto hueco. La anterior (base 1990), en la familia oro (paso
+    // oscuro en claro: el oro puro no llega a 3:1 sobre la tarjeta blanca), sin relleno. Validado en los dos temas.
+    var COL = { b17: C.tinta, b90: { claro: C.oroOscuro, oscuro: C.oro } };
+    var NOM = { b17: 'Serie vigente (ref. 2017)', b90: 'Serie anterior (base 1990)' };
+    var CORTO = { b17: 'Vigente · 2017', b90: 'Anterior · 1990' };
+    var MEDIDAS = {
+      c4: { boton: '4 trimestres', frente: 'frente a los 4 trimestres anteriores', sub: 'Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %' },
+      trim: { boton: 'Trimestral', frente: 'frente al mismo trimestre del año anterior', sub: 'Cuánto creció la producción de cada trimestre frente al mismo trimestre del año anterior, en %' },
+      anual: { boton: 'Anual', frente: 'frente al año anterior', sub: 'Cuánto creció la producción de cada año frente al año anterior, en %' }
+    };
+    // Por defecto, la lectura más limpia (sin estación y sin el salto de un trimestre suelto) y toda la historia
+    var estado = { rango: 'todo', medida: 'c4', idx: null };
+    var activas = new Set(['b17', 'b90']);
+    var J, M, D = {}, I = {}, si = 0, grafico;
+
+    PM.cargar(['pib_serie_larga.json']).then(function (r) {
+      J = r[0]; M = J.metadata;
+      D.trim = armar(J.base1990.trimestral, J.base2017.trimestral);
+      D.anual = armar(J.base1990.anual, J.base2017.anual);
+      D.c4 = armar(cuatro(J.base1990.trimestral, J.base1990.anual), cuatro(J.base2017.trimestral, J.base2017.anual));
+      calcular();
+      estado.idx = D[estado.medida].K.length - 1;
+      PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k].boton]; }),
+        estado.medida, function (v) { estado.medida = v; estado.idx = D[v].K.length - 1; subtitulo(); grafico.redibujar(); panel(estado.idx); });
+      PM.botonera(document.getElementById('b-rango'), [['10a', '10 años'], ['desde2000', 'Desde 2000'], ['todo', 'Todo']],
+        estado.rango, function (v) { estado.rango = v; grafico.redibujar(); });
+      PM.pastillas(document.getElementById('pastillas'),
+        ['b17', 'b90'].map(function (k) { return { k: k, nombre: CORTO[k], color: COL[k], forma: 'linea' }; }),
+        activas, function () { grafico.redibujar(); });
+      subtitulo();
+      cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      grafico.chart.on('click', function (p) { if (p.dataIndex != null) panel(si + p.dataIndex); });
+      panel(estado.idx);
+      PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — Cuentas Nacionales Trimestrales</a> (base 1990 y año de referencia 2017) · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
+
+    function subtitulo() { document.getElementById('sub').textContent = MEDIDAS[estado.medida].sub + '. Dos mediciones del INE que no se unen: la vigente y la anterior.'; }
+
+    // Un eje común para las dos bases; cada una queda en su serie, con null donde no existe
+    function armar(l90, l17) {
+      var m = { b90: {}, b17: {} }, claves = {};
+      l90.forEach(function (x) { if (x[1] != null) { m.b90[x[0]] = x[1]; claves[x[0]] = 1; } });
+      l17.forEach(function (x) { if (x[1] != null) { m.b17[x[0]] = x[1]; claves[x[0]] = 1; } });
+      var K = Object.keys(claves).sort();
+      return { K: K, b90: K.map(function (k) { return k in m.b90 ? m.b90[k] : null; }), b17: K.map(function (k) { return k in m.b17 ? m.b17[k] : null; }) };
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+
+    // Crecimiento de 4 trimestres (la suma de los últimos 4 frente a la de los 4 anteriores) a partir de las variaciones
+    // del INE. Los niveles de cada trimestre se reconstruyen encadenando su variación interanual desde el año previo
+    // al primero; los pesos de partida (la estación de ese año) se despejan exigiendo que el IV trimestre reproduzca la
+    // variación anual de cada año: Σq w_q·P_q(a−1)·(g_q(a) − G(a)) = 0, con Σ w = 1 (mínimos cuadrados, 3 incógnitas).
+    function cuatro(trim, anual) {
+      var g = {}, G = {}, anios = [];
+      trim.forEach(function (x) { g[x[0]] = x[1] / 100; var a = +x[0].slice(0, 4); if (anios.indexOf(a) < 0) anios.push(a); });
+      anual.forEach(function (x) { G[+x[0]] = x[1] / 100; });
+      anios.sort(function (a, b) { return a - b; });
+      var P = [1, 1, 1, 1], filas = [];
+      anios.forEach(function (a) {
+        var gq = [1, 2, 3, 4].map(function (t) { return g[a + '-T' + t]; });
+        if (gq.some(function (x) { return x == null; })) return;
+        if (G[a] != null) filas.push(P.map(function (p, q) { return p * (gq[q] - G[a]); }));
+        P = P.map(function (p, q) { return p * (1 + gq[q]); });
+      });
+      // w4 = 1 − w1 − w2 − w3  →  B·w = c  →  (BᵀB) w = Bᵀc
+      var A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], bc = [0, 0, 0];
+      filas.forEach(function (f) {
+        var b = [f[0] - f[3], f[1] - f[3], f[2] - f[3]], c = -f[3];
+        for (var i = 0; i < 3; i++) { bc[i] += b[i] * c; for (var j = 0; j < 3; j++) A[i][j] += b[i] * b[j]; }
+      });
+      var w = resolver(A, bc); w.push(1 - w[0] - w[1] - w[2]);
+      // niveles relativos por trimestre (año previo al primero = pesos de partida)
+      var L = {}, a0 = anios[0] - 1;
+      [1, 2, 3, 4].forEach(function (t, q) { L[a0 + '-T' + t] = w[q]; });
+      anios.forEach(function (a) { [1, 2, 3, 4].forEach(function (t) { var k = a + '-T' + t, ant = L[(a - 1) + '-T' + t]; if (g[k] != null && ant != null) L[k] = ant * (1 + g[k]); }); });
+      var suma = function (a, t) { var s = 0; for (var j = 0; j < 4; j++) { var tt = t - j, aa = a; while (tt < 1) { tt += 4; aa--; } var v = L[aa + '-T' + tt]; if (v == null) return null; s += v; } return s; };
+      return trim.map(function (x) {
+        var p = PM.periodo(x[0]), s = suma(p.a, p.t), s0 = suma(p.a - 1, p.t);
+        return [x[0], s != null && s0 != null ? +((s / s0 - 1) * 100).toFixed(4) : null];
+      });
     }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
+    function resolver(A, b) {   // eliminación gaussiana con pivoteo, 3×3
+      var m = A.map(function (f, i) { return f.concat([b[i]]); }), n = 3;
+      for (var i = 0; i < n; i++) {
+        var p = i; for (var k = i + 1; k < n; k++) if (Math.abs(m[k][i]) > Math.abs(m[p][i])) p = k;
+        var tmp = m[i]; m[i] = m[p]; m[p] = tmp;
+        for (var k2 = i + 1; k2 < n; k2++) { var f = m[k2][i] / m[i][i]; for (var j = i; j <= n; j++) m[k2][j] -= f * m[i][j]; }
+      }
+      var x = [0, 0, 0];
+      for (var i2 = n - 1; i2 >= 0; i2--) { var s = m[i2][n]; for (var j2 = i2 + 1; j2 < n; j2++) s -= m[i2][j2] * x[j2]; x[i2] = s / m[i2][i2]; }
+      return x;
+    }
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
+    var anio = function (k) { return PM.periodo(k).a; };
+    function valor(lista, k) { for (var i = 0; i < lista.length; i++) if (lista[i][0] === k) return lista[i][1]; return null; }
+    // Promedio anual COMPUESTO (la tasa constante que lleva del primer al último año), dentro de UNA base
+    function promedio(lista, desde, hasta) {
+      var p = 1, n = 0;
+      lista.forEach(function (x) { var a = +x[0]; if (a >= desde && a <= hasta) { p *= 1 + x[1] / 100; n++; } });
+      return n === hasta - desde + 1 ? (Math.pow(p, 1 / n) - 1) * 100 : null;
+    }
+    var pandemia = function (k) { var a = anio(k); return a === 2020 || a === 2021; };
 
-  function buildChart(){
+    // Todo lo que las cifras, el panel y las preguntas citan sale de acá
+    function calcular() {
+      var t17 = J.base2017.trimestral, t90 = J.base1990.trimestral, a17 = J.base2017.anual, a90 = J.base1990.anual;
+      var comp = null;   // último año completo de la serie vigente: el último con su IV trimestre publicado
+      t17.forEach(function (x) { var p = PM.periodo(x[0]); if (p.t === 4) comp = p.a; });
+      I.completo = comp;
+      I.ini17 = +a17[0][0]; I.ini90 = +a90[0][0]; I.fin90 = +a90[a90.length - 1][0];
+      // Períodos con sentido económico; el promedio de cada uno se calcula dentro de su serie
+      I.per90 = [[I.ini90, 2005], [2006, 2014], [2015, 2019], [2020, I.fin90]].filter(function (p) { return p[0] <= I.fin90; })
+        .map(function (p) { return { desde: p[0], hasta: Math.min(p[1], I.fin90), v: promedio(a90, p[0], Math.min(p[1], I.fin90)) }; });
+      I.per17 = [{ desde: I.ini17, hasta: comp, v: promedio(a17, I.ini17, comp) }];
+      I.auge = I.per90.filter(function (p) { return p.desde === 2006; })[0];
+      // El solape: la mayor brecha y los años en que ni el signo coincide
+      I.solape = a17.filter(function (x) { return valor(a90, x[0]) != null; })
+        .map(function (x) { var v90 = valor(a90, x[0]); return { k: x[0], v17: x[1], v90: v90, d: x[1] - v90 }; });
+      I.brecha = I.solape.reduce(function (m, x) { return !m || Math.abs(x.d) > Math.abs(m.d) ? x : m; }, null);
+      I.signo = I.solape.filter(function (x) { return x.v17 * x.v90 < 0; });
+      var s0 = +I.solape[0].k, s1 = +I.solape[I.solape.length - 1].k;
+      I.sol = { desde: s0, hasta: s1, p17: promedio(a17, s0, s1), p90: promedio(a90, s0, s1) };
+      // Escala del trimestral: el desplome de 2020 y el rebote de 2021 aplastan todo lo demás. El eje se recorta al
+      // rango del resto de la serie (con margen, en múltiplos de 5, simétrico) y un aviso dice cuánto llegaron a valer.
+      var dentro = t17.concat(t90).filter(function (x) { return !pandemia(x[0]); }).map(function (x) { return Math.abs(x[1]); });
+      I.recorte = Math.ceil((Math.max.apply(null, dentro) + 1) / 5) * 5;
+      var peor = null;   // marca de la pandemia: el trimestre de 2020 con la mayor caída (en la serie vigente)
+      t17.forEach(function (x) { if (anio(x[0]) === 2020 && (!peor || x[1] < peor[1])) peor = x; });
+      I.pandemia = { trim: peor ? peor[0] : null, c4: peor ? peor[0] : null, anual: '2020' };
+    }
 
-    var labels=["2000-T1", "2000-T2", "2000-T3", "2000-T4", "2001-T1", "2001-T2", "2001-T3", "2001-T4", "2002-T1", "2002-T2", "2002-T3", "2002-T4", "2003-T1", "2003-T2", "2003-T3", "2003-T4", "2004-T1", "2004-T2", "2004-T3", "2004-T4", "2005-T1", "2005-T2", "2005-T3", "2005-T4", "2006-T1", "2006-T2", "2006-T3", "2006-T4", "2007-T1", "2007-T2", "2007-T3", "2007-T4", "2008-T1", "2008-T2", "2008-T3", "2008-T4", "2009-T1", "2009-T2", "2009-T3", "2009-T4", "2010-T1", "2010-T2", "2010-T3", "2010-T4", "2011-T1", "2011-T2", "2011-T3", "2011-T4", "2012-T1", "2012-T2", "2012-T3", "2012-T4", "2013-T1", "2013-T2", "2013-T3", "2013-T4", "2014-T1", "2014-T2", "2014-T3", "2014-T4", "2015-T1", "2015-T2", "2015-T3", "2015-T4", "2016-T1", "2016-T2", "2016-T3", "2016-T4", "2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    var d90=[2.09, 4.84, 1.02, 1.98, -0.01, 0.9, 2.59, 3.17, 1.38, 3.86, 3.74, 0.9, 3.32, 3.24, 0.9, 3.37, 4.39, 3.65, 6.15, 2.66, 4.45, 3.98, 3.81, 5.46, 4.41, 3.87, 5.74, 5.19, 2.52, 4.09, 5.34, 6.1, 6.55, 6.89, 7.06, 4.19, 2.95, 2.2, 3.63, 4.63, 3.22, 3.78, 3.71, 5.66, 6.18, 4.26, 5.22, 5.29, 5.01, 4.39, 4.59, 6.43, 6.85, 7.08, 7.29, 6.01, 5.91, 4.8, 6.03, 5.18, 4.8, 5.25, 3.93, 5.41, 5.35, 3.23, 4.94, 3.69, 3.34, 3.79, 4.28, 5.23, 4.93, 4.85, 3.98, 3.27, 3.09, 2.64, 2.23, 1.06, 0.2, -24.74, -10.87, 0.96, -0.61, 23.12, 5.15, 0.51, 4.76, 4.58, 4.09, 1.33, 2.39, 2.03, 2.59, 5.11, 1.31, 3.64, 1.02, -2.6, null, null, null, null];
-    var d17=[null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14];
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:30,right:16,bottom:70,left:52},
-      tooltip:{
-      trigger:'axis',
-      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-      borderColor:dk()?'#2A3A50':'#1A2940',
-      borderWidth:1,
-      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-      padding:[12,16],
-      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-      formatter:function(params){
-        if(!params||!params.length) return '';
-        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
-        params.forEach(function(p){
-          if(p.value!=null){
-            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-              +p.value.toFixed(2)+' %</span><br/>';
-          }
+    function cifras() {
+      var t17 = J.base2017.trimestral, a17 = J.base2017.anual;
+      var ua = valor(a17, String(I.completo)), ut = t17[t17.length - 1], p17 = I.per17[0], b = I.brecha, p = PM.periodo(ut[0]);
+      var corto = function (a) { return String(a).slice(2); };
+      document.getElementById('kpis').innerHTML =
+        PM.kpi({ color: ua < 0 ? C.rojo : C.turquesa, rotulo: 'Crecimiento ' + I.completo, valor: PM.pct(ua, 1, true),
+          delta: 'año ' + I.completo + ' completo', tono: ua < 0 ? 'malo' : 'bueno', serie: a17.map(function (x) { return x[1]; }) }) +
+        PM.kpi({ color: ut[1] < 0 ? C.rojo : C.turquesa, rotulo: 'Último trimestre', valor: PM.pct(ut[1], 1, true),
+          delta: PM.fecha(ut[0]) + ' vs. T' + p.t + NB + (p.a - 1), tono: ut[1] < 0 ? 'malo' : 'bueno', serie: PM.ultimos(t17.map(function (x) { return x[1]; }), 24) }) +
+        PM.kpi({ color: COL.b17, rotulo: 'Promedio por año ' + p17.desde + '–' + corto(p17.hasta), valor: PM.pct(p17.v, 1, true),
+          delta: 'en ' + I.auge.desde + '–' + corto(I.auge.hasta) + ': ' + PM.pct(I.auge.v, 1, true), tono: p17.v < I.auge.v ? 'malo' : 'bueno' }) +
+        PM.kpi({ color: COL.b90, rotulo: 'Mayor brecha entre series', valor: PM.num(Math.abs(b.d), 1) + NB + 'pp',
+          delta: b.k + ': ' + PM.num(b.v17, 1) + ' y ' + PM.pct(b.v90, 1), tono: 'neutro', serie: I.solape.map(function (x) { return x.d; }) });
+    }
+
+    var ultimo = function (v) { for (var i = v.length - 1; i >= 0; i--) if (v[i] != null) return i; return -1; };
+
+    function opciones() {
+      var med = estado.medida, d = D[med], trim = med === 'trim', chico = PM.pequeno(), dk = PM.dk(), card = PM.var('--card') || '#fff';
+      si = PM.desde(d.K, estado.rango);
+      var KV = d.K.slice(si), V = { b17: d.b17.slice(si), b90: d.b90.slice(si) };
+      var series = [];
+      // relleno de la serie vigente contra el cero (el color lo pone el visualMap por tramos: corta EXACTO en el cruce)
+      if (activas.has('b17')) series.push({ type: 'line', name: '_area', data: V.b17, symbol: 'none', silent: true, z: 1, connectNulls: false,
+        lineStyle: { width: 0 }, areaStyle: { origin: 0, opacity: 1 } });
+      // la cifra final de la vigente va arriba o abajo del punto, del lado con más aire en el último tramo (mirando las
+      // dos series); en el teléfono no se rotula: el lienzo es angosto y la cifra ya está arriba, en las cifras
+      var nF = ultimo(V.b17), tramo = [];
+      ['b17', 'b90'].forEach(function (k) { if (activas.has(k)) V[k].slice(Math.max(0, nF - Math.max(3, Math.round(KV.length * 0.06)))).forEach(function (x) { if (x != null) tramo.push(x); }); });
+      var vF = V.b17[nF], arriba = tramo.length ? Math.max.apply(null, tramo) - vF <= vF - Math.min.apply(null, tramo) : vF >= 0;
+      ['b17', 'b90'].forEach(function (k) {
+        if (!activas.has(k)) return;
+        var n = ultimo(V[k]), v = V[k][n];
+        series.push(PM.linea(COL[k], { ancho: k === 'b17' ? 2.25 : 1.75, extra: {
+          name: NOM[k], data: V[k], z: k === 'b17' ? 4 : 3, connectNulls: false,
+          markPoint: n < 0 ? undefined : { silent: true, animation: false, symbol: 'circle', symbolSize: k === 'b17' ? 9 : 7,
+            itemStyle: { color: card, borderColor: PM.col(COL[k]), borderWidth: 2 },
+            label: { show: k === 'b17' && !chico, formatter: PM.pct(v, 1, true), position: arriba ? 'top' : 'bottom', align: 'right', offset: [6, arriba ? -2 : 2],
+              color: PM.tx(COL[k]), fontFamily: PM.mono(), fontSize: chico ? 11 : 12, fontWeight: 700 },
+            data: [{ coord: [n, v] }] }
+        } }));
+      });
+      // En el trimestral, el eje se recorta y se avisa: los valores de 2020–2021 que quedan afuera, con su cifra
+      var aviso = '', ext = { lo: null, hi: null };
+      if (trim) {
+        ['b17', 'b90'].forEach(function (k) {
+          if (!activas.has(k)) return;
+          V[k].forEach(function (v, i) {
+            if (v == null) return;
+            if (v < -I.recorte && (!ext.lo || v < ext.lo.v)) ext.lo = { v: v, k: KV[i] };
+            if (v > I.recorte && (!ext.hi || v > ext.hi.v)) ext.hi = { v: v, k: KV[i] };
+          });
         });
-        return s;
+        if (ext.lo || ext.hi) aviso = 'Escala recortada a ±' + I.recorte + '%: ' +
+          [ext.lo ? PM.pct(ext.lo.v, 1) + ' en ' + PM.fecha(ext.lo.k) : '', ext.hi ? PM.pct(ext.hi.v, 1, true) + ' en ' + PM.fecha(ext.hi.k) : '']
+            .filter(Boolean).join(' y ') + ' quedan fuera';
       }
-    },
-      legend:{
-        data:['Base 1990','Base 2017'],
-        bottom:4,
-        textStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B'}
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      boundaryGap:false,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:3
-      }
-    },
-      yAxis:{
-      type:'value',
-      name:'%',
-      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]},
-      splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-      axisLine:{show:false},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#64748B',
-        formatter:'{value}%'
-      }
-    },
-      series:[
-        {
-          name:'Base 1990',type:'line',data:d90,
-          symbol:'none',z:1,
-          lineStyle:{width:1.8,color:'#9CA3AF'},
-          itemStyle:{color:'#9CA3AF'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#9CA3AF18'},
-            {offset:1,color:'#9CA3AF02'}
-          ])},
-          connectNulls:false
-        },
-        {
-          name:'Base 2017',type:'line',data:d17,
-          symbol:'none',z:3,
-          lineStyle:{width:2.5,color:'#0A9396'},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:'#0A939618'},
-            {offset:1,color:'#0A939602'}
-          ])},
-          connectNulls:false,
-          markLine:{
-            silent:true,symbol:'none',
-            lineStyle:{color:dk()?'#475569':'#64748B',type:'solid',width:1},
-            data:[{yAxis:0}],
-            label:{show:false}
-          },
-          markPoint:{
-            data:[{
-              coord:['2020-T2',-25.9],
-              symbol:'circle',symbolSize:9,
-              itemStyle:{color:'#C71E1D',borderColor:dk()?'#141414':'#FFFFFF',borderWidth:2},
-              label:{
-                show:true,formatter:'COVID-19',position:'bottom',distance:8,
-                fontFamily:'Inter',fontSize:10,fontWeight:700,color:'#C71E1D',
-                backgroundColor:dk()?'#141414':'#FAF8F3',padding:[2,5],borderRadius:3
-              },
-            }],
-            animation:false
-          }
-        }
-      ]
-    },true);
-  }
+      document.getElementById('aviso').textContent = aviso;
+      // Referencias en una serie auxiliar: el cero (firme) y la pandemia, punteada en pizarra
+      var pz = dk ? '#8A9699' : '#5C6B70', cero = PM.cero(), pand = I.pandemia[med];
+      var marcas = { silent: true, symbol: 'none', animation: false, label: { show: false }, lineStyle: cero.lineStyle, data: [{ yAxis: 0 }] };
+      if (pand && KV.indexOf(pand) >= 0) marcas.data.push({ xAxis: pand,
+        lineStyle: { color: pz, width: 1.25, type: [4, 3] },
+        label: { show: true, position: 'end', distance: 6, formatter: 'Pandemia', color: pz, fontFamily: PM.inter(), fontSize: chico ? 10 : 10.5, fontWeight: 600 } });
+      series.push({ type: 'line', name: '_ref', data: KV.map(function () { return null; }), silent: true, symbol: 'none', markLine: marcas });
+      var el = document.getElementById('chart');
+      var vm = activas.has('b17') ? [{ show: false, type: 'piecewise', seriesIndex: 0, dimension: 1,
+        pieces: [{ gt: -1e9, lte: 0, color: PM.rgba(dk ? C.rojoClaro : C.rojo, dk ? 0.26 : 0.16) }, { gt: 0, lte: 1e9, color: PM.rgba(C.turquesa, dk ? 0.26 : 0.2) }] }] : [];
+      return {
+        animationDuration: 450,
+        grid: PM.grid({ right: chico ? 16 : 14 }),
+        xAxis: PM.ejeTiempo(KV, el),
+        yAxis: PM.ejeY({ fmt: 'pct', extra: aviso ? { min: -I.recorte, max: I.recorte, interval: 5 } : { splitNumber: 4 } }),
+        visualMap: vm,
+        tooltip: PM.tooltip(function (ps) {
+          if (!ps.length) return '';
+          var i = ps[0].dataIndex, x17 = V.b17[i], x90 = V.b90[i];
+          panel(si + i);
+          var h = PM.ttTitulo(PM.fecha(KV[i]), 'Crecimiento ' + MEDIDAS[med].frente);
+          if (activas.has('b17') && x17 != null) h += PM.ttFila(COL.b17, NOM.b17, PM.pct(x17, 1, true), 'linea');
+          if (activas.has('b90') && x90 != null) h += PM.ttFila(COL.b90, NOM.b90, PM.pct(x90, 1, true), 'linea');
+          if (x17 != null && x90 != null) h += PM.ttTotal('Diferencia', PM.pp(x17 - x90));
+          return h;
+        }),
+        series: series
+      };
+    }
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    function promedioDe(lista, a) { for (var j = 0; j < lista.length; j++) if (a >= lista[j].desde && a <= lista[j].hasta) return lista[j]; return null; }
+
+    // Panel: la historia del punto bajo el cursor (cuánto creció, cómo se compara con su período y su serie,
+    // y si las dos mediciones coinciden)
+    function panel(i) {
+      var med = estado.medida, d = D[med];
+      if (i == null || !d || i < 0 || i >= d.K.length) return;
+      estado.idx = i;
+      var k = d.K[i], x17 = d.b17[i], x90 = d.b90[i], f = PM.fecha(k), a = anio(k);
+      var base = x17 != null ? 'b17' : 'b90', g = x17 != null ? x17 : x90, serie = d[base];
+      var q = promedioDe(base === 'b17' ? I.per17 : I.per90, a);
+      var vals = serie.filter(function (v) { return v != null; }), menor = Math.min.apply(null, vals), mayor = Math.max.apply(null, vals);
+      var colG = g < 0 ? C.rojo : C.turquesa;
+      var h = PM.pb(colG, NOM[base], PM.pct(g, 1, true), (med === 'c4' ? 'Crecimiento de los 4 trimestres a ' + f + ' frente a los 4 anteriores.' : 'Crecimiento de ' + f + ' ' + MEDIDAS[med].frente + '.'));
+      if (x17 != null && x90 != null) h += PM.pb(COL.b90, NOM.b90, PM.pct(x90, 1, true), 'La misma fecha en la otra medición: <strong>' + PM.pp(x17 - x90) + '</strong> de diferencia.');
+      if (q && q.v != null) h += PM.pb(C.pizarra, 'Promedio ' + q.desde + '–' + q.hasta, PM.pct(q.v, 1, true), 'Crecimiento medio por año en ese período, en la misma serie.');
+      // racha: cuántos períodos seguidos con el mismo signo, hasta este
+      var n = 1; for (var j = i - 1; j >= 0 && serie[j] != null && (serie[j] < 0) === (g < 0); j--) n++;
+      // la historia, con umbrales explícitos: < 0 se achica · 0–2 poco · 2–4 moderado · ≥ 4 con fuerza
+      var t = 'En <strong>' + f + '</strong> la economía ' + (g < 0 ? '<strong>se achicó</strong>' : g < 2 ? 'creció <strong>poco</strong>' : g < 4 ? 'creció a un ritmo <strong>moderado</strong>' : 'creció <strong>con fuerza</strong>') +
+        ' (' + PM.dt(colG, PM.pct(g, 1, true)) + ')';
+      if (g === menor) t += ', <strong>la peor cifra</strong> de esa serie';
+      else if (g === mayor) t += ', <strong>la mejor cifra</strong> de esa serie';
+      else if (q && q.v != null) t += Math.abs(g - q.v) < 0.5 ? ', en línea con el promedio del período' : g < q.v ? ', por debajo del promedio del período' : ', por encima del promedio del período';
+      t += '.';
+      if (n > 1) t += ' Lleva ' + n + (med === 'anual' ? ' años' : ' trimestres') + ' seguidos ' + (g < 0 ? 'en caída' : 'creciendo') + '.';
+      if (x17 != null && x90 != null) {
+        var ad = Math.abs(x17 - x90);
+        // umbrales: < 0,5 pp coinciden · < 2 pp difieren · ≥ 2 pp difieren mucho · signo opuesto
+        t += x17 * x90 < 0 ? ' Las dos mediciones <strong>no coinciden ni en el signo</strong>.'
+          : ad < 0.5 ? ' Las dos mediciones prácticamente coinciden.'
+          : ad < 2 ? ' Las dos mediciones cuentan lo mismo con distinto ritmo.'
+          : ' Las dos mediciones difieren <strong>mucho</strong> (' + PM.num(ad, 1) + NB + 'pp).';
+      } else if (base === 'b17' && a > I.fin90) t += ' La serie anterior ya no se actualiza: sólo existe la vigente.';
+      else if (base === 'b90') t += ' Es la única medición del INE para esa fecha.';
+      document.getElementById('panel-fecha').textContent = f;
+      document.getElementById('panel').innerHTML = h + PM.ctx(t);
+    }
+
+    // Las cifras de las respuestas salen del dato
+    function preguntas() {
+      var b = I.brecha, s = I.sol;
+      var signo = I.signo.map(function (x) { return x.k + ' (' + PM.pct(x.v17, 1, true) + ' en la vigente y ' + PM.pct(x.v90, 1, true) + ' en la anterior)'; });
+      var lista = I.per90.map(function (p) { return '<strong>' + p.desde + '–' + p.hasta + '</strong>: ' + PM.pct(p.v, 1, true); }).join(' · ');
+      var p17 = I.per17[0];
+      return [
+        ['¿Qué mide este gráfico?', '<p>El crecimiento del PIB: cuánto cambió el volumen de bienes y servicios finales que produce el país, sin el efecto de los precios.</p>' +
+          '<p><strong>4 trimestres</strong> compara lo producido en el último año móvil con el año móvil anterior; <strong>Trimestral</strong>, cada trimestre con el mismo del año anterior (la tasa que publica el INE); <strong>Anual</strong>, cada año calendario con el anterior.</p>'],
+        ['¿Por qué «4 trimestres» por defecto?', '<p>Porque es la lectura más limpia del ritmo de la economía: se actualiza cada trimestre, no tiene estación y no salta como un trimestre suelto. En cada IV trimestre coincide con la tasa anual.</p>' +
+          '<p>POPULI la calcula con las variaciones del INE: encadena la variación de cada trimestre y toma de los datos anuales el peso de cada trimestre en el año.</p>'],
+        ['¿Por qué hay dos líneas?', '<p>Son dos mediciones distintas del mismo PIB. La <strong>serie anterior</strong> (base 1990) cubre ' + I.ini90 + '–' + I.fin90 + '; el INE dejó de actualizarla al adoptar la <strong>serie vigente</strong> (año de referencia 2017), con variaciones desde ' + I.ini17 + '.</p>' +
+          '<p>POPULI no las une en una sola línea: entre ' + s.desde + ' y ' + s.hasta + ' se superponen y no dan lo mismo, así que pegar un tramo con el otro inventaría un salto que no ocurrió.</p>'],
+        ['¿Por qué difieren donde se superponen?', '<p>Cambian tres cosas: el <strong>año base</strong> (la anterior pondera cada actividad con los precios relativos de 1990; la vigente parte de 2017 y actualiza los pesos año a año), el <strong>manual de cuentas nacionales</strong> (la anterior seguía el SCN 1968 con elementos del SCN 1993, según la metodología del INE; la vigente, el SCN 2008, que redefine qué se cuenta como producción e inversión) y la <strong>estructura de ponderaciones y fuentes</strong>.</p>' +
+          '<p>La mayor brecha anual es la de <strong>' + b.k + '</strong>: ' + PM.pct(b.v17, 1, true) + ' en la vigente y ' + PM.pct(b.v90, 1, true) + ' en la anterior.' +
+          (signo.length ? ' En ' + signo.join(' y ') + ' ni el signo coincide.' : '') +
+          ' Entre ' + s.desde + ' y ' + s.hasta + ' la anterior promedia ' + PM.pct(s.p90, 1, true) + ' por año y la vigente ' + PM.pct(s.p17, 1, true) + '.</p>'],
+        ['Promedios por período', '<p>Promedio anual compuesto: la tasa constante que lleva del primer al último año, calculada dentro de cada serie.</p>' +
+          '<p>Serie anterior: ' + lista + '.</p><p>Serie vigente: <strong>' + p17.desde + '–' + p17.hasta + '</strong>: ' + PM.pct(p17.v, 1, true) + '.</p>'],
+        ['¿Por qué el trimestral tiene la escala recortada?', '<p>Porque el desplome de 2020 y el rebote de 2021 son tan grandes que, a escala completa, el resto de la serie se vería plano. El eje se corta en ±' + I.recorte + '% y el aviso de arriba dice cuánto llegaron a valer; el cursor muestra la cifra exacta.</p>']
+      ];
+    }
+
+    // En la imagen de descarga, la clave de cada serie es una raya (como en el gráfico)
+    PM.leyendaImagen = function () {
+      return ['b17', 'b90'].filter(function (k) { return activas.has(k); })
+        .map(function (k) { return { name: NOM[k], itemStyle: { color: PM.col(COL[k]) }, forma: 'linea' }; });
+    };
+  })();
+  </script>
 </body>
 </html>

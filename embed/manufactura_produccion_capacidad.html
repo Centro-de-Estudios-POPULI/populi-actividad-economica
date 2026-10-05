@@ -1,193 +1,101 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Industria manufacturera: producción y capacidad instalada</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --radius:12px;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0;background:#0A9396}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-#chart{width:100%;height:480px;margin-top:12px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 4px 0;margin-top:8px;border-top:1px solid var(--border);
-}
-.chart-source-text{font-size:.72rem;color:var(--muted);letter-spacing:.01em}
-.chart-source-text a{color:var(--populi);text-decoration:none;font-weight:600}
-[data-theme="dark"] .chart-source-text a{color:#E9D8A6}
-.watermark{width:80px;height:auto;opacity:.18}
-[data-theme="dark"] .watermark text:first-child{fill:#E9D8A6}
-[data-theme="dark"] .watermark text:last-child{fill:#64748B}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Industria Manufacturera · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
+  <script src="ind_mensual.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="chart-card">
-    <div class="section-title">
-      <span class="accent-bar"></span>Industria manufacturera: producción y capacidad instalada
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Industria Manufacturera</div>
+      <div class="sec-sub" id="sub">Producción de la industria por trimestre, un año por línea</div>
     </div>
-    <div class="section-subtitle">Trimestral 2017-2025 · Base 2017=100 (producción) / % (capacidad)</div>
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Serie</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando industria manufacturera…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  // Trimestral: la misma familia que los indicadores mensuales (año por año con T1…T4, crecimiento de cuatro
+  // trimestres y nivel con año base). La producción y el uso de la capacidad tienen unidades distintas: se eligen
+  // con la botonera, nunca en dos ejes. El uso de la capacidad es una tasa: se compara en puntos porcentuales.
+  var PIB = null;
+  IND.armar({
+    frec: 4,
+    tipo: 'indice',
+    unidad: 'indice',
+    umbrales: [3, 8],
+    fuente: 'INE — Encuesta trimestral de la industria manufacturera',
+    cargar: function () {
+      return PM.cargar(['ind_manufactura.json', 'pib_actividad.json']).then(function (r) {
+        var d = r[0], series = {};
+        PIB = r[1];
+        Object.keys(d.series).forEach(function (ind) { Object.keys(d.series[ind]).forEach(function (k) { series[ind + '_' + k] = d.series[ind][k]; }); });
+        return { meses: d.trimestres, series: series, metadata: d.metadata };
+      });
+    },
+    series: [
+      { k: 'produccion_total', boton: 'Total', corto: 'Producción', mide: 'Producción de la industria manufacturera (índice: 100 = promedio de 2017)', acum: 'el índice de producción promedió {v}' },
+      { k: 'produccion_alimentos', boton: 'Alimentos', corto: 'Alimentos y bebidas', mide: 'Producción de alimentos y bebidas (índice: 100 = promedio de 2017)', acum: 'la producción de alimentos y bebidas promedió {v}' },
+      { k: 'produccion_otras', boton: 'Otras', corto: 'Otras industrias', mide: 'Producción de las otras industrias (índice: 100 = promedio de 2017)', acum: 'la producción de las otras industrias promedió {v}' },
+      { k: 'capacidad_total', boton: 'Capacidad', corto: 'Uso de capacidad', tipo: 'tasa', unidad: 'pct', umbrales: [1, 3],
+        mide: 'Uso de la capacidad instalada de la industria, en %', acum: 'la industria usó en promedio el {v} de su capacidad' }
+    ],
+    preguntas: function (A) {
+      var D = A.D, T = D.meses, s = D.series.produccion_total, anios = 0, bajos = 0, por = {};
+      T.forEach(function (k, i) { var p = PM.periodo(k); (por[p.a] = por[p.a] || [])[p.t - 1] = s[i]; });
+      Object.keys(por).forEach(function (y) {
+        var q = por[y];
+        if (q.length < 4 || q.some(function (x) { return x == null; })) return;
+        anios++; if (q[0] === Math.min.apply(null, q)) bajos++;
+      });
+      // peso de la manufactura en el PIB (precios corrientes): promedio del último año del PIB trimestral
+      var peso = null, ya = null;
+      if (PIB) {
+        var pk = PIB.trimestres, pe = PIB.estructura.manufactura, t = 0, n = 0;
+        ya = PM.periodo(pk[pk.length - 1]).a;
+        pk.forEach(function (k, i) { if (PM.periodo(k).a === ya && pe[i] != null) { t += pe[i]; n++; } });
+        peso = n ? PM.pct(t / n, 0) : null;
+      }
+      return [
+        ['¿Qué mide?', '<p>El <strong>índice de producción</strong> mide el volumen que producen las fábricas en el trimestre: el promedio de 2017 vale 100. El <strong>uso de la capacidad</strong> es la parte de la capacidad instalada (máquinas, turnos) que efectivamente se usó, en porcentaje.</p>' +
+          '<p>Los dos salen de la encuesta trimestral del INE a la industria, que cubre sobre todo a <strong>empresas grandes y medianas</strong>, separadas en alimentos y bebidas y el resto de las industrias.</p>'],
+        ['¿Por qué importa para el PIB?', (peso ? 'La industria manufacturera generó cerca del <strong>' + peso + ' del PIB</strong> en ' + ya + ' (a precios corrientes). ' : '') +
+          'Este índice mide directamente a las fábricas y acompaña al PIB de la manufactura. El uso de la capacidad agrega algo que el PIB no dice: cuánto margen hay para producir más <strong>sin invertir</strong> en nuevas máquinas.'],
+        ['¿Por qué el primer trimestre siempre baja?', 'El índice no está desestacionalizado. ' + (anios ? 'En <strong>' + bajos + ' de ' + anios + ' años</strong> completos el primer trimestre fue el más bajo del año' : 'El primer trimestre suele ser el más bajo del año') +
+          ' (vacaciones, lluvias, carnaval, menos días hábiles). Por eso se compara con el <strong>mismo trimestre</strong> del año anterior, o con la vista «Crecimiento», que suma cuatro trimestres.'],
+        ['Notas del INE', 'Índice con año de referencia 2017 (base móvil). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') +
+          'son <strong>preliminares</strong> (p). El último dato publicado es ' + PM.fecha(D.metadata.ultimo) + '. La muestra no incluye a la mayoría de las micro y pequeñas empresas.']
+      ];
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
-    }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
   });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
-
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
-
-  function buildChart(){
-
-    var dark=dk();
-    var option={
-      backgroundColor:'transparent',
-      tooltip:{
-        trigger:'axis',
-        backgroundColor:dark?'#080808':'rgba(13,27,42,.96)',
-        borderColor:dark?'#2A3A50':'#1A2940',
-        textStyle:{color:'#E2E8F0',fontSize:12,fontFamily:'Inter'},
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-        formatter:function(params){
-          var s='<div style="color:#E9D8A6;font-weight:700;margin-bottom:6px;font-family:Playfair Display,serif">'+params[0].axisValue+'</div>';
-          params.forEach(function(p){
-            if(p.value!=null){
-              var unit=p.seriesIndex===0?' pts':' %';
-              s+='<div style="display:flex;align-items:center;gap:6px;margin:2px 0">';
-              s+='<span style="display:inline-block;width:10px;height:3px;border-radius:1px;background:'+p.color+'"></span>';
-              s+='<span style="color:#64748B;font-size:11px">'+p.seriesName+'</span>';
-              s+='<span style="font-family:JetBrains Mono;font-weight:600;color:#fff;font-size:12px">'+p.value.toFixed(1)+unit+'</span>';
-              s+='</div>';
-            }
-          });
-          return s;
-        }
-      },
-      legend:{
-        data:['\u00cdndice de producci\u00f3n','Utilizaci\u00f3n capacidad (%)'],
-        bottom:8,
-        textStyle:{color:dark?'#64748B':'#64748B',fontSize:11,fontFamily:'Inter',fontWeight:500},
-        itemWidth:18,itemHeight:3,itemGap:14
-      },
-      grid:{left:60,right:60,top:20,bottom:50},
-      xAxis:{
-        type:'category',data:["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3"],
-        axisLine:{lineStyle:{color:dark?'#2A3A50':'#E2DDD3'}},
-        axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:10,fontWeight:500,color:dark?'#64748B':'#64748B',rotate:45}
-      },
-      yAxis:[
-        {
-          type:'value',name:'\u00cdndice (base 2017)',
-          nameTextStyle:{fontFamily:'Inter',fontSize:10,color:'#0A9396'},
-          axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:'#0A9396'},
-          axisLine:{show:true,lineStyle:{color:'#0A9396'}},
-          splitLine:{lineStyle:{color:dark?'#141414':'#F1F5F9',type:'dashed'}},
-          axisTick:{show:false}
-        },
-        {
-          type:'value',name:'Capacidad (%)',
-          nameTextStyle:{fontFamily:'Inter',fontSize:10,color:'#EE9B00'},
-          axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:'#EE9B00',formatter:'{value}%'},
-          axisLine:{show:true,lineStyle:{color:'#EE9B00'}},
-          splitLine:{show:false},
-          axisTick:{show:false}
-        }
-      ],
-      series:[
-        {
-          name:'\u00cdndice de producci\u00f3n',type:'line',data:[91.44, 99.04, 107.74, 101.78, 96.59, 105.04, 106.88, 109.39, 103.31, 110.72, 121.08, 106.8, 99.33, 67.58, 103.6, 115.96, 97.57, 109.88, 126.55, 119.48, 112.33, 129.6, 139.63, 122.8, 122.73, 136.32, 147.56, 136.86, 107.96, 125.11, 136.86, 127.14, 101.48, 123.35, 143.47],
-          yAxisIndex:0,symbol:'circle',symbolSize:5,
-          lineStyle:{width:2.5,color:'#0A9396'},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
-            {offset:0,color:dark?'rgba(10,147,150,.2)':'rgba(10,147,150,.1)'},
-            {offset:1,color:'rgba(10,147,150,0)'}
-          ])}
-        },
-        {
-          name:'Utilizaci\u00f3n capacidad (%)',type:'line',data:[73.18, 75.37, 74.73, 72.78, 71.08, 72.56, 74.6, 73.33, 70.36, 69.23, 72.01, 71.41, 68.48, 62.62, 68.51, 69.45, 66.65, 67.01, 71.34, 69.86, 71.11, 72.43, 69.98, 68.29, 68.93, 72.69, 72.76, 71.44, 70.21, 69.62, 71.02, 63.38, 63.09, 69.54, 70.73],
-          yAxisIndex:1,symbol:'diamond',symbolSize:5,
-          lineStyle:{width:2.5,color:'#EE9B00'},
-          itemStyle:{color:'#EE9B00'}
-        }
-      ]
-    };
-    chart.setOption(option,true);
-  }
-
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+  </script>
 </body>
 </html>

@@ -1,206 +1,240 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PIB por tipo de gasto</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:460px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PIB por tipo de gasto · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <!-- En los apilados la cifra grande va en tinta: el color de la serie es de la rampa y no dice «sube» o «baja»;
+       el rojo del protagonista se leía como caída («Consumo +1,1 pp» en rojo). La línea superior de la tarjeta
+       sigue marcando a qué serie corresponde, y la pastilla de abajo el tono. -->
+  <style>.kpi-val { color: var(--tinta) !important; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    PIB por tipo de gasto
-  </div>
-  <div class="section-subtitle">Millones de Bs encadenados (referencia 2017). Importaciones se restan</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>En qué se usa lo que produce la economía</div>
+      <div class="sec-sub" id="sub"></div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Período</span><div class="hz-grp" id="b-frec"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el PIB por tipo de gasto…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C, NB = ' ';
+    // Mapa de colores del PIB por tipo de gasto: IDÉNTICO en composición, crecimiento y contribución, en el ORDEN DE
+    // RAMPA de la marca (populi-marca/paleta.py, rampa(6); README, regla 7): de abajo hacia arriba, del rojo a la tinta,
+    // siguiendo la identidad del gasto. El protagonista (el consumo de los hogares, ~70% del PIB) en rojo, apoyado en el
+    // cero; las importaciones, la tinta, debajo del cero. La tinta es token (en oscuro, #E2E8F0). Vecinos medidos
+    // (visión normal / daltonismo, pisos 15 / 8): rojo-oro 26/22 · oro-menta 20/16 · menta-turquesa 22/20 ·
+    // turquesa-petróleo 16/16 · petróleo-tinta 28/28 en claro y 49/46 en oscuro.
+    var GASTO = {
+      hogares: { nombre: 'Consumo de los hogares', corto: 'Hogares', color: C.rojo },
+      gobierno: { nombre: 'Consumo del gobierno', corto: 'Gobierno', color: C.oro },
+      fbcf: { nombre: 'Inversión fija', corto: 'Inversión fija', color: C.menta },
+      existencias: { nombre: 'Existencias y otros', corto: 'Existencias', color: C.turquesa },
+      exportaciones: { nombre: 'Exportaciones', corto: 'Exportaciones', color: C.petroleo },
+      importaciones: { nombre: 'Importaciones', corto: 'Importaciones', color: C.tinta },
+      pib: { nombre: 'PIB', corto: 'PIB', color: C.tinta }
+    };
+    // Pila fija en el orden de la rampa (y de la identidad del gasto). ECharts apila por signo: los positivos suben desde
+    // el cero y los negativos (las importaciones, que se restan, y las existencias cuando son negativas) bajan desde el
+    // cero en el mismo orden; nada salta de una barra a otra. Pastillas, tooltip, leyenda de la imagen y CSV, igual.
+    var PILA = ['hogares', 'gobierno', 'fbcf', 'existencias', 'exportaciones', 'importaciones'];
+    var LECTURA = PILA;
+    var estado = { medida: 'pct', frec: 'anual', idx: null };
+    var activas = new Set(PILA.concat(['pib']));
+    var J, M, T, D = {}, A = {}, grafico;
+    var bs = function (v) { return PM.mm(v, 'Bs'); };
+    var signo = function (k) { return k === 'importaciones' ? -1 : 1; };
+
+    PM.cargar(['pib_gasto.json']).then(function (r) {
+      J = r[0]; M = J.metadata; T = J.trimestres;
+      armar();
+      PM.botonera(document.getElementById('b-medida'), [['pct', '% del PIB'], ['mmbs', 'Millones de Bs']],
+        estado.medida, function (v) { estado.medida = v; subtitulo(); grafico.redibujar(); panel(estado.idx); });
+      PM.botonera(document.getElementById('b-frec'), [['anual', 'Anual'], ['trim', 'Trimestral']],
+        estado.frec, function (v) { estado.frec = v; estado.idx = D[v].K.length - 1; subtitulo(); grafico.redibujar(); panel(estado.idx); });
+      PM.pastillas(document.getElementById('pastillas'),
+        PILA.map(function (k) { return { k: k, nombre: GASTO[k].corto, color: GASTO[k].color, forma: 'area' }; })
+          .concat([{ k: 'pib', nombre: 'PIB', color: GASTO.pib.color, forma: 'linea' }]),
+        activas, function () { grafico.redibujar(); });
+      estado.idx = D[estado.frec].K.length - 1;
+      subtitulo();
+      cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      grafico.chart.on('click', function (p) { if (p.dataIndex != null) panel(p.dataIndex); });
+      panel(estado.idx);
+      PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, a precios corrientes</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
+
+    // Montos (MM Bs corrientes) y participaciones (% del PIB) por trimestre y por año COMPLETO (suma de sus 4 trimestres)
+    function armar() {
+      var ks = Object.keys(J.corrientes);
+      D.trim = { K: T.slice(), mm: {}, sh: {} };
+      ks.forEach(function (k) { D.trim.mm[k] = J.corrientes[k].slice(); D.trim.sh[k] = J.estructura[k].slice(); });
+      var por = {};
+      T.forEach(function (k, i) { var a = PM.periodo(k).a; (por[a] = por[a] || []).push(i); });
+      var anios = Object.keys(por).filter(function (a) { return por[a].length === 4; });
+      D.anual = { K: anios, mm: {}, sh: {} };
+      ks.forEach(function (k) {
+        D.anual.mm[k] = anios.map(function (a) { var s = 0; por[a].forEach(function (i) { s += J.corrientes[k][i]; }); return s; });
+      });
+      ks.forEach(function (k) { D.anual.sh[k] = D.anual.mm[k].map(function (x, j) { return x / D.anual.mm.pib[j] * 100; }); });
+      ['trim', 'anual'].forEach(function (f) { D[f].sh.saldo = D[f].sh.exportaciones.map(function (x, j) { return x - D[f].sh.importaciones[j]; }); });
+      A.u = anios.length - 1; A.ult = anios[A.u]; A.pri = anios[0];
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+
+    function subtitulo() {
+      var pct = estado.medida === 'pct';
+      document.getElementById('sub').textContent = pct
+        ? 'De cada 100 bolivianos que produce la economía, cuántos van a consumo, inversión y exportaciones, en % del PIB. Lo importado se resta: va debajo del cero'
+        : 'En qué se usa lo que produce la economía, en millones de bolivianos corrientes' + (estado.frec === 'anual' ? ' por año' : ' por trimestre') + '. Lo importado se resta: va debajo del cero; la línea es el PIB';
     }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
+    function cifras() {
+      var d = D.anual, u = A.u, sh = d.sh, p = 0;
+      var linea = function (k) { return 'en ' + A.pri + ': ' + PM.pct(sh[k][p], 1, k === 'saldo'); };
+      var tono = function (k, alzaBuena) { var x = sh[k][u] - sh[k][p]; return Math.abs(x) < 0.05 ? 'neutro' : (x > 0) === alzaBuena ? 'bueno' : 'malo'; };
+      document.getElementById('kpis').innerHTML =
+        PM.kpi({ color: GASTO.hogares.color, rotulo: 'Consumo de hogares · ' + A.ult, valor: PM.pct(sh.hogares[u], 1), delta: linea('hogares'), tono: 'neutro', serie: sh.hogares }) +
+        PM.kpi({ color: GASTO.gobierno.color, rotulo: 'Consumo del gobierno · ' + A.ult, valor: PM.pct(sh.gobierno[u], 1), delta: linea('gobierno'), tono: 'neutro', serie: sh.gobierno }) +
+        PM.kpi({ color: GASTO.fbcf.color, rotulo: 'Inversión fija · ' + A.ult, valor: PM.pct(sh.fbcf[u], 1), delta: linea('fbcf'), tono: tono('fbcf', true), serie: sh.fbcf }) +
+        PM.kpi({ color: GASTO.exportaciones.color, rotulo: 'Saldo comercial · ' + A.ult, valor: PM.pct(sh.saldo[u], 1, true),
+          delta: linea('saldo'), tono: tono('saldo', true), serie: sh.saldo });
+    }
 
-  function buildChart(){
-
-    var labels=["2017-T1", "2017-T2", "2017-T3", "2017-T4", "2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:30,right:16,bottom:70,left:68},
-      tooltip:{
-        trigger:'axis',
-        axisPointer:{type:'cross'},
-        backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-        borderColor:dk()?'#2A3A50':'#1A2940',
-        borderWidth:1,
-        textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-        padding:[12,16],
-        extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-        formatter:function(params){
-          if(!params||!params.length) return '';
-          var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
-          params.forEach(function(p){
-            if(p.value!=null){
-              s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
-                +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-                +p.value.toLocaleString('es-BO')+'</span> <span style="color:#999">MM</span><br/>';
-            }
-          });
-          return s;
-        }
-      },
-      legend:{
-        data:["Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones (\u2212)"],bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      boundaryGap:false,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:1
+    function opciones() {
+      var pct = estado.medida === 'pct', d = D[estado.frec], anual = estado.frec === 'anual', el = document.getElementById('chart');
+      var K = d.K, src = pct ? d.sh : d.mm, n = K.length - 1, series = [], card = PM.var('--card') || '#fff', dk = PM.dk(), chico = PM.pequeno();
+      PILA.forEach(function (k) {
+        if (!activas.has(k)) return;
+        series.push(PM.barra(GASTO[k].color, { extra: {
+          name: GASTO[k].nombre, stack: 'gasto', barCategoryGap: anual ? '34%' : '26%',
+          data: src[k].map(function (v) { return v == null ? null : +(signo(k) * v).toFixed(pct ? 3 : 1); })
+        } }));
+      });
+      if (series.length) series[0].markLine = PM.cero();
+      // El total: en millones, la línea del PIB en tinta con un punto por barra; en %, el PIB es siempre 100: una raya
+      // fina marca dónde termina lo producido (lo que la pila pasa por encima es lo importado)
+      if (activas.has('pib')) {
+        var pv = pct ? K.map(function () { return 100; }) : src.pib;
+        // La línea del PIB, sutil y sin borde blanco (pedido de Carlos): 1,5 px suavizada (smoothMonotone 'x': la curva no
+        // inventa picos entre trimestres), un punto sólido chico por período y la cifra final sobre fondo de tarjeta.
+        var nP = pv.length - 1, vP = pv[nP], chicoP = PM.pequeno();
+        series.push(PM.linea(GASTO.pib.color, { ancho: 1.5, extra: { name: 'PIB', data: pv, z: 6, connectNulls: false,
+          smooth: 0.35, smoothMonotone: 'x', showSymbol: !pct, symbolSize: 4, itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
+          markPoint: pct || vP == null ? undefined : { silent: true, animation: false, symbol: 'circle', symbolSize: 5,
+            itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
+            label: { show: true, formatter: PM.auto(vP), position: vP < 0 ? 'bottom' : 'top', align: 'right', offset: [4, vP < 0 ? 3 : -3],
+              backgroundColor: card, padding: [1, 3], color: PM.tx(GASTO.pib.color), fontFamily: PM.mono(), fontSize: chicoP ? 10.5 : 11.5, fontWeight: 700 },
+            data: [{ coord: [nP, vP] }] } } }));
       }
-    },
-      yAxis:{
-        type:'value',name:'Millones Bs',
-        nameTextStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'},
-        splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-        axisLine:{show:false},axisTick:{show:false},
-        axisLabel:{fontFamily:'JetBrains Mono',fontSize:11,color:dk()?'#64748B':'#64748B',
-          formatter:function(v){return (v/1000).toFixed(0)+'k'}
-        }
-      },
-      series:[{
-          name:'Consumo Gobierno',type:'line',data:[12444.2, 11730.1, 12121.6, 11928.5, 12202.1, 12866.9, 12805.6, 11986.5, 12550.0, 13028.0, 12798.4, 12349.7, 12186.2, 12564.7, 12669.6, 12195.4, 12720.1, 12958.4, 13003.0, 13097.0, 12851.1, 12816.8, 13715.6, 13243.8, 13413.1, 14083.7, 13941.9, 13366.0, 13477.5, 14014.8, 13835.5, 13793.8, 13369.5, 13817.1, 14422.3, 13443.0],stack:'gasto',
-          symbol:'none',
-          lineStyle:{width:0.5,color:'#005F73',},
-          itemStyle:{color:'#005F73'},
-          areaStyle:{opacity:0.7}
-        },{
-          name:'Consumo Hogares',type:'line',data:[51836.1, 53625.6, 53727.9, 53207.5, 52799.4, 56026.9, 54368.7, 55836.0, 56060.3, 58364.9, 56083.5, 52654.0, 54385.7, 43804.0, 47885.1, 51810.1, 51432.6, 54242.1, 53595.9, 54042.4, 54926.4, 57736.4, 57956.5, 55228.3, 57369.1, 58735.0, 58021.4, 57585.7, 56727.0, 61743.0, 59131.6, 58036.8, 59306.4, 61599.9, 60278.0, 58350.9],stack:'gasto',
-          symbol:'none',
-          lineStyle:{width:0.5,color:'#0A9396',},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{opacity:0.7}
-        },{
-          name:'FBK',type:'line',data:[17929.1, 18327.7, 20745.6, 20358.0, 17952.3, 20075.8, 20293.9, 22315.7, 19239.6, 20854.3, 20995.0, 17838.6, 13718.5, 8321.9, 13613.5, 16287.9, 12660.0, 14869.6, 15233.9, 16083.7, 13273.2, 14179.1, 16233.7, 17326.9, 15980.7, 16179.0, 16712.7, 16030.3, 14338.4, 13930.7, 15122.8, 14708.4, 11530.8, 13768.2, 13342.3, 13583.1],stack:'gasto',
-          symbol:'none',
-          lineStyle:{width:0.5,color:'#EE9B00',},
-          itemStyle:{color:'#EE9B00'},
-          areaStyle:{opacity:0.7}
-        },{
-          name:'Exportaciones',type:'line',data:[13621.8, 15933.1, 16953.9, 15499.4, 14908.0, 16445.1, 16598.7, 15229.7, 14061.2, 15407.9, 17397.1, 17226.2, 13690.7, 8919.7, 11801.3, 14354.8, 14702.3, 16534.8, 17526.6, 18261.8, 18272.6, 20080.9, 19242.8, 16808.7, 15448.1, 17779.7, 18471.5, 16637.3, 13696.7, 16154.0, 15264.0, 13334.4, 12277.8, 16116.0, 16680.0, 17256.5],stack:'gasto',
-          symbol:'none',
-          lineStyle:{width:0.5,color:'#0A9396',},
-          itemStyle:{color:'#0A9396'},
-          areaStyle:{opacity:0.7}
-        },{
-          name:'Importaciones (−)',type:'line',data:[-20597.0, -19440.0, -20988.3, -21606.1, -20380.5, -19978.2, -21168.1, -24723.8, -21621.5, -21182.7, -21458.8, -21348.4, -17640.5, -9920.7, -14236.2, -18011.5, -16642.8, -17216.4, -18339.8, -21192.8, -18022.3, -19982.9, -23139.6, -23339.1, -20253.2, -18813.6, -20780.3, -21220.1, -18474.4, -17120.3, -18088.5, -18917.2, -17664.6, -18863.1, -20040.4, -22631.4],
-          symbol:'none',
-          lineStyle:{width:2,color:'#C71E1D',type:'dashed',},
-          itemStyle:{color:'#C71E1D'},
-          areaStyle:{opacity:0.15}
-        }]
-    },true);
-  }
+      return {
+        animationDuration: 450,
+        grid: PM.grid({ right: chico ? 16 : 14 }),
+        xAxis: PM.ejeTiempo(K, el, { boundaryGap: true }),
+        // en millones, el eje va en miles de millones: «600» y no «600.000» (el rótulo ancho le quitaba lugar al trazado);
+        // la unidad, alineada a la izquierda: con rótulos cortos, alineada a la derecha se salía del lienzo
+        yAxis: PM.ejeY({ unidad: pct ? '' : 'Miles de MM Bs', fmt: pct ? 'pct' : function (v) { return PM.tick(v / 1000); }, extra: { splitNumber: 4, nameTextStyle: { align: 'left' } } }),
+        tooltip: PM.tooltip(function (ps) {
+          if (!ps.length) return '';
+          var i = ps[0].dataIndex;
+          panel(i);
+          var h = PM.ttTitulo(PM.fecha(K[i]), pct ? '% del PIB, a precios corrientes' : 'Millones de Bs corrientes');
+          LECTURA.forEach(function (k) {
+            if (!activas.has(k)) return;
+            var v = signo(k) * src[k][i];
+            h += PM.ttFila(GASTO[k].color, GASTO[k].nombre, pct ? PM.pct(v, 1) : PM.auto(v), 'area');
+          });
+          h += PM.ttTotal('PIB', pct ? '100%' : PM.auto(d.mm.pib[i]));
+          h += PM.ttPie('Saldo comercial (exportaciones − importaciones): <strong style="color:#fff">' + PM.pct(d.sh.saldo[i], 1, true) + '</strong> del PIB');
+          return h;
+        }, { axisPointer: PM.sombraEje() }),
+        series: series
+      };
+    }
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    // Panel: la historia del período bajo el cursor, «de cada 100 bolivianos»
+    function panel(i) {
+      var d = D[estado.frec];
+      if (i == null || !d || i < 0 || i >= d.K.length) return;
+      estado.idx = i;
+      var pct = estado.medida === 'pct', f = PM.fecha(d.K[i]), sh = function (k) { return d.sh[k][i]; }, mm = function (k) { return d.mm[k][i]; };
+      var inv = sh('fbcf') + sh('existencias'), cons = sh('hogares') + sh('gobierno'), saldo = d.sh.saldo[i];
+      var val = function (x, m) { return pct ? PM.pct(x, 1) : bs(m); };
+      var h = PM.pb(GASTO.hogares.color, 'Consumo', val(cons, mm('hogares') + mm('gobierno')),
+          'Hogares <strong>' + PM.pct(sh('hogares'), 1) + '</strong> y gobierno <strong>' + PM.pct(sh('gobierno'), 1) + '</strong> del PIB.') +
+        PM.pb(GASTO.fbcf.color, 'Inversión', val(inv, mm('fbcf') + mm('existencias')),
+          'Inversión fija <strong>' + PM.pct(sh('fbcf'), 1) + '</strong> y existencias <strong>' + PM.pct(sh('existencias'), 1) + '</strong> del PIB.') +
+        PM.pb(GASTO.exportaciones.color, 'Comercio exterior', pct ? PM.pct(saldo, 1, true) : bs(mm('exportaciones') - mm('importaciones')),
+          'Exportaciones <strong>' + PM.pct(sh('exportaciones'), 1) + '</strong> menos importaciones <strong>' + PM.pct(sh('importaciones'), 1) + '</strong> del PIB.');
+      // umbrales del saldo: < −1% del PIB déficit · > 1% superávit · en medio, casi equilibrio
+      var t = 'En <strong>' + f + '</strong>, de cada 100 bolivianos producidos, ' + PM.dt(GASTO.hogares.color, PM.num(sh('hogares'), 1)) + ' se fueron en consumo de los hogares, ' +
+        PM.dt(GASTO.gobierno.color, PM.num(sh('gobierno'), 1)) + ' en consumo del gobierno y ' + PM.dt(GASTO.fbcf.color, PM.num(inv, 1)) + ' en inversión. ';
+      if (saldo < -1) t += 'Eso suma más de 100: el gasto interno <strong>superó lo producido</strong> y, por identidad, la diferencia (' + PM.num(-saldo, 1) + ') es lo que se importó de más sobre lo exportado. La cuenta no dice cuál de las dos cosas causó la otra.';
+      else if (saldo > 1) t += 'Eso suma menos de 100: el resto (' + PM.num(saldo, 1) + ') se vendió afuera en neto, con un <strong>superávit comercial</strong>.';
+      else t += 'Exportaciones e importaciones casi se compensan (saldo de ' + PM.pct(saldo, 1, true) + ' del PIB).';
+      if (estado.frec === 'anual' && i > 0) { var f0 = d.sh.fbcf[0]; t += ' La inversión fija pasó de ' + PM.pct(f0, 1) + ' del PIB en ' + d.K[0] + ' a ' + PM.pct(sh('fbcf'), 1) + '.'; }
+      document.getElementById('panel-fecha').textContent = f;
+      document.getElementById('panel').innerHTML = h + PM.ctx(t);
+    }
+
+    function preguntas() {
+      var d = D.anual, u = A.u;
+      return [
+        ['¿Qué es el PIB por tipo de gasto?', '<p>Es el PIB visto por el lado de quién compra lo producido: hogares, gobierno, inversión y resto del mundo, menos lo que se compra afuera.</p>' +
+          '<p><strong>PIB = consumo de los hogares + consumo del gobierno + inversión (fija y existencias) + exportaciones − importaciones.</strong></p>'],
+        ['¿Por qué las importaciones van debajo del cero?', '<p>Lo que compran los hogares, el gobierno y los inversionistas incluye bienes hechos afuera. Esa parte no es producción boliviana y se descuenta: el signo menos corrige la cuenta, no significa que importar haga caer el PIB.</p>' +
+          '<p>Por eso en «% del PIB» la pila pasa de 100: lo que sobresale por encima de la raya del PIB es, exactamente, lo importado.</p>'],
+        ['Una identidad no explica causas', '<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
+          '<p>El caso típico son las importaciones. Llevan signo menos porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo sólo evita contarlo como producción nacional. Importar más no resta PIB por sí mismo. Si un arancel recorta las importaciones, también recorta el consumo y la inversión que se hacían con ellas; el efecto neto depende de cómo responda cada componente.</p>' +
+          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
+        ['¿Por qué a precios corrientes?', '<p>Porque sólo a precios corrientes las partes suman el total: a precios constantes (bolivianos encadenados de 2017) la suma de los componentes no da el PIB.</p>'],
+        ['¿Qué son la inversión fija y las existencias?', '<p>La <strong>inversión fija</strong> (formación bruta de capital fijo, FBCF) es construcción, maquinaria y equipo: lo que amplía la capacidad de producir. Las <strong>existencias y otros</strong> son la variación de inventarios y la compra neta de objetos valiosos; puede ser negativa.</p>'],
+        ['La tasa de inversión', '<p>La inversión fija pasó de <strong>' + PM.pct(d.sh.fbcf[0], 1) + '</strong> del PIB en ' + A.pri + ' a <strong>' + PM.pct(d.sh.fbcf[u], 1) + '</strong> en ' + A.ult + '; el consumo de los hogares, de ' + PM.pct(d.sh.hogares[0], 1) + ' a ' + PM.pct(d.sh.hogares[u], 1) + '.</p>' +
+          '<p>Una tasa de inversión que cae anticipa menos crecimiento: es la que agrega capacidad de producir.</p>'],
+        ['¿Anual o trimestral?', '<p>El año completo suma sus 4 trimestres: no tiene estación y se lee mejor. El trimestral muestra cada trimestre, con su estación (la inversión y el consumo pesan distinto según la época del año).</p>']
+      ];
+    }
+
+    // En la imagen de descarga: cuadros para la pila y raya para el PIB, en el orden de las pastillas
+    PM.leyendaImagen = function () {
+      var pct = estado.medida === 'pct';
+      return PILA.concat(['pib']).filter(function (k) { return activas.has(k); }).map(function (k) {
+        return { name: k === 'pib' ? (pct ? 'PIB = 100%' : 'PIB') : GASTO[k].nombre, itemStyle: { color: PM.col(GASTO[k].color) }, forma: k === 'pib' ? 'linea' : 'area' };
+      });
+    };
+  })();
+  </script>
 </body>
 </html>

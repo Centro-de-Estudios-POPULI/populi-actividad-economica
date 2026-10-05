@@ -1,218 +1,324 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Contribución Sectorial al PIB</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:480px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contribución al crecimiento del PIB · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <!-- En los apilados la cifra grande va en tinta: el color de la serie es de la rampa y no dice «sube» o «baja»;
+       el rojo del protagonista se leía como caída («Consumo +1,1 pp» en rojo). La línea superior de la tarjeta
+       sigue marcando a qué serie corresponde, y la pastilla de abajo el tono. -->
+  <style>.kpi-val { color: var(--tinta) !important; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    Contribución al crecimiento del PIB
-  </div>
-  <div class="section-subtitle">Puntos porcentuales por actividad económica. Línea = crecimiento total del PIB</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Contribución al crecimiento del PIB</div>
+      <div class="sec-sub" id="sub">Puntos porcentuales que aporta cada actividad (y los impuestos) a la variación interanual del PIB</div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Agrupación</span><div class="hz-grp" id="b-agrup"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Rango</span><div class="hz-grp" id="b-rango"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl">
+          <div class="tog-grp" id="pastillas-act"></div>
+          <div class="tog-grp" id="pastillas-gran" style="display:none"></div>
+        </div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando la contribución por actividad…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C;
+    // ── Colores de los APILADOS: la rampa de la marca EN ORDEN (populi-marca/paleta.py, RAMPA_POR_N; README,
+    // regla 7). De ABAJO hacia ARRIBA del rojo a la tinta, con un solo paso cálido (el oro) después del rojo:
+    // el protagonista abajo y en rojo; lo que completa el PIB arriba, en gris tenue, fuera del recorrido.
+    // · «3 grandes sectores»: rampa(3) primario, secundario, terciario; los impuestos arriba en gris tenue.
+    // · «Por actividad»: 12 rubros no entran en la rampa, y la línea NEGRA del PIB va encima sin borde (Carlos):
+    //   la pila no puede llevar tinta. Van las 4 actividades que MÁS MOVIERON el PIB en los últimos dos años
+    //   (mayor suma de su contribución interanual en valor absoluto, a favor o en contra, en los últimos 8
+    //   trimestres con dato; se recalcula con cada dato nuevo) en rampa(4), de mayor a menor, y el «Resto»
+    //   arriba en gris: las otras 7 y los impuestos (el tooltip y la lectura dicen qué hay adentro).
+    //   Validado (vecinos de la pila): claro ΔE ≥ 15,9 normal y ≥ 15,6 daltonismo. En el oscuro el Resto va en
+    //   el gris #6E7A7D y no en el tenue #3A4549: el tenue quedaba a ΔE 9,3 del petróleo (se fundían) y el gris
+    //   llega a 13,9 normal / 10,6 daltonismo; y la línea del PIB (#E2E8F0), que en 22 de 32 trimestres cae
+    //   sobre el Resto, se lee a 3,6:1. La tinta es un token: en el tema oscuro es #E2E8F0.
+    // (El ranking y los paneles de actividad no son apilados: conservan su código por signo.)
+    var TINTA = { claro: '#001219', oscuro: '#E2E8F0' }, RESTO = { claro: '#C9CDCE', oscuro: '#3A4549' };
+    var RAMPA = { 3: ['#C71E1D', '#EE9B00', '#0A9396'], 4: ['#C71E1D', '#EE9B00', '#0A9396', '#005F73'] };
+    var RESTO_ACT = { claro: '#C9CDCE', oscuro: '#6E7A7D' };
+    var PIB = TINTA, NB = ' ';
+    var GRUPOS = {};   // agrupación → piezas de la pila, de abajo hacia arriba: [{k, nombre, color, miembros}]
+    function armarGrupos() {
+      // los últimos 8 trimestres con contribución publicada y cuánto movió el PIB cada actividad en ellos
+      var con = []; for (var i = T.length - 1; i >= 0 && con.length < 8; i--) if (D.contrib.pib[i] != null) con.push(i);
+      MOV = {}; VENTANA = [con[con.length - 1], con[0]];
+      D.sectores.forEach(function (k) { MOV[k] = con.reduce(function (s, i) { return s + Math.abs(D.contrib[k][i] || 0); }, 0); });
+      var orden = D.sectores.slice().sort(function (a, b) { return MOV[b] - MOV[a]; });
+      GRUPOS.act = orden.slice(0, 4).map(function (k, j) { return { k: k, nombre: NOM[k], color: RAMPA[4][j], miembros: [k] }; })
+        .concat([{ k: 'resto', nombre: 'Resto', color: RESTO_ACT, miembros: orden.slice(4).concat(['impuestos']) }]);
+      GRUPOS.gran = Object.keys(D.grandes).map(function (g, j) { return { k: g, nombre: NOM[g], color: RAMPA[3][j], miembros: [g] }; })
+        .concat([{ k: 'impuestos', nombre: NOM.impuestos, color: RESTO, miembros: ['impuestos'] }]);
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
-    }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
+    var MOV = {}, VENTANA = [];
+    function comps(g) { return GRUPOS[g || estado.agrup]; }
+    // los rubros de la agrupación (las 11 actividades o los 3 grandes sectores, y los impuestos) y la pieza que los contiene
+    function rubros() { return (estado.agrup === 'gran' ? Object.keys(D.grandes) : D.sectores.slice()).concat(['impuestos']); }
+    function piezaDe(k) { return comps().filter(function (c) { return c.miembros.indexOf(k) >= 0; })[0]; }
+    function resto() { return comps().filter(function (c) { return c.miembros.length > 1; })[0]; }
+    // por defecto, los 3 grandes sectores: once actividades apiladas arriba y abajo del cero no se leen de un vistazo
+    var estado = { medida: 'var', agrup: 'gran', rango: '3a', idx: null };
+    var D, M, T, K, K0, si = 0, grafico, NOM = {};
+    var activas = { act: null, gran: null };
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
-
-  function buildChart(){
-
-    var labels=["2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:36,right:16,bottom:80,left:52},
-      tooltip:{
-      trigger:'axis',
-      axisPointer:{type:'shadow'},
-      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-      borderColor:dk()?'#2A3A50':'#1A2940',
-      borderWidth:1,
-      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-      padding:[12,16],
-      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-      formatter:function(params){
-        if(!params||!params.length) return '';
-        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
-        params.forEach(function(p){
-          if(p.value!=null){
-            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-              +p.value.toFixed(2)+' pp</span><br/>';
-          }
+    PM.cargar(['pib_actividad.json']).then(function (r) {
+      D = r[0]; M = D.metadata; T = D.trimestres;
+      D.rubros.forEach(function (x) { NOM[x.k] = x.nombre; });
+      Object.keys(D.grandes).forEach(function (g) { NOM[g] = D.grandes[g].nombre; });
+      armarGrupos();
+      // la contribución interanual existe desde el primer trimestre con un año previo (2018-T1)
+      K0 = 0; while (K0 < T.length && D.contrib.pib[K0] == null) K0++;
+      K = T.slice(K0);
+      estado.idx = T.length - 1;
+      PM.botonera(document.getElementById('b-medida'), [['var', 'Interanual'], ['acum', 'Acumulada en el año']],
+        estado.medida, function (v) { estado.medida = v; todo(); });
+      PM.botonera(document.getElementById('b-agrup'), [['gran', '3 grandes sectores'], ['act', 'Por actividad']],
+        estado.agrup, function (v) {
+          estado.agrup = v;
+          document.getElementById('pastillas-act').style.display = v === 'act' ? '' : 'none';
+          document.getElementById('pastillas-gran').style.display = v === 'gran' ? '' : 'none';
+          todo();
         });
-        return s;
-      }
-    },
-      legend:{
-        data:["Agropecuaria", "Extractiva", "Manufactura", "Electricidad", "Construcci\u00f3n", "Comercio", "Transporte", "Alojamiento", "Financieras", "Admin. P\u00fablica", "Comunales", "PIB Total"],
-        bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:1
-      }
-    },
-      yAxis:{
-      type:'value',
-      name:'pp',
-      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]},
-      splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-      axisLine:{show:false},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#64748B',
-        formatter:'{value}'
-      }
-    },
-      series:[{
-          name:'Agropecuaria',type:'bar',stack:'total',data:[0.23, 0.62, -0.17, 0.24, 0.38, -0.19, 0.78, -0.01, 0.31, -0.03, 0.4, 0.79, 0.23, 1.41, -0.12, -0.15, 0.26, 0.31, 0.32, -0.28, -0.12, 0.46, 1.04, 0.97, -0.49, 0.72, -0.92, -0.81, 0.58, -0.04, 1.03, 0.82],
-          itemStyle:{color:'#0A9396'},barMaxWidth:16
-        },{
-          name:'Extractiva',type:'bar',stack:'total',data:[0.78, 0.26, -0.38, -0.86, -0.54, -0.77, 0.06, 0.54, -0.13, -3.91, -2.49, -0.5, 0.1, 5.54, 2.76, 1.06, 1.27, 0.13, -0.7, -0.97, -0.37, -0.41, -0.53, -1.21, -1.52, -0.84, -0.87, -0.66, -0.95, -1.21, -0.14, 0.51],
-          itemStyle:{color:'#A86E00'},barMaxWidth:16
-        },{
-          name:'Manufactura',type:'bar',stack:'total',data:[0.72, 0.37, -0.08, 0.42, 0.62, 0.33, 0.81, -0.65, -0.46, -3.72, -2.36, 0.34, -0.05, 4.4, 1.68, -0.08, 0.83, 1.04, 0.6, -0.05, 0.13, 0.38, 0.76, 0.72, -0.5, 0.25, 0.53, 0.21, 0.25, 0.07, 0.0, 0.08],
-          itemStyle:{color:'#005F73'},barMaxWidth:16
-        },{
-          name:'Electricidad',type:'bar',stack:'total',data:[0.04, 0.1, 0.09, 0.12, 0.17, 0.15, 0.13, 0.06, 0.05, -0.29, -0.16, 0.05, -0.01, 0.42, 0.27, 0.13, 0.16, 0.09, 0.07, 0.05, 0.04, 0.06, 0.08, 0.13, 0.12, 0.06, 0.0, -0.02, -0.03, -0.01, 0.04, -0.02],
-          itemStyle:{color:'#EE9B00'},barMaxWidth:16
-        },{
-          name:'Construcción',type:'bar',stack:'total',data:[-0.26, 0.69, 0.58, 0.49, 1.01, 0.65, 0.19, -1.17, -2.06, -4.44, -2.97, -0.69, -0.13, 3.41, 1.63, 0.25, 0.6, 0.03, -0.29, -0.25, 0.01, 0.2, 0.24, 0.37, 0.37, -0.04, -0.23, -0.2, -0.89, -0.43, -0.67, -1.09],
-          itemStyle:{color:'#C71E1D'},barMaxWidth:16
-        },{
-          name:'Comercio',type:'bar',stack:'total',data:[0.11, 0.5, -0.07, 0.53, 0.67, 0.13, 0.21, -0.62, -1.03, -3.02, -1.67, -0.13, 0.37, 3.27, 1.27, 0.35, 0.6, 0.64, 0.63, 0.21, 0.29, 0.33, -0.04, -0.23, -0.89, -0.29, -0.03, 0.56, 0.44, 0.01, -0.24, -0.49],
-          itemStyle:{color:'#94D2BD'},barMaxWidth:16
-        },{
-          name:'Transporte',type:'bar',stack:'total',data:[0.23, 0.23, 0.17, 0.24, 0.16, 0.19, 0.17, -0.53, -0.57, -2.61, -1.73, -0.23, -0.29, 2.54, 1.34, 0.3, 0.4, 0.5, 0.35, -0.02, 0.11, 0.01, 0.03, 0.42, 0.09, 0.14, -0.01, -0.23, -0.01, -0.21, 0.08, -0.08],
-          itemStyle:{color:'#9B2226'},barMaxWidth:16
-        },{
-          name:'Alojamiento',type:'bar',stack:'total',data:[0.22, 0.31, 0.27, -0.12, 0.38, 0.17, -0.04, -0.28, -0.55, -1.7, -1.83, -1.04, -0.54, 1.36, 1.58, 1.3, 0.95, 0.89, 0.93, 0.32, 0.18, 0.23, 0.26, 0.19, 0.09, 0.04, 0.03, 0.33, 0.33, 0.31, -0.03, 0.11],
-          itemStyle:{color:'#DF5D25'},barMaxWidth:16
-        },{
-          name:'Financieras',type:'bar',stack:'total',data:[1.35, 0.78, 0.12, -0.46, 0.1, 0.61, 0.51, 1.26, 0.32, -1.61, -0.9, -1.25, -0.89, 0.26, 1.32, 1.46, 1.68, 1.32, 0.43, -0.73, -0.51, 0.13, 0.24, 2.27, 0.84, 0.56, 0.24, -1.38, -1.13, -0.64, -0.38, 0.03],
-          itemStyle:{color:'#8B1A1A'},barMaxWidth:16
-        },{
-          name:'Admin. Pública',type:'bar',stack:'total',data:[-1.34, 1.88, 0.23, 0.29, 0.05, -0.1, 0.16, 0.45, 0.01, -0.35, -0.07, -0.08, 0.61, 0.39, -0.08, 0.76, 1.37, -1.16, 1.04, 0.33, -0.81, 2.32, 0.34, 0.07, 0.54, 0.36, 0.12, 0.48, 0.12, 0.38, 0.77, -0.22],
-          itemStyle:{color:'#5C6B70'},barMaxWidth:16
-        },{
-          name:'Comunales',type:'bar',stack:'total',data:[0.35, 0.32, -0.58, 0.35, -0.04, -0.27, 0.71, -0.23, 0.71, -1.6, -0.89, 0.54, -0.72, 1.99, 0.15, -1.13, -0.47, 0.21, 0.69, 0.39, 0.51, 0.18, 0.07, 0.06, -0.1, 0.03, 0.08, 0.3, 0.34, 0.03, -0.06, -0.2],
-          itemStyle:{color:'#E8706B'},barMaxWidth:16
-        },{
-      name:'PIB Total',type:'line',data:[2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14],
-      symbol:'circle',symbolSize:4,z:10,
-      lineStyle:{color:dk()?'#E2E8F0':'#0D1B2A',width:2},
-      itemStyle:{color:dk()?'#E2E8F0':'#0D1B2A'}
-    }]
-    },true);
-  }
+      PM.botonera(document.getElementById('b-rango'), [['3a', '3 años'], ['5a', '5 años'], ['todo', 'Desde 2018']],
+        estado.rango, function (v) { estado.rango = v; grafico.redibujar(); });
+      ['act', 'gran'].forEach(function (g) {
+        var cs = comps(g);
+        activas[g] = new Set(cs.map(function (c) { return c.k; }).concat(['pib']));
+        PM.pastillas(document.getElementById('pastillas-' + g),
+          cs.map(function (c) { return { k: c.k, nombre: c.nombre, color: c.color, forma: 'area' }; })
+            .concat([{ k: 'pib', nombre: 'PIB', color: PIB, forma: 'linea' }]),
+          activas[g], function () { grafico.redibujar(); });
+      });
+      // las pastillas visibles son las de la agrupación de entrada (no las que el HTML deja a la vista)
+      document.getElementById('pastillas-act').style.display = estado.agrup === 'act' ? '' : 'none';
+      document.getElementById('pastillas-gran').style.display = estado.agrup === 'gran' ? '' : 'none';
+      subtitulo(); cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      grafico.chart.on('click', function (p) { if (p.dataIndex != null) panel(K0 + si + p.dataIndex); });
+      panel(estado.idx);
+      PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por actividad económica (referencia 2017)</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    // Leyenda de la imagen: la del molde descarta las series cuyo nombre coincide con una pastilla OCULTA, y
+    // «Impuestos» (y «PIB») tienen pastilla en las dos agrupaciones: se declara la de la agrupación visible.
+    PM.leyendaImagen = function () {
+      var act = activas[estado.agrup];
+      return comps().filter(function (c) { return act.has(c.k); })
+        .map(function (c) { return { name: c.nombre, color: PM.col(c.color), forma: 'area' }; })
+        .concat(act.has('pib') ? [{ name: 'PIB', color: PM.col(PIB), forma: 'linea' }] : []);
+    };
+
+    function todo() { subtitulo(); cifras(); grafico.redibujar(); panel(estado.idx); }
+
+    var acum = function () { return estado.medida === 'acum'; };
+    // contribución (pp) de un componente en el trimestre i
+    function contrib(k, i) {
+      var g = D.grandes[k], a = acum();
+      var s = g ? (a ? g.contrib_acum : g.contrib) : (a ? D.contrib_acum[k] : D.contrib[k]);
+      return s[i];
+    }
+    // aporte de una pieza: la suma de sus miembros; «lado» +1 / −1 suma sólo los que suman o sólo los que restan
+    function valorP(c, i, lado) {
+      var t = 0, hay = false;
+      c.miembros.forEach(function (m) { var v = contrib(m, i); if (v != null && (!lado || v * lado > 0)) { t += v; hay = true; } });
+      return hay ? t : (lado ? 0 : null);
+    }
+    function varPib(i) { return acum() ? D.var_acum.pib[i] : D.var.pib[i]; }
+    // «T4 2025» o, en la acumulada, «T1–T4 2025»; y el mismo período del año anterior
+    function per(i) { var p = PM.periodo(T[i]); return acum() && p.t > 1 ? 'T1–T' + p.t + NB + p.a : PM.fecha(T[i]); }
+    function perAnt(i) { var p = PM.periodo(T[i]); return acum() && p.t > 1 ? 'T1–T' + p.t + NB + (p.a - 1) : 'T' + p.t + NB + (p.a - 1); }
+
+    function subtitulo() {
+      document.getElementById('sub').textContent = 'Cuántos puntos porcentuales (pp) del crecimiento ' + (acum() ? 'acumulado en el año' : 'interanual') +
+        ' del PIB aporta ' + (estado.agrup === 'gran' ? 'cada gran sector, y los impuestos' : 'cada una de las cuatro actividades que más movieron el PIB en los últimos dos años, y el resto (las otras siete y los impuestos)') +
+        ': sobre el cero suma, debajo resta. La línea es el PIB (%), la suma de las barras.';
+    }
+
+    // las cifras van en el paso LEGIBLE del color de su rubro (PM.tx): el oro o la menta puros, sobre el
+    // fondo claro, no llegan a 3:1 en la minilínea
+    function cifras() {
+      var n = T.length - 1, ac = acum(), rs = rubros();
+      var vals = rs.map(function (k) { return { c: { k: k, nombre: NOM[k], color: piezaDe(k).color }, v: contrib(k, n) }; });
+      var pos = vals.filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
+      var neg = vals.filter(function (x) { return x.v < 0; }).sort(function (a, b) { return a.v - b.v; });
+      var resta = neg.reduce(function (s, x) { return s + x.v; }, 0), pib = varPib(n);
+      // minilíneas: los últimos 12 trimestres de la misma magnitud
+      var serie = function (f) { var out = []; for (var i = Math.max(K0, n - 11); i <= n; i++) out.push(f(i)); return out; };
+      var tot = rs.length;
+      document.getElementById('kpis').innerHTML =
+        PM.kpi({ color: PIB, rotulo: 'PIB · ' + per(n), valor: PM.pct(pib, 1, true), delta: (ac ? 'frente a ' : 'frente al ') + perAnt(n),
+          tono: pib < 0 ? 'malo' : 'bueno', serie: serie(varPib) }) +
+        PM.kpi({ color: pos[0] ? PM.tx(pos[0].c.color) : C.pizarra, rotulo: 'Mayor aporte', valor: pos[0] ? PM.pp(pos[0].v, 2) : '—', delta: pos[0] ? pos[0].c.nombre : 'ningún rubro suma',
+          tono: 'bueno', serie: pos[0] ? serie(function (i) { return contrib(pos[0].c.k, i); }) : null }) +
+        PM.kpi({ color: neg[0] ? PM.tx(neg[0].c.color) : C.pizarra, rotulo: 'Mayor resta', valor: neg[0] ? PM.pp(neg[0].v, 2) : '—', delta: neg[0] ? neg[0].c.nombre : 'ningún rubro resta',
+          tono: 'malo', serie: neg[0] ? serie(function (i) { return contrib(neg[0].c.k, i); }) : null }) +
+        PM.kpi({ color: C.pizarra, rotulo: 'Lo que restó', valor: PM.pp(resta, 2), delta: neg.length + ' de ' + tot + (estado.agrup === 'gran' ? ' componentes' : ' rubros'),
+          tono: neg.length > tot / 2 ? 'malo' : 'neutro',
+          serie: serie(function (i) { return rs.reduce(function (s, k) { var v = contrib(k, i); return s + (v < 0 ? v : 0); }, 0); }) });
+    }
+
+    function opciones() {
+      si = PM.desde(K, estado.rango);
+      var KV = K.slice(si), cs = comps(), act = activas[estado.agrup], chico = PM.pequeno();
+      var I = KV.map(function (k, j) { return K0 + si + j; });   // índices en T
+      var series = [], card = PM.var('--card') || '#ffffff', gap = KV.length > 16 ? '26%' : '38%';
+      // Barras apiladas por signo (stackStrategy 'samesign' de ECharts 5.4): las piezas en el orden de la rampa,
+      // así la primera queda pegada al cero tanto arriba (lo que suma) como abajo (lo que resta). El Resto va en
+      // dos series del mismo nombre, su parte que suma y su parte que resta: neteado, una caída de la
+      // construcción quedaría escondida detrás de un aporte del alojamiento. Son ≤ 32 barras: sin modo large.
+      cs.forEach(function (c) {
+        if (!act.has(c.k)) return;
+        var lados = c.miembros.length > 1 ? [1, -1] : [0];
+        lados.forEach(function (lado) {
+          series.push(PM.barra(c.color, { extra: {
+            name: c.nombre, stack: 'c', barCategoryGap: gap, barMaxWidth: 38,
+            data: I.map(function (i) { var v = valorP(c, i, lado); return v == null ? null : +v.toFixed(4); })
+          } }));
+        });
+      });
+      if (series.length) series[0].markLine = PM.cero();
+      if (act.has('pib')) {
+        var pv = I.map(varPib), n = pv.length - 1, tinta = PM.col(PIB);
+        // La línea del PIB, SUTIL y suavizada (Carlos): 1,5 px en tinta, sin borde ni halo, como los paneles de
+        // actividad; smoothMonotone para que la curva no invente picos entre trimestres. Un punto chico y sólido
+        // en cada trimestre dice dónde cae cada dato; el último, apenas más grande, con su cifra en un recuadro
+        // del color de la tarjeta para que no la crucen las barras.
+        series.push(PM.linea(PIB, { ancho: 1.5, extra: {
+          name: 'PIB', data: pv, z: 5, smooth: 0.35, smoothMonotone: 'x', showSymbol: true, symbolSize: 4,
+          itemStyle: { color: tinta, borderWidth: 0 },
+          markPoint: { symbol: 'circle', symbolSize: 6, silent: true, animation: false, itemStyle: { color: tinta, borderWidth: 0 },
+            data: [{ coord: [n, pv[n]] }],
+            label: { show: true, position: pv[n] >= (pv[n - 1] || 0) ? 'top' : 'bottom', align: 'right', distance: 6,
+              formatter: PM.pct(pv[n], 1, true), fontFamily: PM.mono(), fontSize: chico ? 11 : 12, fontWeight: 700,
+              color: tinta, backgroundColor: card, padding: [1, 3] } } } }));
+      }
+      var el = document.getElementById('chart');
+      return {
+        grid: PM.grid(),
+        xAxis: PM.ejeTiempo(KV, el, { boundaryGap: true }),
+        yAxis: PM.ejeY({ unidad: 'pp' }),
+        tooltip: PM.tooltip(function (ps) {
+          if (!ps.length) return '';
+          var i = I[ps[0].dataIndex];
+          panel(i);
+          var filas = cs.filter(function (c) { return act.has(c.k); })
+            .map(function (c) { return { c: c, v: valorP(c, i) }; })
+            .filter(function (x) { return x.v != null; })
+            .sort(function (a, b) { return b.v - a.v; });
+          // en el teléfono el vidrio va arriba del lienzo: sólo los dos que más suman y los dos que más restan
+          if (chico && filas.length > 5) filas = filas.slice(0, 2).concat(filas.slice(-2));
+          var h = PM.ttTitulo(per(i), (acum() ? 'Acumulada en el año' : 'Interanual') + ' · aporte en pp');
+          filas.forEach(function (x) { h += PM.ttFila(x.c.color, x.c.nombre, PM.pp(x.v, 2), 'area'); });
+          h += PM.ttTotal('PIB', PM.pct(varPib(i), 1, true));
+          var r = resto();
+          if (r && act.has(r.k)) h += PM.ttPie('<strong style="color:#fff">' + r.nombre + ':</strong> ' + adentro(r, i, 2));
+          return h;
+        }, { axisPointer: PM.sombraEje() }),
+        series: series
+      };
+    }
+
+    // Umbrales de la lectura: un PIB entre −0,5% y +0,5% «casi no cambia»; un rubro «concentra» la resta
+    // (o el aporte) si concentra el 40% o más de lo que restaron (o sumaron) todos juntos.
+    var CASI = 0.5, CONCENTRA = 0.4;
+    function lectura(i, pos, neg, sumP, sumN) {
+      var pib = varPib(i), t, quien = estado.agrup === 'gran' ? 'componente' : 'rubro';
+      if (pib <= -CASI && neg.length) {
+        t = 'El PIB cae <strong>' + PM.pct(pib, 1, true) + '</strong>: lo que restó (<strong>' + PM.pp(sumN, 2) + '</strong>) pesó más que lo que sumó (' + PM.pp(sumP, 2) + ').';
+        t += neg[0].v / sumN >= CONCENTRA
+          ? ' La resta se concentra en <strong>' + neg[0].c.nombre + '</strong>: ' + PM.pct(neg[0].v / sumN * 100, 0) + ' de todo lo que restó.'
+          : ' La resta está repartida: ningún ' + quien + ' concentra el 40% o más.';
+      } else if (pib >= CASI && pos.length) {
+        t = 'El PIB crece <strong>' + PM.pct(pib, 1, true) + '</strong>: lo que sumó (<strong>' + PM.pp(sumP, 2) + '</strong>) superó a lo que restó (' + PM.pp(sumN, 2) + ').';
+        t += pos[0].v / sumP >= CONCENTRA
+          ? ' El aporte se concentra en <strong>' + pos[0].c.nombre + '</strong>: ' + PM.pct(pos[0].v / sumP * 100, 0) + ' de todo lo que sumó.'
+          : ' El aporte está repartido: ningún ' + quien + ' concentra el 40% o más.';
+      } else {
+        t = 'El PIB casi no cambia (<strong>' + PM.pct(pib, 1, true) + '</strong>): lo que sumó (' + PM.pp(sumP, 2) + ') y lo que restó (' + PM.pp(sumN, 2) + ') se compensan.';
+      }
+      return t + ' Restan <strong>' + neg.length + ' de ' + (pos.length + neg.length) + '</strong> ' + quien + 's.';
+    }
+
+    // qué hay adentro de una pieza con varios rubros: cada uno con su cifra, del mayor al menor en valor absoluto
+    function adentro(c, i, dec) {
+      return c.miembros.map(function (m) { return { m: m, v: contrib(m, i) }; }).filter(function (x) { return x.v != null; })
+        .sort(function (a, b) { return Math.abs(b.v) - Math.abs(a.v); })
+        .map(function (x) { return NOM[x.m] + NB + PM.pp(x.v, dec); }).join(' · ');
+    }
+
+    function panel(i) {
+      if (i == null || !D || i < K0) return;
+      estado.idx = i;
+      var vals = rubros().map(function (k) { return { c: { k: k, nombre: NOM[k], color: piezaDe(k).color }, v: contrib(k, i) }; }).filter(function (x) { return x.v != null; });
+      var pos = vals.filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
+      var neg = vals.filter(function (x) { return x.v < 0; }).sort(function (a, b) { return a.v - b.v; });
+      var suma = function (a) { return a.reduce(function (s, x) { return s + x.v; }, 0); };
+      var sumP = suma(pos), sumN = suma(neg);
+      var lista = function (a) {
+        return a.length ? a.slice(0, 3).map(function (x) { return x.c.nombre + NB + PM.dt(x.c.color, PM.pp(x.v, 2)); }).join(' · ') +
+          (a.length > 3 ? ' y ' + (a.length - 3) + ' más' : '') : 'Ninguno';
+      };
+      document.getElementById('panel-fecha').textContent = per(i);
+      document.getElementById('panel').innerHTML =
+        PM.pb(PIB, 'PIB', PM.pct(varPib(i), 1, true), (acum() ? 'Variación acumulada de ' + per(i) + ' frente a ' : 'Variación del ' + per(i) + ' frente al ') + perAnt(i) +
+          '. Es la suma de los aportes de abajo.') +
+        // los rótulos en tinta: el rojo del gráfico es el de la rampa (la actividad de mayor peso), no el de «baja»
+        PM.pb(PIB, 'Sumaron', PM.pp(sumP, 2), lista(pos)) +
+        PM.pb(PIB, 'Restaron', PM.pp(sumN, 2), lista(neg)) +
+        (resto() && resto().miembros.length > 1 ? PM.pb(resto().color, 'Adentro del Resto', PM.pp(valorP(resto(), i), 2), adentro(resto(), i, 2)) : '') +
+        PM.ctx(lectura(i, pos, neg, sumP, sumN));
+    }
+
+    // Las cifras de las respuestas salen del dato
+    function preguntas() {
+      var n = T.length - 1, imp = D.contrib.impuestos[n];
+      return [
+        ['¿Qué es una contribución en puntos porcentuales?', 'Es la parte del cambio del PIB que se registra en cada actividad. <p>Se calcula como la variación de la actividad multiplicada por su peso en el PIB del año anterior: una actividad chica que crece mucho puede aportar menos que una grande que crece poco. Las contribuciones de las actividades y de los impuestos <strong>suman la variación del PIB</strong>: la línea es la suma de las barras.</p>'],
+        ['La contribución no explica causas', '<p>La contribución reparte el cambio del PIB entre las actividades según su peso: es aritmética de una <strong>identidad contable</strong> (el PIB es la suma del valor agregado de las actividades más los impuestos) y se cumple siempre. Dice dónde se registró el cambio, no por qué ocurrió.</p>' +
+          '<p>Que una actividad «reste» puntos no muestra la causa: la misma causa —un problema de combustible, de divisas o de demanda— mueve a varias actividades a la vez, y una arrastra a otras (el transporte y el comercio viven de lo que se produce). Para explicar hay que identificar qué cambió y seguir la cadena preguntando «¿y después qué?». Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
+        ['¿Por qué aparecen los impuestos?', 'Porque el PIB se mide <strong>a precios de mercado</strong>: el valor agregado de las actividades más los impuestos sobre los productos (IVA no deducible, derechos de importación, IT y otros). <p>Los impuestos son un rubro más de la suma y aportan o restan como cualquier actividad. En el ' + PM.fecha(T[n]) + ' aportaron <strong>' + PM.pp(imp, 2) + '</strong>.</p>'],
+        ['Interanual o acumulada en el año', 'La <strong>interanual</strong> compara un trimestre con el mismo trimestre del año anterior. La <strong>acumulada en el año</strong> compara lo que va del año (del T1 al trimestre elegido) con el mismo período del año anterior: en el primer trimestre coinciden y en el cuarto es el crecimiento del año completo.'],
+        ['¿Qué son los tres grandes sectores?', 'Una agregación de <strong>POPULI</strong>, no del INE. <p><strong>Primario</strong>: agropecuaria y extractiva (hidrocarburos y minería). <strong>Secundario</strong>: manufactura, electricidad y agua, y construcción. <strong>Terciario</strong>: comercio, transporte, alojamiento, financieras, administración pública y servicios comunales. Como las contribuciones se suman, la de un gran sector es la suma exacta de las de sus actividades.</p>'],
+        ['¿Cuáles son las cuatro actividades y qué hay en el «Resto»?', 'Son las cuatro que <strong>más movieron el PIB en los últimos dos años</strong>: la mayor suma de sus aportes, a favor o en contra, entre el ' + PM.fecha(T[VENTANA[0]]) + ' y el ' + PM.fecha(T[VENTANA[1]]) + ' (' + GRUPOS.act.slice(0, 4).map(function (c) { return c.nombre.toLowerCase() + ' ' + PM.num(MOV[c.k], 2) + NB + 'pp'; }).join(', ') + '). Se recalculan con cada dato nuevo. <p>El «Resto» junta ' + GRUPOS.act[4].miembros.map(function (k) { return k === 'impuestos' ? 'los impuestos' : NOM[k].toLowerCase(); }).join(', ') + ': lo que suma va arriba y lo que resta abajo. El aporte de cada uno está en el tooltip y en la lectura; el ranking muestra las once por separado.</p>'],
+        ['¿Son cifras definitivas?', 'No. El INE publica el PIB trimestral como <strong>cifras preliminares</strong> y las revisa cuando incorpora información más completa: un trimestre puede cambiar en publicaciones posteriores. Por redondeo, la suma de las contribuciones puede diferir en una centésima de la variación publicada del PIB.']
+      ];
+    }
+  })();
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-name: Actualizar Indicadores Adelantados
+name: Actualizar datos del INE (PIB e indicadores adelantados)
 
 on:
   schedule:
@@ -23,17 +23,37 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Descargar datos del INE
-        run: python scripts/scrape_indicadores.py
+      - name: Descargar cuadros del INE
+        run: python scripts/scrape_ine.py
 
+      # Cada script verifica sus identidades y, si algo no cierra, aborta SIN escribir: el dato
+      # publicado queda como estaba y la corrida termina en rojo (aviso por correo).
+      - name: Datos del PIB
+        id: pib
+        continue-on-error: true
+        run: python scripts/datos_pib.py
+
+      - name: Datos de los indicadores adelantados
+        id: ind
+        continue-on-error: true
+        run: python scripts/datos_indicadores.py
+
+      # Los gráficos (embed/*.html) son fijos y leen data/: el robot sólo toca datos.
       - name: Commit y push si hay cambios
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add datos/ embed/ scripts/.file_hashes.json
+          git add datos/ data/ scripts/.file_hashes.json
           if git diff --cached --quiet; then
             echo "Sin cambios — nada que commitear"
           else
-            git commit -m "auto: actualizar indicadores adelantados $(date -u +%Y-%m-%d)"
+            git commit -m "auto: actualizar datos del INE $(date -u +%Y-%m-%d)"
+            git pull --rebase
             git push
           fi
+
+      - name: Avisar si un script de datos falló
+        if: steps.pib.outcome == 'failure' || steps.ind.outcome == 'failure'
+        run: |
+          echo "::error::datos_pib: ${{ steps.pib.outcome }} · datos_indicadores: ${{ steps.ind.outcome }}"
+          exit 1

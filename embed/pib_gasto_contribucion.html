@@ -1,199 +1,265 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light" style="--acento:#A86E00">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Contribución al PIB por gasto</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --populi:#C71E1D;--populi-dark:#8B1A1A;--populi-light:#E8706B;--populi-gold:#EE9B00;
-  --cream:#F5EFE0;--brown:#5C3D1E;--brown-dark:#3D2B1F;
-  --navy:#0D1B2A;--navy-light:#1A2940;
-  --slate:#475569;--slate-light:#64748B;
-  --warm-white:#FAF8F3;--light-gray:#F1EDE5;
-  --border:#E2DDD3;--dark-border:#2A3A50;
-  --bg:var(--warm-white);--card:#FFFFFF;--text:var(--brown-dark);--muted:var(--slate-light);
-  --shadow:0 1px 3px rgba(13,27,42,.04),0 4px 16px rgba(13,27,42,.06);
-  --radius:12px;
-  --ct-pib:#0A9396;--ct-agro:#0A9396;--ct-extract:#EE9B00;--ct-manuf:#005F73;
-  --ct-elec:#9B2226;--ct-const:#C71E1D;--ct-comer:#94D2BD;--ct-trans:#005F73;
-  --ct-aloja:#DF5D25;--ct-finan:#EE9B00;--ct-admin:#64748B;--ct-comun:#0A9396;
-}
-[data-theme="dark"]{
-  --bg:#080808;--card:#141414;--text:#E2E8F0;--muted:#64748B;
-  --border:#2A3A50;--light-gray:#1A1A1A;--cream:#1A2940;
-}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  transition:background .25s,color .25s;
-}
-.embed-container{max-width:1200px;margin:0 auto;padding:20px 16px}
-.section-title{
-  font-family:'Playfair Display',Georgia,serif;font-size:1.55rem;font-weight:700;
-  color:var(--navy);display:flex;align-items:center;gap:10px;
-}
-[data-theme="dark"] .section-title{color:#fff}
-.accent-bar{width:4px;height:26px;border-radius:2px;flex-shrink:0}
-.section-subtitle{font-size:.78rem;color:var(--muted);padding-left:14px;margin-top:2px}
-.chart-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px;display:flex;flex-direction:column;overflow:hidden;margin-top:12px;
-}
-[data-theme="dark"] .chart-card{background:#141414;border-color:var(--dark-border)}
-#chart{width:100%;height:460px}
-.chart-source{
-  display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;
-}
-.chart-source-text{font-size:.58rem;color:var(--muted);opacity:.6}
-.chart-source-text a{color:var(--populi);font-weight:600;text-decoration:none}
-.watermark{height:15px;width:auto;opacity:.18}
-[data-theme="dark"] .watermark{opacity:.10}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contribución al crecimiento por gasto · Populi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="comun/monitor.css" />
+  <!-- En los apilados la cifra grande va en tinta: el color de la serie es de la rampa y no dice «sube» o «baja»;
+       el rojo del protagonista se leía como caída («Consumo +1,1 pp» en rojo). La línea superior de la tarjeta
+       sigue marcando a qué serie corresponde, y la pastilla de abajo el tono. -->
+  <style>.kpi-val { color: var(--tinta) !important; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="comun/monitor.js"></script>
 </head>
 <body>
-<div class="embed-container">
-  <div class="section-title">
-    <span class="accent-bar" style="background:#0A9396"></span>
-    Contribución al crecimiento del PIB por tipo de gasto
-  </div>
-  <div class="section-subtitle">Puntos porcentuales. Línea = crecimiento total del PIB</div>
-  <div class="chart-card">
-    <div id="chart"></div>
-    <div class="chart-source">
-      <span class="chart-source-text">Fuente: <a>INE</a> &middot; Elaboraci&oacute;n: <a>Centro de Estudios POPULI</a></span>
-      <svg viewBox="0 0 310 130" class="watermark"><text x="6" y="112" font-family="'Playfair Display'" font-size="145" font-weight="700" fill="#C71E1D">P</text><text x="92" y="87" font-family="'Playfair Display'" font-size="55" font-weight="400" font-style="italic" fill="#3D2B1F">opuli</text></svg>
+  <div class="wrap">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="accent-bar"></span>Contribución al crecimiento por tipo de gasto</div>
+      <div class="sec-sub" id="sub"></div>
     </div>
+
+    <div class="hz-bar">
+      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-rango"><span class="hz-lbl">Rango</span><div class="hz-grp" id="b-rango"></div></div>
+    </div>
+
+    <div class="kpi-grid" id="kpis"></div>
+
+    <div class="main-grid">
+      <div class="chart-card">
+        <div class="chart-ctrl"><div class="tog-grp" id="pastillas-bloques"></div><div class="tog-grp" id="pastillas-detalle" style="display:none"></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando las contribuciones…</span></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><span class="panel-hd-t">Cómo se reparte</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-body" id="panel"></div>
+      </div>
+    </div>
+
+    <div class="edu-grid" id="preguntas"></div>
+    <div class="source"><span class="source-txt" id="fuente"></span></div>
   </div>
-</div>
-<script>
-(function(){
-  /* ── Theme ─────────────────────────────────────── */
-  var params=new URLSearchParams(window.location.search);
-  if(params.get('theme')==='dark') document.documentElement.dataset.theme='dark';
-  window.addEventListener('message',function(e){if(e.data&&e.data.theme) document.documentElement.dataset.theme=e.data.theme});
-  function dk(){return document.documentElement.dataset.theme==='dark'}
 
-  /* ── Alto real hacia el contenedor ─────────────── */
-  var _lastH=0;
-  function reportHeight(force){
-    if(window.parent===window) return;
-    /* Medir el CONTENIDO, no el documento: scrollHeight nunca baja del alto del propio
-       iframe, asi que reportaba el min-height vigente y el ajuste no hacia nada. */
-    var bottom=0, kids=document.body.children;
-    for(var i=0;i<kids.length;i++){
-      var r=kids[i].getBoundingClientRect();
-      if(r.height>0) bottom=Math.max(bottom, r.bottom);
+  <script>
+  (function () {
+    var C = PM.C, NB = ' ';
+    // Mapa de colores del PIB por tipo de gasto: IDÉNTICO en composición, crecimiento y contribución, en el ORDEN DE
+    // RAMPA de la marca (populi-marca/paleta.py, rampa(6); README, regla 7): de abajo hacia arriba, del rojo a la tinta,
+    // siguiendo la identidad del gasto. El protagonista (el consumo de los hogares, ~70% del PIB) en rojo, apoyado en el
+    // cero; las importaciones, la tinta, debajo del cero. La tinta es token (en oscuro, #E2E8F0). Vecinos medidos
+    // (visión normal / daltonismo, pisos 15 / 8): rojo-oro 26/22 · oro-menta 20/16 · menta-turquesa 22/20 ·
+    // turquesa-petróleo 16/16 · petróleo-tinta 28/28 en claro y 49/46 en oscuro.
+    var GASTO = {
+      hogares: { nombre: 'Consumo de los hogares', corto: 'Hogares', color: C.rojo },
+      gobierno: { nombre: 'Consumo del gobierno', corto: 'Gobierno', color: C.oro },
+      fbcf: { nombre: 'Inversión fija', corto: 'Inversión fija', color: C.menta },
+      existencias: { nombre: 'Existencias y otros', corto: 'Existencias', color: C.turquesa },
+      exportaciones: { nombre: 'Exportaciones', corto: 'Exportaciones', color: C.petroleo },
+      importaciones: { nombre: 'Importaciones', corto: 'Importaciones', color: C.tinta },
+      pib: { nombre: 'PIB', corto: 'PIB', color: C.tinta }
+    };
+    // Los tres bloques del gasto suman el crecimiento del PIB; en la rampa de 3 de la marca: rojo, oro, turquesa
+    var BLOQUES = {
+      consumo: { nombre: 'Consumo', largo: 'el consumo (hogares y gobierno)', ks: ['hogares', 'gobierno'], color: C.rojo, linea: 'hogares y gobierno' },
+      inversion: { nombre: 'Inversión', largo: 'la inversión', ks: ['fbcf', 'existencias'], color: C.oro, linea: 'fija y existencias' },
+      externo: { nombre: 'Sector externo neto', largo: 'el sector externo neto', ks: ['exportaciones', 'importaciones'], color: C.turquesa, linea: 'neto del comercio' }
+    };
+    // Orden de la pila = orden de la rampa (y de la identidad del gasto): el primero queda pegado al cero de los dos
+    // lados, el siguiente encima/debajo, y así. ECharts apila por signo, así que el orden no salta de una barra a otra.
+    var PILA = { bloques: ['consumo', 'inversion', 'externo'], detalle: ['hogares', 'gobierno', 'fbcf', 'existencias', 'exportaciones', 'importaciones'] };
+    var MIN = { hogares: 'el consumo de los hogares', gobierno: 'el consumo del gobierno', fbcf: 'la inversión fija', existencias: 'las existencias',
+      exportaciones: 'las exportaciones', importaciones: 'las importaciones', consumo: 'el consumo', inversion: 'la inversión', externo: 'el sector externo neto' };
+    var MEDIDAS = { c4: '4 trimestres', var: 'Trimestral', anual: 'Anual' };
+    var FRENTE = { c4: 'de los últimos 4 trimestres frente a los 4 anteriores', var: 'del trimestre frente al mismo trimestre del año anterior', anual: 'del año frente al anterior' };
+    var estado = { vista: 'bloques', medida: 'c4', rango: 'desde2022', idx: null };
+    var activas = { bloques: new Set(PILA.bloques.concat(['pib'])), detalle: new Set(PILA.detalle.concat(['pib'])) };
+    var J, M, T, DAT = {}, si = 0, grafico;
+    var item = function (k) { return GASTO[k] || BLOQUES[k]; };
+
+    PM.cargar(['pib_gasto.json']).then(function (r) {
+      J = r[0]; M = J.metadata; T = J.trimestres;
+      PM.botonera(document.getElementById('b-vista'), [['bloques', 'Tres bloques'], ['detalle', 'Detalle']],
+        estado.vista, function (v) { estado.vista = v; todo(); });
+      PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k]]; }),
+        estado.medida, function (v) { estado.medida = v; datos(); todo(); });
+      PM.botonera(document.getElementById('b-rango'), [['desde2022', 'Desde 2022'], ['todo', 'Todo']],
+        estado.rango, function (v) { estado.rango = v; grafico.redibujar(); });
+      ['bloques', 'detalle'].forEach(function (vis) {
+        PM.pastillas(document.getElementById('pastillas-' + vis),
+          PILA[vis].map(function (k) { return { k: k, nombre: item(k).corto || item(k).nombre, color: item(k).color, forma: 'area' }; })
+            .concat([{ k: 'pib', nombre: 'PIB', color: GASTO.pib.color, forma: 'linea' }]),
+          activas[vis], function () { grafico.redibujar(); });
+      });
+      datos(); controles(); cifras();
+      var el = document.getElementById('chart');
+      el.innerHTML = '';
+      grafico = PM.montar(el, opciones);
+      grafico.chart.on('click', function (p) { if (p.dataIndex != null) panel(si + p.dataIndex); });
+      panel(estado.idx);
+      PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
+      PM.preguntas(document.getElementById('preguntas'), preguntas());
+      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+    }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
+
+    function todo() { controles(); cifras(); grafico.redibujar(); panel(estado.idx); }
+
+    // Contribuciones de la medida activa: {K, c: {comp: [...]}} (los bloques se suman al leerlos)
+    function datos() {
+      var med = estado.medida, K = [], c = {}, ks = PILA.detalle.concat(['pib']);
+      if (med === 'anual') {
+        T.forEach(function (k, i) { if (PM.periodo(k).t === 4 && J.contrib_acum.pib[i] != null) K.push(k.slice(0, 4)); });
+        ks.forEach(function (k) { c[k] = K.map(function (a) { return J.contrib_acum[k][T.indexOf(a + '-T4')]; }); });
+      } else if (med === 'var') {
+        var i0 = 0; while (J.contrib.pib[i0] == null) i0++;
+        K = T.slice(i0);
+        ks.forEach(function (k) { c[k] = J.contrib[k].slice(i0); });
+      } else {
+        // 4 trimestres: la variación del año móvil es el promedio de las 4 interanuales, ponderado por el PIB de cada
+        // trimestre un año antes; con los mismos pesos, las contribuciones del INE suman exactamente esa variación
+        var Q = J.nivel.pib, i1 = 7;
+        K = T.slice(i1);
+        ks.forEach(function (k) { c[k] = K.map(function (_, j) {
+          var i = i1 + j, s = 0, w = 0;
+          for (var q = 0; q < 4; q++) { var x = J.contrib[k][i - q], p = Q[i - q - 4]; if (x == null || p == null) return null; s += x * p; w += p; }
+          return s / w;
+        }); });
+      }
+      DAT = { K: K, c: c };
+      estado.idx = K.length - 1;
     }
-    var pad=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-    var h=Math.ceil(bottom + window.scrollY + pad);
-    if(h>0 && (force===true || Math.abs(h-_lastH)>2)){
-      _lastH=h; window.parent.postMessage({populiEmbed:'height', height:h},'*');
+    function v(k, i) {   // aporte (pp) de un componente o de un bloque
+      if (BLOQUES[k]) { var s = 0; BLOQUES[k].ks.forEach(function (x) { s += DAT.c[x][i]; }); return s; }
+      return DAT.c[k][i];
     }
-  }
-  /* Reintentos: el primer aviso puede salir antes de que el contenedor escuche, y el
-     grafico todavia puede crecer al montar ECharts o al cargar las fuentes. */
-  window.addEventListener('load',function(){reportHeight(true)});
-  [0,150,600,1600].forEach(function(ms){setTimeout(function(){reportHeight(true)},ms)});
-  window.addEventListener('resize',function(){reportHeight(false)});
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.populiEmbed==='ask-height') reportHeight(true);
-  });
-  if(window.ResizeObserver) new ResizeObserver(function(){reportHeight(false)}).observe(document.body);
+    var per = function (i) { var k = DAT.K[i]; return estado.medida === 'c4' ? '4 trim. a ' + PM.fecha(k) : PM.fecha(k); };
+    var corto = function (i) { return PM.fecha(DAT.K[i]); };
 
-  /* ── Chart ─────────────────────────────────────── */
-  var chartDom=document.getElementById('chart');
-  var chart=echarts.init(chartDom);
+    function controles() {
+      var vis = estado.vista;
+      document.getElementById('pastillas-bloques').style.display = vis === 'bloques' ? '' : 'none';
+      document.getElementById('pastillas-detalle').style.display = vis === 'detalle' ? '' : 'none';
+      document.getElementById('item-rango').style.display = estado.medida === 'anual' ? 'none' : '';
+      document.getElementById('sub').textContent = 'Puntos que aportó cada destino del gasto al crecimiento del PIB (' +
+        { c4: 'últimos 4 trimestres frente a los 4 anteriores', var: 'cada trimestre frente al mismo del año anterior', anual: 'cada año frente al anterior' }[estado.medida] +
+        '). Arriba, suma; abajo, resta: las barras suman la línea del PIB. Es una cuenta, no una explicación de causas';
+    }
 
-  function buildChart(){
+    function cifras() {
+      var n = DAT.K.length - 1, a = DAT.K[n], pib = v('pib', n), pa = PM.periodo(a);
+      var lin = estado.medida === 'anual' ? 'año ' + a : estado.medida === 'c4' ? (pa.t === 4 ? 'año ' + pa.a : '4 trim. a ' + PM.fecha(a)) : PM.fecha(a) + ' vs. T' + pa.t + NB + (pa.a - 1);
+      var serie = function (k) { return PM.ultimos(DAT.K.map(function (_, i) { return v(k, i); }), 16); };
+      var kb = function (b) { var x = v(b, n); return PM.kpi({ color: BLOQUES[b].color, rotulo: BLOQUES[b].nombre, valor: PM.pp(x), delta: BLOQUES[b].linea, tono: x < 0 ? 'malo' : 'bueno', serie: serie(b) }); };
+      document.getElementById('kpis').innerHTML =
+        PM.kpi({ color: GASTO.pib.color, rotulo: 'Crecimiento del PIB', valor: PM.pct(pib, 1, true), delta: lin, tono: pib < 0 ? 'malo' : 'bueno', serie: serie('pib') }) +
+        kb('consumo') + kb('inversion') + kb('externo');
+    }
 
-    var labels=["2018-T1", "2018-T2", "2018-T3", "2018-T4", "2019-T1", "2019-T2", "2019-T3", "2019-T4", "2020-T1", "2020-T2", "2020-T3", "2020-T4", "2021-T1", "2021-T2", "2021-T3", "2021-T4", "2022-T1", "2022-T2", "2022-T3", "2022-T4", "2023-T1", "2023-T2", "2023-T3", "2023-T4", "2024-T1", "2024-T2", "2024-T3", "2024-T4", "2025-T1", "2025-T2", "2025-T3", "2025-T4"];
-    chart.setOption({
-      backgroundColor:'transparent',
-      grid:{top:30,right:16,bottom:70,left:52},
-      tooltip:{
-      trigger:'axis',
-      axisPointer:{type:'shadow'},
-      backgroundColor:dk()?'#080808':'rgba(13,27,42,.96)',
-      borderColor:dk()?'#2A3A50':'#1A2940',
-      borderWidth:1,
-      textStyle:{fontFamily:'Inter',fontSize:12,color:'#fff'},
-      padding:[12,16],
-      extraCssText:'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.3);',
-      formatter:function(params){
-        if(!params||!params.length) return '';
-        var s='<div style="color:#E9D8A6;font-weight:600;margin-bottom:6px">'+params[0].axisValue+'</div>';
-        params.forEach(function(p){
-          if(p.value!=null){
-            s+=p.marker+' <span style="color:#ccc">'+p.seriesName+'</span> '
-              +'<span style="font-family:\'JetBrains Mono\';font-weight:700;color:#fff">'
-              +p.value.toFixed(2)+' pp</span><br/>';
-          }
-        });
-        return s;
+    function opciones() {
+      var anual = estado.medida === 'anual';
+      si = anual ? 0 : PM.desde(DAT.K, estado.rango);
+      var KV = DAT.K.slice(si), el = document.getElementById('chart'), series = [], act = activas[estado.vista], card = PM.var('--card') || '#fff';
+      PILA[estado.vista].forEach(function (k) {
+        if (!act.has(k)) return;
+        series.push(PM.barra(item(k).color, { extra: {
+          name: item(k).nombre, stack: 'aporte', barCategoryGap: anual ? '38%' : '28%',
+          data: KV.map(function (_, j) { var x = v(k, si + j); return x == null ? null : +x.toFixed(3); })
+        } }));
+      });
+      if (series.length) series[0].markLine = PM.cero();
+      // El total: la línea del PIB en tinta, encima de las barras
+      if (act.has('pib')) {
+        var pv = KV.map(function (_, j) { var x = v('pib', si + j); return x == null ? null : +x.toFixed(3); });
+        // La línea del PIB, sutil y sin borde blanco (pedido de Carlos): 1,5 px suavizada (smoothMonotone 'x': la curva no
+        // inventa picos entre trimestres), un punto sólido chico por período y la cifra final sobre fondo de tarjeta.
+        var nP = pv.length - 1, vP = pv[nP], chicoP = PM.pequeno();
+        series.push(PM.linea(GASTO.pib.color, { ancho: 1.5, extra: { name: 'PIB', data: pv, z: 6, connectNulls: false,
+          smooth: 0.35, smoothMonotone: 'x', showSymbol: true, symbolSize: 4, itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
+          markPoint: vP == null ? undefined : { silent: true, animation: false, symbol: 'circle', symbolSize: 5,
+            itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
+            label: { show: true, formatter: PM.pct(vP, 1, true), position: vP < 0 ? 'bottom' : 'top', align: 'right', offset: [4, vP < 0 ? 3 : -3],
+              backgroundColor: card, padding: [1, 3], color: PM.tx(GASTO.pib.color), fontFamily: PM.mono(), fontSize: chicoP ? 10.5 : 11.5, fontWeight: 700 },
+            data: [{ coord: [nP, vP] }] } } }));
       }
-    },
-      legend:{
-        data:["Consumo Gobierno", "Consumo Hogares", "FBK", "Exportaciones", "Importaciones (\u2212)", "PIB Total"],bottom:4,type:'scroll',
-        textStyle:{fontFamily:'Inter',fontSize:10,color:dk()?'#64748B':'#64748B'}
-      },
-      xAxis:{
-      type:'category',
-      data:labels,
-      axisLine:{lineStyle:{color:dk()?'#2A3A50':'#E2DDD3'}},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'Inter',fontSize:10,fontWeight:500,
-        color:dk()?'#64748B':'#64748B',
-        rotate:45,
-        interval:1
-      }
-    },
-      yAxis:{
-      type:'value',
-      name:'pp',
-      nameTextStyle:{fontFamily:'Inter',fontSize:11,color:dk()?'#64748B':'#64748B',padding:[0,0,0,0]},
-      splitLine:{lineStyle:{color:dk()?'#141414':'#F1F5F9',type:'dashed'}},
-      axisLine:{show:false},
-      axisTick:{show:false},
-      axisLabel:{
-        fontFamily:'JetBrains Mono',fontSize:11,
-        color:dk()?'#64748B':'#64748B',
-        formatter:'{value}'
-      }
-    },
-      series:[{
-          name:'Consumo Gobierno',type:'bar',stack:'total',data:[-0.32, 1.42, 0.83, 0.07, 0.5, 0.19, -0.0, 0.45, -0.48, -0.56, -0.16, -0.21, 0.72, 0.75, 0.52, 1.23, 0.15, -0.17, 0.93, 0.19, 0.71, 1.54, 0.27, 0.15, 0.09, -0.08, -0.13, 0.54, -0.15, -0.2, 0.7, -0.46],
-          itemStyle:{color:'#005F73'},barMaxWidth:16
-        },{
-          name:'Consumo Hogares',type:'bar',stack:'total',data:[1.28, 3.0, 0.78, 3.31, 4.13, 2.72, 2.06, -3.92, -2.05, -16.74, -9.5, -1.07, -3.83, 16.18, 7.88, 2.89, 4.55, 4.21, 5.28, 1.45, 2.95, 1.15, 0.08, 2.95, -0.75, 3.39, 1.26, 0.59, 3.19, -0.14, 1.35, 0.36],
-          itemStyle:{color:'#0A9396'},barMaxWidth:16
-        },{
-          name:'FBK',type:'bar',stack:'total',data:[0.03, 2.18, -0.55, 2.47, 1.66, 0.92, 0.83, -5.48, -6.56, -13.83, -8.21, -1.85, -1.33, 9.79, 2.17, -0.23, 0.78, -0.81, 1.18, 1.49, 3.2, 2.26, 0.57, -1.55, -1.99, -2.53, -1.82, -1.59, -3.62, -0.26, -2.14, -1.4],
-          itemStyle:{color:'#EE9B00'},barMaxWidth:16
-        },{
-          name:'Exportaciones',type:'bar',stack:'total',data:[1.71, 0.64, -0.43, -0.34, -1.16, -1.28, 1.05, 2.58, -0.45, -7.76, -6.77, -3.81, 1.29, 12.01, 7.98, 5.03, 5.14, 4.77, 2.43, -1.83, -4.28, -3.21, -1.09, -0.41, -2.23, -2.04, -4.25, -4.47, -2.22, 0.03, 2.09, 5.85],
-          itemStyle:{color:'#0A9396'},barMaxWidth:16
-        },{
-          name:'Importaciones (−)',type:'bar',stack:'total',data:[0.29, -0.67, -0.22, -3.93, -1.61, -1.4, -0.35, 4.19, 4.96, 12.99, 8.38, 4.23, 1.3, -11.37, -5.7, -4.14, -1.88, -3.46, -6.16, -2.95, -2.76, 1.84, 3.04, 2.66, 2.5, 2.11, 3.53, 3.24, 1.13, -2.2, -2.67, -5.49],
-          itemStyle:{color:'#C71E1D'},barMaxWidth:16
-        },{
-      name:'PIB Total',type:'line',data:[2.99, 6.56, 0.41, 1.58, 3.52, 1.14, 3.59, -2.18, -4.59, -25.9, -16.25, -2.7, -1.86, 27.35, 12.86, 4.78, 8.75, 4.55, 3.66, -1.65, -0.19, 3.59, 2.86, 3.79, -2.39, 0.85, -1.4, -1.7, -1.67, -2.77, -0.68, -1.14],
-      symbol:'circle',symbolSize:4,z:10,
-      lineStyle:{color:dk()?'#E2E8F0':'#0D1B2A',width:2},
-      itemStyle:{color:dk()?'#E2E8F0':'#0D1B2A'}
-    }]
-    },true);
-  }
+      return {
+        animationDuration: 450,
+        grid: PM.grid(),
+        xAxis: PM.ejeTiempo(KV, el, { boundaryGap: true }),
+        yAxis: PM.ejeY({ unidad: 'pp', extra: { splitNumber: 4 } }),
+        tooltip: PM.tooltip(function (ps) {
+          if (!ps.length) return '';
+          var i = si + ps[0].dataIndex;
+          panel(i);
+          var h = PM.ttTitulo(per(i), 'Aporte al crecimiento, en puntos');
+          PILA[estado.vista].forEach(function (k) { if (act.has(k)) h += PM.ttFila(item(k).color, item(k).nombre, PM.pp(v(k, i)), 'area'); });
+          h += PM.ttTotal('PIB', PM.pct(v('pib', i), 1, true));
+          return h;
+        }, { axisPointer: PM.sombraEje() }),
+        series: series
+      };
+    }
 
-  buildChart();
-  new MutationObserver(function(){buildChart()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.addEventListener('resize',function(){chart.resize()});
-})();
-</script>
+    // Panel: la historia del período bajo el cursor (qué empujó, qué frenó y el neto del comercio exterior)
+    function panel(i) {
+      if (i == null || !DAT.K || i < 0 || i >= DAT.K.length) return;
+      estado.idx = i;
+      var pib = v('pib', i), ks = PILA[estado.vista], xs = ks.map(function (k) { return { k: k, x: v(k, i) }; });
+      var pos = xs.filter(function (o) { return o.x >= 0.05; }).sort(function (a, b) { return b.x - a.x; });
+      var neg = xs.filter(function (o) { return o.x <= -0.05; }).sort(function (a, b) { return a.x - b.x; });
+      var suma = function (l) { return l.reduce(function (s, o) { return s + o.x; }, 0); };
+      var chips = function (l) { return l.map(function (o) { return (item(o.k).corto || item(o.k).nombre) + ' ' + PM.dt(item(o.k).color, PM.pp(o.x)); }).join(' · '); };
+      var h = PM.pb(GASTO.pib.color, 'PIB', PM.pct(pib, 1, true), 'Variación ' + FRENTE[estado.medida] + ': la suma de los aportes.') +
+        PM.pb(C.pizarra, '▲ Sumaron', pos.length ? PM.pp(suma(pos)) : null, pos.length ? chips(pos) : 'Nada sumó.') +
+        PM.pb(C.pizarra, '▼ Restaron', neg.length ? PM.pp(suma(neg)) : null, neg.length ? chips(neg) : 'Nada restó.');
+      // En el detalle, si exportaciones e importaciones son grandes y de signo opuesto, la conclusión las lee juntas
+      // (si no, la que más «frena» sería casi siempre la importación). Umbrales: |PIB| < 0,5% casi no cambia ·
+      // un aporte de ±0,05 pp o menos no cuenta · ±1 pp para el par externo
+      var it = xs.map(function (o) { return { n: MIN[o.k], x: o.x }; }), ex = DAT.c.exportaciones[i], im = DAT.c.importaciones[i], junta = false;
+      if (estado.vista === 'detalle' && Math.abs(ex) >= 1 && Math.abs(im) >= 1 && ex * im < 0) {
+        junta = true;
+        it = it.filter(function (o) { return o.n !== MIN.exportaciones && o.n !== MIN.importaciones; }).concat([{ n: MIN.externo, x: ex + im }]);
+      }
+      var ip = it.filter(function (o) { return o.x >= 0.05; }).sort(function (a, b) { return b.x - a.x; });
+      var iN = it.filter(function (o) { return o.x <= -0.05; }).sort(function (a, b) { return a.x - b.x; });
+      var fue = function (o) { return /^(las|los) /.test(o.n) ? 'fueron' : 'fue'; };
+      var t;
+      if (pib <= -0.5) t = 'El PIB <strong>cayó ' + PM.pct(Math.abs(pib), 1) + '</strong>' + (iN.length ? ': en la cuenta, lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + (ip.length ? ' y lo que más sumó, ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + '.';
+      else if (pib >= 0.5) t = 'El PIB <strong>creció ' + PM.pct(pib, 1) + '</strong>' + (ip.length ? '; en la cuenta, lo que más sumó ' + fue(ip[0]) + ' ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + (iN.length ? '; lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + '.';
+      else t = 'El PIB <strong>casi no cambió</strong> (' + PM.pct(pib, 1, true) + '): lo que sumó (' + PM.pp(suma(pos)) + ') y lo que restó (' + PM.pp(suma(neg)) + ') se compensaron.';
+      if (Math.abs(ex) >= 1 && Math.abs(im) >= 1 && ex * im < 0) t += ' Las exportaciones (' + PM.pp(ex) + ') y las importaciones (' + PM.pp(im) + ') se compensan en parte: en neto ' + (ex + im >= 0 ? 'suman ' : 'restan ') + PM.num(Math.abs(ex + im), 1) + NB + 'pp.';
+      else if (im <= -0.5) t += ' Las importaciones crecieron y figuran con ' + PM.pp(im) + ': lo importado se descuenta porque ya estaba dentro del consumo y la inversión, no porque importar haga caer el PIB.';
+      document.getElementById('panel-fecha').textContent = corto(i);
+      document.getElementById('panel').innerHTML = h + PM.ctx(t);
+    }
+
+    function preguntas() {
+      return [
+        ['¿Qué es la contribución al crecimiento?', '<p>Cuántos puntos porcentuales del crecimiento del PIB explica cada destino del gasto: su variación por su peso en el PIB.</p>' +
+          '<p>Las barras de cada período suman exactamente la variación del PIB, la línea con puntos.</p>'],
+        ['Una identidad no explica causas', '<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
+          '<p>El caso típico son las importaciones. Llevan signo menos porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo sólo evita contarlo como producción nacional. Importar más no resta PIB por sí mismo. Si un arancel recorta las importaciones, también recorta el consumo y la inversión que se hacían con ellas; el efecto neto depende de cómo responda cada componente.</p>' +
+          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
+        ['Los tres bloques', '<p><strong>Consumo</strong> (hogares y gobierno), <strong>inversión</strong> (fija y existencias) y <strong>sector externo neto</strong> (exportaciones menos importaciones). En <strong>Detalle</strong> se separan los seis componentes.</p>'],
+        ['¿Por qué las importaciones llevan signo menos?', '<p>Porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo menos lo descuenta para que el PIB mida sólo la producción nacional. Por eso, en la cuenta, el aporte de las importaciones lleva el signo contrario a su variación, aunque importar más no haga caer el PIB por sí mismo.</p>' +
+          '<p>Por eso exportaciones e importaciones que crecen a la vez pueden dejar un aporte externo neto casi nulo.</p>'],
+        ['¿Qué son las existencias y la inversión fija?', '<p>La <strong>inversión fija</strong> (formación bruta de capital fijo, FBCF) es lo que se gasta en construcción, maquinaria y equipo. Las <strong>existencias y otros</strong> son la variación de inventarios y la compra neta de objetos valiosos: aportan poco, pero cambian de signo.</p>'],
+        ['4 trimestres, trimestral o anual', '<p><strong>4 trimestres</strong> explica el crecimiento de lo producido en el último año móvil: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> usa las contribuciones del INE a la tasa interanual de cada trimestre; <strong>Anual</strong>, las del año completo.</p>' +
+          '<p>Las de 4 trimestres son el promedio de las cuatro trimestrales del INE, ponderado por el PIB de cada trimestre un año antes: así suman exactamente el crecimiento del año móvil.</p>'],
+        ['¿Por qué «Desde 2022»?', '<p>Porque el desplome de 2020 y el rebote de 2021 tienen aportes tan grandes que, con «Todo», las barras de los últimos años casi no se ven.</p>']
+      ];
+    }
+
+    PM.leyendaImagen = function () {
+      var act = activas[estado.vista];
+      return PILA[estado.vista].concat(['pib']).filter(function (k) { return act.has(k); }).map(function (k) {
+        return { name: k === 'pib' ? 'PIB' : item(k).nombre, itemStyle: { color: PM.col(item(k).color) }, forma: k === 'pib' ? 'linea' : 'area' };
+      });
+    };
+  })();
+  </script>
 </body>
 </html>
