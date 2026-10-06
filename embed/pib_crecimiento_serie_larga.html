@@ -247,7 +247,7 @@
       series.push({ type: 'line', name: '_ref', data: KV.map(function () { return null; }), silent: true, symbol: 'none', markLine: marcas });
       var el = document.getElementById('chart');
       var vm = activas.has('b17') ? [{ show: false, type: 'piecewise', seriesIndex: 0, dimension: 1,
-        pieces: [{ gt: -1e9, lte: 0, color: PM.rgba(dk ? C.rojoClaro : C.rojo, dk ? 0.26 : 0.16) }, { gt: 0, lte: 1e9, color: PM.rgba(C.turquesa, dk ? 0.26 : 0.2) }] }] : [];
+        pieces: [{ gt: -1e9, lte: 0, color: PM.tinte(false) }, { gt: 0, lte: 1e9, color: PM.tinte(true) }] }] : [];   // tintes oficiales
       return {
         animationDuration: 450,
         grid: PM.grid({ right: chico ? 16 : 14 }),

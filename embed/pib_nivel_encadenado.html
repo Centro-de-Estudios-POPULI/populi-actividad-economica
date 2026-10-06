@@ -108,8 +108,8 @@
       document.getElementById('ley').innerHTML =
         '<span class="ref"><span class="lp" style="--pc:' + PM.col(TINTA) + '"></span>' + MEDIDAS[med].serie() + '</span>' +
         '<span class="ref"><span class="lp dashed"></span>' + ref + '</span>' +
-        '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(C.turquesa, PM.dk() ? 0.5 : 0.4) + '"></span>Por encima</span>' +
-        '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(PM.dk() ? C.rojoClaro : C.rojo, PM.dk() ? 0.5 : 0.35) + '"></span>Por debajo</span>';
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(true) + '"></span>Por encima</span>' +
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(false) + '"></span>Por debajo</span>';
     }
 
     function cifras() {
@@ -170,7 +170,7 @@
       // tramos (así el cambio de color cae EXACTO en el cruce, sin interpolar a mano en un eje de categorías)
       var area = { type: 'line', name: '_area', data: v, symbol: 'none', silent: true, z: 1, connectNulls: false,
         lineStyle: { width: 0 }, areaStyle: { origin: R.ref, opacity: 1 }, tooltip: { show: false } };
-      var arr = PM.rgba(C.turquesa, dk ? 0.26 : 0.2), abj = PM.rgba(dk ? C.rojoClaro : C.rojo, dk ? 0.26 : 0.16);
+      var arr = PM.tinte(true), abj = PM.tinte(false);   // tintes oficiales de la paleta (sólidos)
       var fmt = med === 'crec' ? function (x) { return PM.tick(x) + '%'; } : PM.tick;
       return {
         animationDuration: 450,

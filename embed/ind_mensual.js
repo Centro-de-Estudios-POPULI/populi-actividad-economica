@@ -227,8 +227,8 @@
         var cre = estado.vista === 'crec', dk = PM.dk();
         var arriba = cre ? 'Sube' : tasa() ? 'Sobre su promedio' : 'Sobre ' + estado.base, abajo = cre ? 'Baja' : tasa() ? 'Bajo su promedio' : 'Bajo ' + estado.base;
         el.innerHTML = '<span class="ref"><span class="lp" style="--pc:' + PM.col(TINTA) + '"></span>' + nombreContinua() + '</span>' +
-          '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(PREVIO, dk ? 0.55 : 0.4) + '"></span>' + arriba + '</span>' +
-          '<span class="ref"><span class="lp area" style="--pc:' + PM.rgba(ROJO, dk ? 0.5 : 0.35) + '"></span>' + abajo + '</span>';
+          '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(true) + '"></span>' + arriba + '</span>' +
+          '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(false) + '"></span>' + abajo + '</span>';
         return;
       }
       var f = fin(), ra = rangoAnios(), items = [{ k: String(f.y), nombre: String(f.y), fija: true }, { k: String(f.y - 1), nombre: String(f.y - 1) },
@@ -469,7 +469,7 @@
       var nombre = nombreContinua();
       // el relleno: una serie sólo de área, coloreada por el visualMap (rojo bajo la referencia, turquesa arriba)
       var area = PM.mezclar({ type: 'line', name: '_signo', data: vals, symbol: 'none', silent: true, connectNulls: false,
-        lineStyle: { width: 0, opacity: 0 }, areaStyle: { origin: ref, opacity: dk ? 0.3 : 0.22 }, emphasis: { disabled: true }, z: 1 }, SUAVE);
+        lineStyle: { width: 0, opacity: 0 }, areaStyle: { origin: ref, opacity: 1 }, emphasis: { disabled: true }, z: 1 }, SUAVE);   // tintes oficiales, sólidos
       var linea = PM.linea(TINTA, { ancho: 2, extra: PM.mezclar({ name: nombre, data: vals, connectNulls: false, z: 5, emphasis: { focus: 'none', lineStyle: { width: 2 } } }, SUAVE) });
       var n = vals.length - 1;
       while (n > 0 && vals[n] == null) n--;
@@ -483,7 +483,7 @@
       PM.leyendaImagen = function () {
         var arriba = cre ? 'Sube' : tasa() ? 'Sobre su promedio' : 'Sobre ' + estado.base, abajo = cre ? 'Baja' : tasa() ? 'Bajo su promedio' : 'Bajo ' + estado.base;
         return [{ name: nombre, itemStyle: { color: PM.col(TINTA) }, forma: 'linea' },
-          { name: arriba, itemStyle: { color: PM.rgba(PREVIO, 0.35) } }, { name: abajo, itemStyle: { color: PM.rgba(ROJO, 0.3) } }];
+          { name: arriba, itemStyle: { color: PM.tinte(true) } }, { name: abajo, itemStyle: { color: PM.tinte(false) } }];
       };
       PM.tablaDatos = function () {
         var cols = ['Período', nombre + (cre ? (tasa() ? ' (pp)' : ' (%)') : ''), (flujo() ? 'Suma de ' : 'Promedio de ') + NPER(), serie().corto + ' del período'];
@@ -499,7 +499,7 @@
         grid: PM.grid(),
         // tramos FINITOS: con dos tramos abiertos ECharts no arma paradas de color y el render aborta («coord»)
         visualMap: [{ type: 'piecewise', show: false, seriesIndex: 0, dimension: 1,
-          pieces: [{ gte: lo, lt: ref, color: PM.col(ROJO) }, { gte: ref, lte: hi, color: PM.col(PREVIO) }] }],
+          pieces: [{ gte: lo, lt: ref, color: PM.tinte(false) }, { gte: ref, lte: hi, color: PM.tinte(true) }] }],
         xAxis: PM.ejeTiempo(KV, el),
         yAxis: ejeV,
         tooltip: PM.tooltip(function (ps) {

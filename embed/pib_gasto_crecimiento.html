@@ -274,7 +274,7 @@
         // áreas por signo: el color va acá, no en la línea
         var area = function (datos, col, id) {
           return { type: 'line', id: id + g, xAxisIndex: g, yAxisIndex: g, data: datos, silent: true, symbol: 'none', z: 1,
-            lineStyle: { width: 0 }, areaStyle: { origin: R, color: PM.rgba(col, dk ? 0.3 : 0.18) }, tooltip: { show: false }, emphasis: { disabled: true } };
+            lineStyle: { width: 0 }, areaStyle: { origin: R, color: PM.tinte(col === C.turquesa), opacity: 1 }, tooltip: { show: false }, emphasis: { disabled: true } };
         };
         series.push(area(cut.arriba, C.turquesa, 'arr'), area(cut.abajo, C.rojo, 'aba'));
         if (conPib && k !== 'pib') series.push({ type: 'line', id: 'pib' + g, name: '_pib' + g, xAxisIndex: g, yAxisIndex: g, data: pts.pib, silent: true, z: 2,
@@ -385,8 +385,8 @@
     // Imagen: los paneles llevan su nombre; la leyenda explica los rellenos y la raya del PIB
     PM.leyendaImagen = function () {
       var b = nivel() ? estado.base : null;
-      return [{ name: b ? 'Sobre ' + b : 'Crece', color: PM.rgba(C.turquesa, 0.45), forma: 'area' },
-              { name: b ? 'Bajo ' + b : 'Cae', color: PM.rgba(C.rojo, 0.4), forma: 'area' }]
+      return [{ name: b ? 'Sobre ' + b : 'Crece', color: PM.tinte(true), forma: 'area' },
+              { name: b ? 'Bajo ' + b : 'Cae', color: PM.tinte(false), forma: 'area' }]
         .concat(activas.has('pib') ? [{ name: 'PIB', color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }] : []);
     };
     // Datos: el eje X es numérico (años decimales), así que la tabla se declara
