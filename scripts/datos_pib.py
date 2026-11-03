@@ -300,16 +300,17 @@ def pib_gasto(fallas, claves_act):
     n = len(claves)
     # CONTRIBUCIONES: el INE publica la de las importaciones con el signo de su variación (sube si las
     # importaciones crecen) y hay que RESTARLA. Acá se guarda la contribución real (negada): así las
-    # barras apiladas suman el PIB. En la acumulada (cuadro 05.05) la FBK viene SIN existencias y las
-    # existencias en su propia fila: se recompone FBK = FBK(05.05) + existencias para que las dos
-    # tablas digan lo mismo.
+    # barras apiladas suman el PIB. En la acumulada (cuadro 05.05), hasta la entrega de IV-2025 la FBK
+    # venía SIN existencias y las existencias en su propia fila: se recompone FBK = FBK(05.05) + existencias
+    # para que las dos tablas digan lo mismo. Desde la entrega de II-2026 el cuadro ya no trae esa fila y su
+    # FBK las incluye (los componentes cierran el PIB, aunque una nota al pie diga lo contrario). En los dos
+    # casos lo decide la identidad «componentes = PIB» que se verifica más abajo: si no cierra, no se escribe.
     for m in ("contrib", "contrib_acum"):
         M[m]["importaciones"] = [None if v is None else r(-v, 4) for v in M[m]["importaciones"]]
         if m == "contrib_acum":
             ex = M[m].pop("_existencias_ine", None)
-            if ex is None:
-                raise Falla("contribución acumulada sin la fila de variación de existencias")
-            M[m]["fbk"] = [None if a is None else r(a + (b or 0), 4) for a, b in zip(M[m]["fbk"], ex)]
+            if ex is not None:
+                M[m]["fbk"] = [None if a is None else r(a + (b or 0), 4) for a, b in zip(M[m]["fbk"], ex)]
     for m in M:
         M[m].pop("_existencias_ine", None)
     # La variación de la FBK que publica el INE (cuadros 05.02 y 05.03) NO sale de su propio nivel encadenado:
@@ -436,7 +437,10 @@ def kpis(act, gasto, larga):
     # ── Resumen de la página («Qué dicen los datos»): todo sobre la SUMA DE 4 TRIMESTRES (sin estacionalidad)
     niv = act["nivel"]["pib"]
     s4 = lambda a, j: sum(a[j - x] for x in range(4)) if j >= 3 and all(a[j - x] is not None for x in range(4)) else None
-    j19 = k.index(f"2019-T{t}") if f"2019-T{t}" in k else None          # la misma ventana de 4 trimestres en 2019
+    # 2019 = el AÑO CALENDARIO (sus 4 trimestres), igual que la base 2019 = 100 de los gráficos de nivel y de
+    # sectores. Antes era la misma ventana que el último dato (a T2: jul-2018 a jun-2019): con un año incompleto
+    # la página decía −1,9 % y los gráficos −2,2 % (97,8). La suma de 4 trimestres ya no tiene estacionalidad.
+    j19 = k.index("2019-T4") if "2019-T4" in k else None
     jmax = max(range(3, len(k)), key=lambda j: s4(niv, j))
     completos = [v for _, v in anual if v is not None]
     seguidos = 0
@@ -499,6 +503,8 @@ def escribir(nombre, obj):
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")   # la consola de Windows (cp1252) no imprime ✗ ni ✓
     fallas = []
     try:
         act = pib_actividad(fallas)

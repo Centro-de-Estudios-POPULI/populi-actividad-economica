@@ -92,7 +92,7 @@
         var q = J.nivel[k];
         S4[k] = q.map(function (_, i) { if (i < 3) return null; var s = 0; for (var j = i - 3; j <= i; j++) { if (q[j] == null) return null; s += q[j]; } return s; });
       });
-      var bases = ['2017', '2019', '2024'].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
+      var bases = ['2017', '2019', String(+T[T.length - 1].slice(0, 4) - 1)].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
       if (bases.indexOf(estado.base) < 0) estado.base = bases[0];
       PM.botonera(document.getElementById('b-vista'), [['crec', 'Crecimiento'], ['nivel', 'Nivel (base = 100)']],
         estado.vista, function (v) { estado.vista = v; todo(); });

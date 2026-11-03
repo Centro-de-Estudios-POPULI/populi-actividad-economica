@@ -65,7 +65,7 @@
       N.anual = s4.slice(3); N.trim = Q.slice(3);
       // crecimiento del año móvil: frente a los 4 trimestres que terminan un año antes (por FECHA)
       N.crec = N.anual.map(function (v, i) { var j = idxDe(i, -1); return j >= 0 && N.anual[j] != null ? (v / N.anual[j] - 1) * 100 : null; });
-      var bases = ['2017', '2019', '2024'].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
+      var bases = ['2017', '2019', String(+T[T.length - 1].slice(0, 4) - 1)].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
       if (bases.indexOf(estado.base) < 0) estado.base = bases[0];
       estado.idx = T.length - 1;
       PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k].boton]; }),
@@ -92,6 +92,9 @@
     var indice = function (i) { var b = N.anual[iBase()]; return N.anual[i] == null ? null : N.anual[i] / b * 100; };
     // «año 2025» si el año móvil cierra en el IV trimestre; si no, «4 trimestres a T2 2026»
     function anioMovil(i) { var p = PM.periodo(T[i]); return p.t === 4 ? 'año ' + p.a : '4 trimestres a ' + PM.fecha(T[i]); }
+    // con su artículo: «del año 2025» / «de los 4 trimestres a T2 2026» (no «del 4 trimestres»)
+    function delAnio(i) { return PM.periodo(T[i]).t === 4 ? 'del ' + anioMovil(i) : 'de los ' + anioMovil(i); }
+    function elAnio(i) { return PM.periodo(T[i]).t === 4 ? 'el ' + anioMovil(i) : 'el de los ' + anioMovil(i); }
     function maximoHasta(i) { var m = null; for (var j = 0; j <= i; j++) if (N.anual[j] != null && (m == null || N.anual[j] > N.anual[m])) m = j; return m; }
     var cambio = function (a, b) { return a != null && b != null ? (a / b - 1) * 100 : null; };
     var pz = function () { return PM.dk() ? '#8A9699' : '#5C6B70'; };
@@ -118,7 +121,7 @@
       document.getElementById('kpis').innerHTML =
         PM.kpi({ color: ix < 100 ? C.rojo : C.turquesa, rotulo: 'Nivel frente a ' + estado.base, valor: PM.num(ix, 1),
           delta: (cerrado ? p.a : PM.fecha(T[n])) + ' · ' + estado.base + ' = 100', tono: ix < 100 ? 'malo' : 'bueno', serie: N.anual.map(function (_, i) { return indice(i); }) }) +
-        PM.kpi({ color: TINTA, rotulo: 'PIB del ' + anioMovil(n), valor: bs(N.anual[n]), delta: 'a precios de 2017', tono: 'neutro', serie: N.anual }) +
+        PM.kpi({ color: TINTA, rotulo: 'PIB ' + delAnio(n), valor: bs(N.anual[n]), delta: 'a precios de 2017', tono: 'neutro', serie: N.anual }) +
         PM.kpi({ color: va < 0 ? C.rojo : C.turquesa, rotulo: 'Crecimiento', valor: PM.pct(va, 1, true),
           delta: cerrado ? p.a + ' frente a ' + (p.a - 1) : 'frente a un año antes', tono: va < 0 ? 'malo' : 'bueno', serie: N.crec }) +
         PM.kpi({ color: mx === n ? C.turquesa : C.rojo, rotulo: 'Distancia al máximo', valor: mx === n ? '0,0%' : PM.pct(dMax, 1, true),
@@ -199,7 +202,7 @@
       estado.idx = i;
       var a = N.anual[i], ix = indice(i), va = N.crec[i], mx = maximoHasta(i), dMax = cambio(a, N.anual[mx]), am = anioMovil(i);
       var h = PM.pb(ix < 100 ? C.rojo : C.turquesa, 'Frente a ' + estado.base, PM.num(ix, 1),
-        Math.abs(ix - 100) < 0.05 ? 'Igual que en ' + estado.base + '.' : 'El ' + am + ' produjo ' + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' más' : ' menos') + ' que ' + estado.base + '.');
+        Math.abs(ix - 100) < 0.05 ? 'Igual que en ' + estado.base + '.' : (PM.periodo(T[i]).t === 4 ? 'El ' + am + ' produjo ' : 'Los ' + am + ' produjeron ') + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' más' : ' menos') + ' que ' + estado.base + '.');
       h += PM.pb(TINTA, 'Lo producido', bs(a), 'Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]) + ', a precios de 2017.');
       if (va != null) h += PM.pb(va < 0 ? C.rojo : C.turquesa, 'Crecimiento', PM.pct(va, 1, true), 'Frente a los 4 trimestres que terminan en ' + PM.fecha(T[idxDe(i, -1)]) + '.');
       // la racha: desde cuándo el año móvil viene cayendo (o creciendo)
@@ -233,7 +236,7 @@
           '<p>La suma de los últimos 4 trimestres es el PIB de un año entero que se actualiza cada trimestre: no tiene estación y en el IV trimestre coincide con el año calendario.</p>'],
         ['¿Qué son los «bolivianos de 2017»?', '<p>El PIB a precios constantes que publica el INE en <strong>bolivianos encadenados</strong>: cada año se valora con los precios del año anterior y los eslabones se unen hasta llevarlos a precios de 2017, el año de referencia.</p>' +
           '<p>Así se compara el <strong>volumen</strong> producido sin el efecto de la inflación. Por eso mismo las partes (actividades o componentes del gasto) no suman exactamente el total.</p>'],
-        ['El máximo y el piso', '<p>El año más alto fue el ' + anioMovil(mx) + ' (' + bs(N.anual[mx]) + '); el más bajo, el de los 4 trimestres a ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), en plena pandemia.</p>'],
+        ['El máximo y el piso', '<p>El año más alto fue ' + elAnio(mx) + ' (' + bs(N.anual[mx]) + '); el más bajo, el de los 4 trimestres a ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), en plena pandemia.</p>'],
         ['¿Qué mide «Crecimiento»?', '<p>Cuánto cambió lo producido en los últimos 4 trimestres frente a los 4 anteriores. En el IV trimestre es el crecimiento del año calendario.</p>' +
           '<p>Es la lectura más limpia del ritmo de la economía: no tiene estación y no salta tanto como la variación de un solo trimestre.</p>']
       ];

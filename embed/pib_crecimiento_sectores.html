@@ -80,7 +80,7 @@
     // arriba, rojo abajo, con el cruce interpolado), el PIB gris punteado y la cifra grande bajo el nombre.
     // Acá los colores de sector no se usan en el dibujo: el color dice arriba o abajo de la base.
     var ARRIBA = { claro: '#0A9396', oscuro: '#94D2BD' }, ABAJO = { claro: '#C71E1D', oscuro: '#E8706B' };
-    var PIB = COLOR.pib, NB = ' ', BASES = ['2017', '2019', '2024'];
+    var PIB = COLOR.pib, NB = ' ', BASES = ['2017', '2019', null];   // la tercera: el último año completo antes del dato más reciente
     // Medidas. Todas salen del NIVEL encadenado (cada actividad se compara sólo consigo misma, que es lo
     // que el encadenado permite). La suma de cuatro trimestres quita la estacionalidad.
     var MED = {
@@ -97,6 +97,7 @@
 
     PM.cargar(['pib_actividad.json']).then(function (r) {
       D = r[0]; M = D.metadata; T = D.trimestres;
+      BASES[2] = String(+T[T.length - 1].slice(0, 4) - 1);   // 2024 con T4 2025; 2025 con T2 2026
       D.rubros.forEach(function (x) { NOM[x.k] = x.nombre; });
       // cada trimestre en el eje X como año decimal: «2025-T4» → 2025,75 (permite el cruce interpolado)
       X = T.map(function (t) { var p = PM.periodo(t); return p.a + (p.t - 1) / 4; });
@@ -402,7 +403,7 @@
       return [
         ['¿Cómo se lee?', 'Cada panel es una actividad, con el <strong>PIB primero</strong>. La línea es la actividad; el relleno <strong>turquesa</strong> marca cuándo está sobre la base (100, o el cero en el crecimiento) y el <strong>rojo</strong> cuándo está debajo. La raya gris punteada repite el PIB. La cifra grande es el último dato, y los paneles van ordenados por ella. <p>El cursor sobre un trimestre lo marca en los doce paneles, y la lectura de la derecha los ordena para ese trimestre.</p>'],
         ['¿Qué es el nivel con año base = 100?', 'El volumen producido en los <strong>últimos cuatro trimestres</strong> frente al de los cuatro trimestres del año base. Con base 2019, un panel en 90 produce 10% menos que antes de la pandemia. <p>Se suman cuatro trimestres porque la producción tiene estación: en 2019 la agropecuaria produjo en su mejor trimestre ' + PM.num(veces, 1) + ' veces lo de su peor trimestre.</p>'],
-        ['¿Qué año base conviene?', '<strong>2019</strong>: el último año antes de la pandemia, la vara de la recuperación. <strong>2017</strong>: el año de referencia de las cuentas nacionales del INE. <strong>2024</strong>: el último año completo antes del dato más reciente, para ver el cambio reciente.'],
+        ['¿Qué año base conviene?', '<strong>2019</strong>: el último año antes de la pandemia, la vara de la recuperación. <strong>2017</strong>: el año de referencia de las cuentas nacionales del INE. <strong>' + BASES[2] + '</strong>: el último año completo antes del dato más reciente, para ver el cambio reciente.'],
         ['Crecimiento o interanual', 'El <strong>crecimiento</strong> compara los últimos cuatro trimestres con los cuatro anteriores: en el cuarto trimestre es el crecimiento del año. La <strong>interanual</strong> es la que publica el INE para cada trimestre y salta mucho más: la construcción marcó ' + PM.pct(c[imin], 1, true) + ' en el ' + PM.fecha(T[imin]) + ' y ' + PM.pct(c[imax], 1, true) + ' en el ' + PM.fecha(T[imax]) + '.'],
         ['¿Por qué las actividades no suman el PIB?', 'Porque el INE las mide en <strong>volumen encadenado</strong> (referencia 2017), y esas medidas <strong>no son aditivas</strong>: la suma de las actividades no iguala el PIB. Por eso acá cada actividad se compara sólo consigo misma; cuánto explica cada una del PIB está en el gráfico de contribuciones.'],
         ['¿Son cifras definitivas?', 'No. El INE publica el PIB trimestral como <strong>cifras preliminares</strong>, sujetas a revisión: un trimestre puede cambiar en publicaciones posteriores.']
