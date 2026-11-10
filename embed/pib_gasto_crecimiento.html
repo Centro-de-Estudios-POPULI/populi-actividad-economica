@@ -213,8 +213,9 @@
       document.getElementById('kpis').innerHTML =
         kpi('pib', tr('PIB', 'GDP'), linea) +
         kpi('hogares', N('Consumo de los hogares'), linea) +
-        kpi(hi, nivel() ? tr('Más arriba', 'Highest') : tr('Lo que más creció', 'Grew the most'), GASTO[hi].nombre) +
-        kpi(lo, nivel() ? tr('Más abajo', 'Lowest') : tr('Lo que más cayó', 'Fell the most'), GASTO[lo].nombre);
+        // el rótulo dice la verdad según el signo: si hasta el mayor cae, «lo que menos cayó»; si hasta el menor crece, «lo que menos creció»
+        kpi(hi, nivel() ? tr('Más arriba', 'Highest') : v[hi][n] < 0 ? tr('Lo que menos cayó', 'Fell the least') : tr('Lo que más creció', 'Grew the most'), GASTO[hi].nombre) +
+        kpi(lo, nivel() ? tr('Más abajo', 'Lowest') : v[lo][n] > 0 ? tr('Lo que menos creció', 'Grew the least') : tr('Lo que más cayó', 'Fell the most'), GASTO[lo].nombre);
     }
 
     // Escala redondeada (la de los paneles de actividades y del deck): poco aire y más divisiones en la común; con el
@@ -386,7 +387,7 @@
         t = tr('En los 4 trimestres a <strong>' + f + '</strong> la economía produjo ' + (Math.abs(d) < 0.05 ? 'lo mismo que' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' más' : ' menos') + ' que') + ' en ' + estado.base + '.',
           'In the 4 quarters to <strong>' + f + '</strong> the economy produced ' + (Math.abs(d) < 0.05 ? 'the same as' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' more' : ' less') + ' than') + ' in ' + estado.base + '.');
         if (sube.length) t += tr(' Lo que más se alejó hacia arriba: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')', ' Furthest above: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')');
-        if (baja.length) t += tr((sube.length ? '; ' : ' ') + 'hacia abajo, ' + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')', (sube.length ? '; furthest below, ' : ' Furthest below, ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')');
+        if (baja.length) t += tr((sube.length ? '; hacia abajo, ' : ' Lo que más se alejó hacia abajo: ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')', (sube.length ? '; furthest below, ' : ' Furthest below: ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')');
         t += '.';
       } else {
         // umbrales del PIB: ≤ −0,5% cae · < 0,5% casi no cambia · en adelante crece

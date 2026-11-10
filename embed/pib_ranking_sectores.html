@@ -198,9 +198,9 @@
       document.getElementById('kpis').innerHTML =
         PM.kpi({ color: PIB, rotulo: tr('PIB · ' + per(i), 'GDP · ' + per(i)), valor: PM.pct(pib, 1, true), delta: pp ? tr('suma de los aportes', 'sum of the contributions') : (estado.medida === 'acum' ? tr('acumulada en el año', 'year-to-date') : tr('interanual', 'year-on-year')),
           tono: pib < 0 ? 'malo' : 'bueno', serie: serie(function (j) { return pibDe(j); }) }) +
-        PM.kpi({ color: signo(alto.v), rotulo: pp ? tr('Mayor aporte', 'Largest contribution') : tr('Mayor alza', 'Largest rise'), valor: fmt(alto.v), delta: NOM[alto.k],
+        PM.kpi({ color: signo(alto.v), rotulo: pp ? tr('Mayor aporte', 'Largest contribution') : alto.v < 0 ? tr('Menor caída', 'Smallest fall') : tr('Mayor alza', 'Largest rise'), valor: fmt(alto.v), delta: NOM[alto.k],
           tono: alto.v >= 0 ? 'bueno' : 'malo', serie: serie(function (j) { return valor(alto.k, j); }) }) +
-        PM.kpi({ color: signo(bajo.v), rotulo: pp ? tr('Mayor resta', 'Largest drag') : tr('Mayor caída', 'Largest fall'), valor: fmt(bajo.v), delta: NOM[bajo.k],
+        PM.kpi({ color: signo(bajo.v), rotulo: pp ? tr('Mayor resta', 'Largest drag') : bajo.v > 0 ? tr('Menor alza', 'Smallest rise') : tr('Mayor caída', 'Largest fall'), valor: fmt(bajo.v), delta: NOM[bajo.k],
           tono: bajo.v < 0 ? 'malo' : 'bueno', serie: serie(function (j) { return valor(bajo.k, j); }) }) +
         PM.kpi({ color: C.rojo, rotulo: pp ? tr('Actividades que restan', 'Activities that subtract') : tr('Actividades en caída', 'Activities in decline'), valor: tr(caen + ' de ' + filas.length, caen + ' of ' + filas.length),
           delta: pp ? tr('restan ' + PM.pp(filas.reduce(function (z, x) { return z + (x.v < 0 ? x.v : 0); }, 0), 2), 'they subtract ' + PM.pp(filas.reduce(function (z, x) { return z + (x.v < 0 ? x.v : 0); }, 0), 2))
@@ -328,8 +328,8 @@
         var pos = todos.filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
         var s = function (a) { return a.reduce(function (z, x) { return z + x.v; }, 0); }, sN = s(neg), sP = s(pos);
         var lado = pib < 0 ? neg : pos, tot = pib < 0 ? sN : sP;
-        t = tr('El PIB ' + (pib < 0 ? 'cae' : 'crece') + ' <strong>' + PM.pct(pib, 1, true) + '</strong>: sumaron ' + PM.pp(sP, 2) + ' y restaron ' + PM.pp(sN, 2) + '. ',
-          'GDP ' + (pib < 0 ? 'falls' : 'grows') + ' <strong>' + PM.pct(pib, 1, true) + '</strong>: ' + PM.pp(sP, 2) + ' was added and ' + PM.pp(sN, 2) + ' subtracted. ');
+        t = tr('El PIB ' + (pib < 0 ? 'cae' : 'crece') + ' <strong>' + PM.pct(Math.abs(pib), 1) + '</strong>: sumaron ' + PM.pp(sP, 2) + ' y restaron ' + PM.pp(sN, 2) + '. ',
+          'GDP ' + (pib < 0 ? 'falls' : 'grows') + ' <strong>' + PM.pct(Math.abs(pib), 1) + '</strong>: ' + PM.pp(sP, 2) + ' was added and ' + PM.pp(sN, 2) + ' subtracted. ');
         t += lado.length && lado[0].v / tot >= CONCENTRA
           ? tr('Lo concentra sobre todo <strong>' + NOM[lado[0].k] + '</strong>, con ' + PM.pct(lado[0].v / tot * 100, 0) + ' de lo que ' + (pib < 0 ? 'restó.' : 'sumó.'),
             'It is concentrated above all in <strong>' + NOM[lado[0].k] + '</strong>, with ' + PM.pct(lado[0].v / tot * 100, 0) + ' of what was ' + (pib < 0 ? 'subtracted.' : 'added.'))

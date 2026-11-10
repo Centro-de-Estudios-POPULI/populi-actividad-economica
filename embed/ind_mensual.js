@@ -124,6 +124,11 @@
     function nomP(q, largo) { return frec === 12 ? (largo ? PM.MES_L[q] : PM.MES[q]) : (largo ? TRIM_L[q] : T('T' + (q + 1), 'Q' + (q + 1))); }
     // sólo para las frases en inglés: el trimestre lleva artículo («the second quarter»), el mes no («July»)
     function nomEn(q) { return (frec === 4 ? 'the ' : '') + nomP(q, true); }
+    // en castellano igual: el trimestre lleva artículo («hasta el segundo trimestre», «del tercer trimestre», «al tercer
+    // trimestre») y el mes no («hasta julio», «de julio», «a julio»)
+    function nomEl(q) { return (frec === 4 ? 'el ' : '') + nomP(q, true); }
+    function nomDe(q) { return (frec === 4 ? 'del ' : 'de ') + nomP(q, true); }
+    function nomA(q) { return (frec === 4 ? 'al ' : 'a ') + nomP(q, true); }
     function fechaP(y, q) { return PM.fecha(clave(y, q)); }
     function tramoCorto(y, q) {
       if (q === frec - 1) return String(y);
@@ -273,7 +278,7 @@
       if (estado.vista === 'anio') {
         var que = estado.medida === 'mes' ? T(s.mide + ' en cada ' + per, s.mide + ' in each ' + per)
           : flujo() ? T(s.mide + ', acumulado desde enero', s.mide + ', cumulative since January') : T(s.mide + ', promedio desde ' + (frec === 12 ? 'enero' : 'el primer trimestre'), s.mide + ', average since ' + (frec === 12 ? 'January' : 'the first quarter'));
-        txt = T(que + '. Cada línea es un año: ' + f.y + ', en rojo, ' + (f.q === frec - 1 ? 'está completo' : 'llega hasta ' + nomP(f.q, true)) +
+        txt = T(que + '. Cada línea es un año: ' + f.y + ', en rojo, ' + (f.q === frec - 1 ? 'está completo' : 'llega hasta ' + nomEl(f.q)) +
           (activos && activos.has('rango') ? '; la franja gris es el rango de ' + ra.txt : '') + '.',
           que + '. Each line is a year: ' + f.y + ', in red, ' + (f.q === frec - 1 ? 'is complete' : 'runs through ' + nomEn(f.q)) +
           (activos && activos.has('rango') ? '; the gray band is the range of ' + ra.txt : '') + '.');
@@ -454,7 +459,7 @@
           var h = PM.ttTitulo(nomP(q, true), estado.medida === 'mes' ? serie().corto : (flujo() ? T('Acumulado desde enero', 'Cumulative since January') : T('Promedio en el año', 'Average for the year')));
           lista.slice().reverse().forEach(function (y) { var x = valorAnio(+y, q); if (x != null) h += PM.ttFila(colorTip(+y), y, fmtNivel(x), 'linea'); });
           if (activos.has('rango') && bd[q]) h += PM.ttFila(BANDA, T('Rango ' + ra.txt, 'Range ' + ra.txt), corto(bd[q].min) + '–' + fmtNivel(bd[q].max), 'area');
-          if (q > f.q) h += PM.ttPie(T(f.y + ' todavía no tiene dato de ' + nomP(q, true) + '.', f.y + ' has no data yet for ' + nomEn(q) + '.'));
+          if (q > f.q) h += PM.ttPie(T(f.y + ' todavía no tiene dato ' + nomDe(q) + '.',f.y + ' has no data yet for ' + nomEn(q) + '.'));
           return h;
         }),
         series: series
@@ -569,7 +574,7 @@
       var cur = valorAnio(f.y, q), prev = valorAnio(f.y - 1, q), prev2 = valorAnio(f.y - 2, q);
       var etq = function (y) { return estado.medida === 'mes' ? fechaP(y, q) : tramoCorto(y, q); };
       html += cur == null
-        ? PM.pb(ROJO, String(f.y), '—', T('Todavía sin dato de ' + nomP(q, true) + ': ' + f.y + ' llega hasta ' + nomP(f.q, true) + '.', 'No data yet for ' + nomEn(q) + ': ' + f.y + ' runs through ' + nomEn(f.q) + '.'))
+        ? PM.pb(ROJO, String(f.y), '—', T('Todavía sin dato ' + nomDe(q) + ': ' + f.y + ' llega hasta ' + nomEl(f.q) + '.','No data yet for ' + nomEn(q) + ': ' + f.y + ' runs through ' + nomEn(f.q) + '.'))
         : PM.pb(ROJO, etq(f.y), fmtNivel(cur), prev == null ? '' : fdif(dif(cur, prev)) + ' vs ' + etq(f.y - 1));
       if (prev != null) html += PM.pb(PREVIO, etq(f.y - 1), fmtNivel(prev), prev2 == null ? '' : fdif(dif(prev, prev2)) + ' vs ' + etq(f.y - 2));
       if (bd) {
@@ -590,7 +595,7 @@
           (bd ? (cur > bd.max ? ' and <strong>above the entire range</strong> of ' + ra.txt
             : cur < bd.min ? ' and <strong>below the entire range</strong> of ' + ra.txt
             : ', within the range of ' + ra.txt + ' (' + fdif(dn, 0) + ' versus its average)') : '') + '. ');
-      } else txt += T(f.y + ' todavía no llega a ' + nomP(q, true) + '. ', f.y + ' has not yet reached ' + nomEn(q) + '. ');
+      } else txt += T(f.y + ' todavía no llega ' + nomA(q) + '. ',f.y + ' has not yet reached ' + nomEn(q) + '. ');
       txt += lecturaAnio();
       document.getElementById('panel').innerHTML = html + PM.ctx(txt);
     }
@@ -643,7 +648,7 @@
       var f = fin(), ra = rangoAnios(), per = frec === 12 ? T('mes', 'month') : T('trimestre', 'quarter');
       return [T('¿Cómo leer las tres vistas?', 'How to read the three views?'),
         T('<p><strong>Año por año</strong>: cada línea es un año y el eje va de ' + (frec === 12 ? 'enero a diciembre' : 'T1 a T4') + '. ' + f.y + ' va en rojo' +
-          (f.q === frec - 1 ? '' : ' y llega hasta ' + nomP(f.q, true)) + '; ' + (f.y - 1) + ', en turquesa; la franja gris es el rango de ' + ra.txt +
+          (f.q === frec - 1 ? '' : ' y llega hasta ' + nomEl(f.q)) + '; ' + (f.y - 1) + ', en turquesa; la franja gris es el rango de ' + ra.txt +
           ' (el valor más bajo y el más alto de cada ' + per + '): arriba de la franja es más de lo normal, abajo, menos. Las cifras comparan siempre el <strong>mismo tramo</strong> del año.</p>' +
         '<p><strong>Crecimiento</strong>: compara los últimos ' + NPER() + ' con los ' + NPER() + ' anteriores. Al tomar un año entero se cancelan la estacionalidad y los ' + per + (frec === 12 ? 'es' : 's') + ' atípicos; turquesa cuando sube, rojo cuando baja.</p>' +
         '<p><strong>Nivel</strong>: los últimos ' + NPER() + ' con el año base elegido = 100' + (tasa() ? '; en el uso de la capacidad, la referencia es su promedio histórico.' : ': 90 es 10% menos que en el año base.') + '</p>',

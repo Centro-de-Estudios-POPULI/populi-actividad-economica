@@ -215,11 +215,12 @@
       var desde = i;
       if (va != null) while (desde > 0 && N.crec[desde - 1] != null && (N.crec[desde - 1] < 0) === (va < 0)) desde--;
       // umbrales del crecimiento: ≤ −0,5% se achica · < 0,5% se estanca · en adelante crece
-      var t = tr('En el <strong>' + am + '</strong> la economía ' + (va == null ? 'sumó ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>se achicó</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>se estancó</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>creció</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.',
+      var t = tr((PM.periodo(T[i]).t === 4 ? 'En el ' : 'En los ') + '<strong>' + am + '</strong> la economía ' + (va == null ? 'sumó ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>se achicó</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>se estancó</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>creció</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.',
         'In the <strong>' + am + '</strong> the economy ' + (va == null ? 'totaled ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>shrank</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>stagnated</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>grew</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.');
       if (va != null && desde < i) t += tr(' Viene ' + (va < 0 ? 'cayendo' : 'creciendo') + ' desde ' + PM.fecha(T[desde]) + '.', ' It has been ' + (va < 0 ? 'falling' : 'growing') + ' since ' + PM.fecha(T[desde]) + '.');
       t += mx === i ? tr(' Es el <strong>nivel más alto</strong> registrado hasta ese momento.', ' It is the <strong>highest level</strong> recorded up to that point.') : tr(' Está ' + PM.pct(Math.abs(dMax), 1) + ' por debajo de su máximo (' + anioMovil(mx) + ').', ' It is ' + PM.pct(Math.abs(dMax), 1) + ' below its peak (' + anioMovil(mx) + ').');
-      var i19 = T.indexOf('2019-T' + PM.periodo(T[i]).t), d19 = i19 >= 0 ? cambio(a, N.anual[i19]) : null;
+      // contra lo mismo que la base «2019 = 100»: el año 2019 entero (los 4 trimestres a 2019-T4), cualquiera sea la base elegida
+      var i19 = T.indexOf('2019-T4'), d19 = i19 >= 0 ? cambio(a, N.anual[i19]) : null;
       if (estado.base !== '2019' && d19 != null && PM.periodo(T[i]).a > 2019) t += tr(' Frente a 2019, antes de la pandemia: ' + PM.pct(d19, 1, true) + '.', ' Versus 2019, before the pandemic: ' + PM.pct(d19, 1, true) + '.');
       document.getElementById('panel-fecha').textContent = PM.fecha(T[i]);
       document.getElementById('panel').innerHTML = h + PM.ctx(t);

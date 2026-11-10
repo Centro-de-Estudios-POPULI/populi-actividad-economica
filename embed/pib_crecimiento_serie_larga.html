@@ -238,7 +238,7 @@
         });
         if (ext.lo || ext.hi) aviso = T('Escala recortada a ±' + I.recorte + '%: ' +
           [ext.lo ? PM.pct(ext.lo.v, 1) + ' en ' + PM.fecha(ext.lo.k) : '', ext.hi ? PM.pct(ext.hi.v, 1, true) + ' en ' + PM.fecha(ext.hi.k) : '']
-            .filter(Boolean).join(' y ') + ' quedan fuera',
+            .filter(Boolean).join(' y ') + (ext.lo && ext.hi ? ' quedan fuera' : ' queda fuera'),
           'Scale clipped to ±' + I.recorte + '%: ' +
           [ext.lo ? PM.pct(ext.lo.v, 1) + ' in ' + PM.fecha(ext.lo.k) : '', ext.hi ? PM.pct(ext.hi.v, 1, true) + ' in ' + PM.fecha(ext.hi.k) : '']
             .filter(Boolean).join(' and ') + (ext.lo && ext.hi ? ' fall outside' : ' falls outside'));

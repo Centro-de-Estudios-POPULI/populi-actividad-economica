@@ -78,21 +78,26 @@
         anios++; if (q[0] === Math.min.apply(null, q)) bajos++;
       });
       // peso de la manufactura en el PIB (precios corrientes): promedio del último año del PIB trimestral
-      var peso = null, ya = null;
+      var peso = null, ya = null, cuando = null;
       if (PIB) {
-        var pk = PIB.trimestres, pe = PIB.estructura.manufactura, t = 0, n = 0;
+        var pk = PIB.trimestres, pe = PIB.estructura.manufactura, t = 0, n = 0, ult = 0;
         ya = PM.periodo(pk[pk.length - 1]).a;
-        pk.forEach(function (k, i) { if (PM.periodo(k).a === ya && pe[i] != null) { t += pe[i]; n++; } });
+        pk.forEach(function (k, i) { if (PM.periodo(k).a === ya && pe[i] != null) { t += pe[i]; n++; ult = PM.periodo(k).t; } });
         peso = n ? PM.pct(t / n, 0) : null;
+        // el tramo que de verdad cubre el promedio, del dato: «en 2026» sólo con el año completo; con el año a medio
+        // publicar, «en el primer trimestre de 2026» o «en los dos (tres) primeros trimestres de 2026»
+        cuando = n === 1 && ult === 1 ? tr('en el primer trimestre de ' + ya, 'in the first quarter of ' + ya)
+          : (n === 2 || n === 3) && ult === n ? tr('en los ' + (n === 2 ? 'dos' : 'tres') + ' primeros trimestres de ' + ya, 'in the first ' + (n === 2 ? 'two' : 'three') + ' quarters of ' + ya)
+          : tr('en ' + ya, 'in ' + ya);
       }
       return [
         [tr('¿Qué mide?', 'What does it measure?'), tr('<p>El <strong>índice de producción</strong> mide el volumen que producen las fábricas en el trimestre: el promedio de 2017 vale 100. El <strong>uso de la capacidad</strong> es la parte de la capacidad instalada (máquinas, turnos) que efectivamente se usó, en porcentaje.</p>' +
           '<p>Los dos salen de la encuesta trimestral del INE a la industria, que cubre sobre todo a <strong>empresas grandes y medianas</strong>, separadas en alimentos y bebidas y el resto de las industrias.</p>',
           '<p>The <strong>output index</strong> measures the volume produced by factories in the quarter: the 2017 average equals 100. <strong>Capacity utilization</strong> is the share of installed capacity (machines, shifts) that was actually used, as a percentage.</p>' +
           '<p>Both come from the INE’s quarterly survey of industry, which mostly covers <strong>large and medium-sized companies</strong>, split into food and beverages and the rest of the industries.</p>')],
-        [tr('¿Por qué importa para el PIB?', 'Why does it matter for GDP?'), tr((peso ? 'La industria manufacturera generó cerca del <strong>' + peso + ' del PIB</strong> en ' + ya + ' (a precios corrientes). ' : '') +
+        [tr('¿Por qué importa para el PIB?', 'Why does it matter for GDP?'), tr((peso ? 'La industria manufacturera generó cerca del <strong>' + peso + ' del PIB</strong> ' + cuando + ' (a precios corrientes). ' : '') +
           'Este índice mide directamente a las fábricas y acompaña al PIB de la manufactura. El uso de la capacidad agrega algo que el PIB no dice: cuánto margen hay para producir más <strong>sin invertir</strong> en nuevas máquinas.',
-          (peso ? 'Manufacturing generated about <strong>' + peso + ' of GDP</strong> in ' + ya + ' (at current prices). ' : '') +
+          (peso ? 'Manufacturing generated about <strong>' + peso + ' of GDP</strong> ' + cuando + ' (at current prices). ' : '') +
           'This index measures factories directly and tracks manufacturing GDP. Capacity utilization adds something GDP does not tell: how much room there is to produce more <strong>without investing</strong> in new machines.')],
         [tr('¿Por qué el primer trimestre siempre baja?', 'Why does the first quarter always fall?'), tr('El índice no está desestacionalizado. ' + (anios ? 'En <strong>' + bajos + ' de ' + anios + ' años</strong> completos el primer trimestre fue el más bajo del año' : 'El primer trimestre suele ser el más bajo del año') +
           ' (vacaciones, lluvias, carnaval, menos días hábiles). Por eso se compara con el <strong>mismo trimestre</strong> del año anterior, o con la vista «Crecimiento», que suma cuatro trimestres.',

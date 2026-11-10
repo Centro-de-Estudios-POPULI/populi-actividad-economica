@@ -300,15 +300,15 @@
     function lectura(i, pos, neg, sumP, sumN) {
       var pib = varPib(i), t, quien = estado.agrup === 'gran' ? tr('componente', 'component') : tr('rubro', 'item');
       if (pib <= -CASI && neg.length) {
-        t = tr('El PIB cae <strong>' + PM.pct(pib, 1, true) + '</strong>: lo que restó (<strong>' + PM.pp(sumN, 2) + '</strong>) pesó más que lo que sumó (' + PM.pp(sumP, 2) + ').',
-          'GDP falls <strong>' + PM.pct(pib, 1, true) + '</strong>: what subtracted (<strong>' + PM.pp(sumN, 2) + '</strong>) outweighed what added (' + PM.pp(sumP, 2) + ').');
+        t = tr('El PIB cae <strong>' + PM.pct(Math.abs(pib), 1) + '</strong>: lo que restó (<strong>' + PM.pp(sumN, 2) + '</strong>) pesó más que lo que sumó (' + PM.pp(sumP, 2) + ').',
+          'GDP falls <strong>' + PM.pct(Math.abs(pib), 1) + '</strong>: what subtracted (<strong>' + PM.pp(sumN, 2) + '</strong>) outweighed what added (' + PM.pp(sumP, 2) + ').');
         t += neg[0].v / sumN >= CONCENTRA
           ? tr(' La resta se concentra en <strong>' + neg[0].c.nombre + '</strong>: ' + PM.pct(neg[0].v / sumN * 100, 0) + ' de todo lo que restó.',
             ' The drag is concentrated in <strong>' + neg[0].c.nombre + '</strong>: ' + PM.pct(neg[0].v / sumN * 100, 0) + ' of everything that subtracted.')
           : tr(' La resta está repartida: ningún ' + quien + ' concentra el 40% o más.', ' The drag is spread out: no single ' + quien + ' accounts for 40% or more.');
       } else if (pib >= CASI && pos.length) {
-        t = tr('El PIB crece <strong>' + PM.pct(pib, 1, true) + '</strong>: lo que sumó (<strong>' + PM.pp(sumP, 2) + '</strong>) superó a lo que restó (' + PM.pp(sumN, 2) + ').',
-          'GDP grows <strong>' + PM.pct(pib, 1, true) + '</strong>: what added (<strong>' + PM.pp(sumP, 2) + '</strong>) exceeded what subtracted (' + PM.pp(sumN, 2) + ').');
+        t = tr('El PIB crece <strong>' + PM.pct(pib, 1) + '</strong>: lo que sumó (<strong>' + PM.pp(sumP, 2) + '</strong>) superó a lo que restó (' + PM.pp(sumN, 2) + ').',
+          'GDP grows <strong>' + PM.pct(pib, 1) + '</strong>: what added (<strong>' + PM.pp(sumP, 2) + '</strong>) exceeded what subtracted (' + PM.pp(sumN, 2) + ').');
         t += pos[0].v / sumP >= CONCENTRA
           ? tr(' El aporte se concentra en <strong>' + pos[0].c.nombre + '</strong>: ' + PM.pct(pos[0].v / sumP * 100, 0) + ' de todo lo que sumó.',
             ' The contribution is concentrated in <strong>' + pos[0].c.nombre + '</strong>: ' + PM.pct(pos[0].v / sumP * 100, 0) + ' of everything that added.')

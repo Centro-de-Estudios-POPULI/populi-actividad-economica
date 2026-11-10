@@ -219,9 +219,9 @@
         PM.kpi({ color: C.rojo, rotulo: nivel ? tr('Bajo su nivel de ' + estado.base, 'Below their ' + estado.base + ' level') : tr('Actividades en caída', 'Activities in decline'), valor: tr(debajo + ' de ' + fil.length, debajo + ' of ' + fil.length),
           delta: nivel ? tr((fil.length - debajo) + ' lo superan', (fil.length - debajo) + ' exceed it') : tr((fil.length - debajo) + ' crecen', (fil.length - debajo) + ' are growing'), tono: debajo > fil.length / 2 ? 'malo' : 'neutro',
           serie: serie(function (i) { return D.sectores.filter(function (k) { return S[k][i] != null && S[k][i] < m.ref; }).length; }) }) +
-        PM.kpi({ color: lado(alto.v), rotulo: (nivel ? tr('Más arriba · ', 'Highest · ') : tr('Mayor alza · ', 'Largest rise · ')) + NOM[alto.k], valor: fmt(alto.v),
+        PM.kpi({ color: lado(alto.v), rotulo: (nivel ? tr('Más arriba · ', 'Highest · ') : alto.v < 0 ? tr('Menor caída · ', 'Smallest fall · ') : tr('Mayor alza · ', 'Largest rise · ')) + NOM[alto.k], valor: fmt(alto.v),
           delta: nivel ? tr(PM.pct(alto.v - 100, 1, true) + ' frente a ' + estado.base, PM.pct(alto.v - 100, 1, true) + ' versus ' + estado.base) : PM.fecha(T[n]), tono: alto.v >= m.ref ? 'bueno' : 'malo', serie: serie(function (i) { return S[alto.k][i]; }) }) +
-        PM.kpi({ color: lado(bajo.v), rotulo: (nivel ? tr('Más abajo · ', 'Lowest · ') : tr('Mayor caída · ', 'Largest fall · ')) + NOM[bajo.k], valor: fmt(bajo.v),
+        PM.kpi({ color: lado(bajo.v), rotulo: (nivel ? tr('Más abajo · ', 'Lowest · ') : bajo.v > 0 ? tr('Menor alza · ', 'Smallest rise · ') : tr('Mayor caída · ', 'Largest fall · ')) + NOM[bajo.k], valor: fmt(bajo.v),
           delta: nivel ? tr(PM.pct(bajo.v - 100, 1, true) + ' frente a ' + estado.base, PM.pct(bajo.v - 100, 1, true) + ' versus ' + estado.base) : PM.fecha(T[n]), tono: bajo.v < m.ref ? 'malo' : 'bueno', serie: serie(function (i) { return S[bajo.k][i]; }) });
     }
 
