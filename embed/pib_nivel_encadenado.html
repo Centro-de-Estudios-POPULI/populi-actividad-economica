@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nivel del PIB · Populi</title>
+  <title data-en="GDP level · Populi">Nivel del PIB · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -14,13 +14,13 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Nivel del PIB</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>GDP level'><span class="accent-bar"></span>Nivel del PIB</div>
       <div class="sec-sub" id="sub"></div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
-      <div class="hz-item" id="item-base"><span class="hz-lbl">Año base</span><div class="hz-grp" id="b-base"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-base"><span class="hz-lbl" data-en="Base year">Año base</span><div class="hz-grp" id="b-base"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -28,10 +28,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="ley" id="ley"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el nivel del PIB…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading GDP level…">Cargando el nivel del PIB…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -42,15 +42,16 @@
 
   <script>
   (function () {
+    var tr = PM.t;   // tr('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés (acá T son los trimestres)
     var C = PM.C, NB = ' ';
     // Lenguaje de los paneles del deck y del blog: la línea es UNA, en tinta; lo que lleva color es la distancia a la
     // referencia (el año base, o el cero del crecimiento): turquesa por encima, rojo por debajo. La cifra final, rotulada
     // junto a un punto hueco. Todo sobre la suma de 4 trimestres: el PIB de un año, sin el vaivén de las estaciones.
     var TINTA = C.tinta;
     var MEDIDAS = {
-      indice: { boton: 'Base = 100', serie: function () { return 'PIB, índice ' + estado.base + ' = 100'; } },
-      mmbs: { boton: 'Millones de Bs', serie: function () { return 'PIB, millones de Bs de 2017'; } },
-      crec: { boton: 'Crecimiento', serie: function () { return 'Crecimiento de 4 trimestres'; } }
+      indice: { boton: 'Base = 100', serie: function () { return tr('PIB, índice ' + estado.base + ' = 100', 'GDP, index ' + estado.base + ' = 100'); } },
+      mmbs: { boton: tr('Millones de Bs', 'Millions of Bs'), serie: function () { return tr('PIB, millones de Bs de 2017', 'GDP, millions of 2017 Bs'); } },
+      crec: { boton: tr('Crecimiento', 'Growth'), serie: function () { return tr('Crecimiento de 4 trimestres', '4-quarter growth'); } }
     };
     var estado = { medida: 'indice', base: '2019', idx: null };
     var T, M, N = {}, grafico;
@@ -81,7 +82,9 @@
       panel(estado.idx);
       PM.alCambiarTema(function () { controles(); cifras(); panel(estado.idx); });
       PM.preguntas(document.getElementById('preguntas'), preguntas());
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+      document.getElementById('fuente').innerHTML = tr(
+        'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + M.url + '" target="_blank" rel="noopener">INE (National Statistics Institute) — Quarterly GDP, reference year 2017</a> · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(M.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
     function todo() { controles(); cifras(); grafico.redibujar(); panel(estado.idx); }
@@ -91,10 +94,10 @@
     var iBase = function () { return T.indexOf(estado.base + '-T4'); };
     var indice = function (i) { var b = N.anual[iBase()]; return N.anual[i] == null ? null : N.anual[i] / b * 100; };
     // «año 2025» si el año móvil cierra en el IV trimestre; si no, «4 trimestres a T2 2026»
-    function anioMovil(i) { var p = PM.periodo(T[i]); return p.t === 4 ? 'año ' + p.a : '4 trimestres a ' + PM.fecha(T[i]); }
+    function anioMovil(i) { var p = PM.periodo(T[i]); return p.t === 4 ? tr('año ' + p.a, 'year ' + p.a) : tr('4 trimestres a ' + PM.fecha(T[i]), '4 quarters to ' + PM.fecha(T[i])); }
     // con su artículo: «del año 2025» / «de los 4 trimestres a T2 2026» (no «del 4 trimestres»)
-    function delAnio(i) { return PM.periodo(T[i]).t === 4 ? 'del ' + anioMovil(i) : 'de los ' + anioMovil(i); }
-    function elAnio(i) { return PM.periodo(T[i]).t === 4 ? 'el ' + anioMovil(i) : 'el de los ' + anioMovil(i); }
+    function delAnio(i) { return PM.periodo(T[i]).t === 4 ? tr('del ' + anioMovil(i), 'for the ' + anioMovil(i)) : tr('de los ' + anioMovil(i), 'for the ' + anioMovil(i)); }
+    function elAnio(i) { return PM.periodo(T[i]).t === 4 ? tr('el ' + anioMovil(i), String(PM.periodo(T[i]).a)) : tr('el de los ' + anioMovil(i), 'that of the ' + anioMovil(i)); }
     function maximoHasta(i) { var m = null; for (var j = 0; j <= i; j++) if (N.anual[j] != null && (m == null || N.anual[j] > N.anual[m])) m = j; return m; }
     var cambio = function (a, b) { return a != null && b != null ? (a / b - 1) * 100 : null; };
     var pz = function () { return PM.dk() ? '#8A9699' : '#5C6B70'; };
@@ -103,29 +106,31 @@
       var med = estado.medida;
       document.getElementById('item-base').style.display = med === 'crec' ? 'none' : '';
       document.getElementById('sub').textContent = {
-        indice: 'Cuánto produce la economía en un año frente a ' + estado.base + ' (= 100). Por encima de la raya, más que ese año; por debajo, menos',
-        mmbs: 'Cuánto produce la economía en un año, en miles de millones de bolivianos a precios de 2017. La raya marca el nivel de ' + estado.base,
-        crec: 'Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %'
+        indice: tr('Cuánto produce la economía en un año frente a ' + estado.base + ' (= 100). Por encima de la raya, más que ese año; por debajo, menos',
+          'How much the economy produces in a year versus ' + estado.base + ' (= 100). Above the line, more than that year; below it, less'),
+        mmbs: tr('Cuánto produce la economía en un año, en miles de millones de bolivianos a precios de 2017. La raya marca el nivel de ' + estado.base,
+          'How much the economy produces in a year, in billions of bolivianos at 2017 prices. The line marks the level of ' + estado.base),
+        crec: tr('Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %', 'How much output over the last 4 quarters grew versus the previous 4, in %')
       }[med];
-      var ref = med === 'crec' ? 'Cero: ni crece ni cae' : 'Nivel de ' + estado.base + (med === 'indice' ? ' (= 100)' : '');
+      var ref = med === 'crec' ? tr('Cero: ni crece ni cae', 'Zero: neither growing nor falling') : tr('Nivel de ' + estado.base + (med === 'indice' ? ' (= 100)' : ''), estado.base + ' level' + (med === 'indice' ? ' (= 100)' : ''));
       document.getElementById('ley').innerHTML =
         '<span class="ref"><span class="lp" style="--pc:' + PM.col(TINTA) + '"></span>' + MEDIDAS[med].serie() + '</span>' +
         '<span class="ref"><span class="lp dashed"></span>' + ref + '</span>' +
-        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(true) + '"></span>Por encima</span>' +
-        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(false) + '"></span>Por debajo</span>';
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(true) + tr('"></span>Por encima</span>', '"></span>Above</span>') +
+        '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(false) + tr('"></span>Por debajo</span>', '"></span>Below</span>');
     }
 
     function cifras() {
       var n = T.length - 1, ix = indice(n), va = N.crec[n], mx = maximoHasta(n), dMax = cambio(N.anual[n], N.anual[mx]);
       var p = PM.periodo(T[n]), cerrado = p.t === 4;
       document.getElementById('kpis').innerHTML =
-        PM.kpi({ color: ix < 100 ? C.rojo : C.turquesa, rotulo: 'Nivel frente a ' + estado.base, valor: PM.num(ix, 1),
+        PM.kpi({ color: ix < 100 ? C.rojo : C.turquesa, rotulo: tr('Nivel frente a ' + estado.base, 'Level versus ' + estado.base), valor: PM.num(ix, 1),
           delta: (cerrado ? p.a : PM.fecha(T[n])) + ' · ' + estado.base + ' = 100', tono: ix < 100 ? 'malo' : 'bueno', serie: N.anual.map(function (_, i) { return indice(i); }) }) +
-        PM.kpi({ color: TINTA, rotulo: 'PIB ' + delAnio(n), valor: bs(N.anual[n]), delta: 'a precios de 2017', tono: 'neutro', serie: N.anual }) +
-        PM.kpi({ color: va < 0 ? C.rojo : C.turquesa, rotulo: 'Crecimiento', valor: PM.pct(va, 1, true),
-          delta: cerrado ? p.a + ' frente a ' + (p.a - 1) : 'frente a un año antes', tono: va < 0 ? 'malo' : 'bueno', serie: N.crec }) +
-        PM.kpi({ color: mx === n ? C.turquesa : C.rojo, rotulo: 'Distancia al máximo', valor: mx === n ? '0,0%' : PM.pct(dMax, 1, true),
-          delta: mx === n ? 'es el máximo de la serie' : 'máximo: ' + anioMovil(mx), tono: mx === n ? 'bueno' : 'malo' });
+        PM.kpi({ color: TINTA, rotulo: tr('PIB ' + delAnio(n), 'GDP ' + delAnio(n)), valor: bs(N.anual[n]), delta: tr('a precios de 2017', 'at 2017 prices'), tono: 'neutro', serie: N.anual }) +
+        PM.kpi({ color: va < 0 ? C.rojo : C.turquesa, rotulo: tr('Crecimiento', 'Growth'), valor: PM.pct(va, 1, true),
+          delta: cerrado ? tr(p.a + ' frente a ' + (p.a - 1), p.a + ' versus ' + (p.a - 1)) : tr('frente a un año antes', 'versus a year earlier'), tono: va < 0 ? 'malo' : 'bueno', serie: N.crec }) +
+        PM.kpi({ color: mx === n ? C.turquesa : C.rojo, rotulo: tr('Distancia al máximo', 'Distance from the peak'), valor: mx === n ? tr('0,0%', '0.0%') : PM.pct(dMax, 1, true),
+          delta: mx === n ? tr('es el máximo de la serie', 'it is the series peak') : tr('máximo: ' + anioMovil(mx), 'peak: ' + anioMovil(mx)), tono: mx === n ? 'bueno' : 'malo' });
     }
 
     function valores() {
@@ -179,17 +184,17 @@
         animationDuration: 450,
         grid: PM.grid({ right: chico ? 16 : 14 }),
         xAxis: PM.ejeTiempo(T, el),
-        yAxis: PM.ejeY({ unidad: med === 'mmbs' ? 'Miles de MM Bs' : '', fmt: fmt, extra: PM.mezclar(escala(v, R.ref, chico ? 4 : 5), { nameTextStyle: { align: 'left' } }) }),
+        yAxis: PM.ejeY({ unidad: med === 'mmbs' ? tr('Miles de MM Bs', 'Bs billion') : '', fmt: fmt, extra: PM.mezclar(escala(v, R.ref, chico ? 4 : 5), { nameTextStyle: { align: 'left' } }) }),
         visualMap: [{ show: false, type: 'piecewise', seriesIndex: 0, dimension: 1,
           pieces: [{ gt: -1e9, lte: R.ref, color: abj }, { gt: R.ref, lte: 1e9, color: arr }] }],
         tooltip: PM.tooltip(function (ps) {
           if (!ps.length) return '';
           var i = ps[0].dataIndex;
           panel(i);
-          if (v[i] == null) return PM.ttTitulo(PM.fecha(T[i]), 'Sin dato');
-          var h = PM.ttTitulo(anioMovil(i), 'Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]));
-          h += PM.ttFila(TINTA, med === 'crec' ? 'Crecimiento' : med === 'mmbs' ? 'Millones de Bs' : 'Índice ' + estado.base + ' = 100', texto(v[i]), 'linea');
-          if (med !== 'crec') h += PM.ttTotal(med === 'indice' ? 'Frente a ' + estado.base : 'Crecimiento', PM.pct(med === 'indice' ? v[i] - 100 : N.crec[i], 1, true));
+          if (v[i] == null) return PM.ttTitulo(PM.fecha(T[i]), tr('Sin dato', 'No data'));
+          var h = PM.ttTitulo(anioMovil(i), tr('Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]), 'Sum of the 4 quarters ending in ' + PM.fecha(T[i])));
+          h += PM.ttFila(TINTA, med === 'crec' ? tr('Crecimiento', 'Growth') : med === 'mmbs' ? tr('Millones de Bs', 'Millions of Bs') : tr('Índice ' + estado.base + ' = 100', 'Index ' + estado.base + ' = 100'), texto(v[i]), 'linea');
+          if (med !== 'crec') h += PM.ttTotal(med === 'indice' ? tr('Frente a ' + estado.base, 'Versus ' + estado.base) : tr('Crecimiento', 'Growth'), PM.pct(med === 'indice' ? v[i] - 100 : N.crec[i], 1, true));
           return h;
         }),
         series: [area, serie]
@@ -201,19 +206,21 @@
       if (i == null || !T || i < 0 || i >= T.length) return;
       estado.idx = i;
       var a = N.anual[i], ix = indice(i), va = N.crec[i], mx = maximoHasta(i), dMax = cambio(a, N.anual[mx]), am = anioMovil(i);
-      var h = PM.pb(ix < 100 ? C.rojo : C.turquesa, 'Frente a ' + estado.base, PM.num(ix, 1),
-        Math.abs(ix - 100) < 0.05 ? 'Igual que en ' + estado.base + '.' : (PM.periodo(T[i]).t === 4 ? 'El ' + am + ' produjo ' : 'Los ' + am + ' produjeron ') + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' más' : ' menos') + ' que ' + estado.base + '.');
-      h += PM.pb(TINTA, 'Lo producido', bs(a), 'Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]) + ', a precios de 2017.');
-      if (va != null) h += PM.pb(va < 0 ? C.rojo : C.turquesa, 'Crecimiento', PM.pct(va, 1, true), 'Frente a los 4 trimestres que terminan en ' + PM.fecha(T[idxDe(i, -1)]) + '.');
+      var h = PM.pb(ix < 100 ? C.rojo : C.turquesa, tr('Frente a ' + estado.base, 'Versus ' + estado.base), PM.num(ix, 1),
+        Math.abs(ix - 100) < 0.05 ? tr('Igual que en ' + estado.base + '.', 'The same as in ' + estado.base + '.') : tr((PM.periodo(T[i]).t === 4 ? 'El ' + am + ' produjo ' : 'Los ' + am + ' produjeron ') + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' más' : ' menos') + ' que ' + estado.base + '.',
+          'The ' + am + ' produced ' + PM.pct(Math.abs(ix - 100), 1) + (ix > 100 ? ' more' : ' less') + ' than ' + estado.base + '.'));
+      h += PM.pb(TINTA, tr('Lo producido', 'Output'), bs(a), tr('Suma de los 4 trimestres que terminan en ' + PM.fecha(T[i]) + ', a precios de 2017.', 'Sum of the 4 quarters ending in ' + PM.fecha(T[i]) + ', at 2017 prices.'));
+      if (va != null) h += PM.pb(va < 0 ? C.rojo : C.turquesa, tr('Crecimiento', 'Growth'), PM.pct(va, 1, true), tr('Frente a los 4 trimestres que terminan en ' + PM.fecha(T[idxDe(i, -1)]) + '.', 'Versus the 4 quarters ending in ' + PM.fecha(T[idxDe(i, -1)]) + '.'));
       // la racha: desde cuándo el año móvil viene cayendo (o creciendo)
       var desde = i;
       if (va != null) while (desde > 0 && N.crec[desde - 1] != null && (N.crec[desde - 1] < 0) === (va < 0)) desde--;
       // umbrales del crecimiento: ≤ −0,5% se achica · < 0,5% se estanca · en adelante crece
-      var t = 'En el <strong>' + am + '</strong> la economía ' + (va == null ? 'sumó ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>se achicó</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>se estancó</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>creció</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.';
-      if (va != null && desde < i) t += ' Viene ' + (va < 0 ? 'cayendo' : 'creciendo') + ' desde ' + PM.fecha(T[desde]) + '.';
-      t += mx === i ? ' Es el <strong>nivel más alto</strong> registrado hasta ese momento.' : ' Está ' + PM.pct(Math.abs(dMax), 1) + ' por debajo de su máximo (' + anioMovil(mx) + ').';
+      var t = tr('En el <strong>' + am + '</strong> la economía ' + (va == null ? 'sumó ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>se achicó</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>se estancó</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>creció</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.',
+        'In the <strong>' + am + '</strong> the economy ' + (va == null ? 'totaled ' + PM.dt(TINTA, bs(a)) : va <= -0.5 ? '<strong>shrank</strong> ' + PM.dt(C.rojo, PM.pct(va, 1, true)) : va < 0.5 ? '<strong>stagnated</strong> (' + PM.dt(C.pizarra, PM.pct(va, 1, true)) + ')' : '<strong>grew</strong> ' + PM.dt(C.turquesa, PM.pct(va, 1, true))) + '.');
+      if (va != null && desde < i) t += tr(' Viene ' + (va < 0 ? 'cayendo' : 'creciendo') + ' desde ' + PM.fecha(T[desde]) + '.', ' It has been ' + (va < 0 ? 'falling' : 'growing') + ' since ' + PM.fecha(T[desde]) + '.');
+      t += mx === i ? tr(' Es el <strong>nivel más alto</strong> registrado hasta ese momento.', ' It is the <strong>highest level</strong> recorded up to that point.') : tr(' Está ' + PM.pct(Math.abs(dMax), 1) + ' por debajo de su máximo (' + anioMovil(mx) + ').', ' It is ' + PM.pct(Math.abs(dMax), 1) + ' below its peak (' + anioMovil(mx) + ').');
       var i19 = T.indexOf('2019-T' + PM.periodo(T[i]).t), d19 = i19 >= 0 ? cambio(a, N.anual[i19]) : null;
-      if (estado.base !== '2019' && d19 != null && PM.periodo(T[i]).a > 2019) t += ' Frente a 2019, antes de la pandemia: ' + PM.pct(d19, 1, true) + '.';
+      if (estado.base !== '2019' && d19 != null && PM.periodo(T[i]).a > 2019) t += tr(' Frente a 2019, antes de la pandemia: ' + PM.pct(d19, 1, true) + '.', ' Versus 2019, before the pandemic: ' + PM.pct(d19, 1, true) + '.');
       document.getElementById('panel-fecha').textContent = PM.fecha(T[i]);
       document.getElementById('panel').innerHTML = h + PM.ctx(t);
     }
@@ -230,22 +237,31 @@
       });
       var tope = veces.indexOf(Math.max.apply(null, veces));
       return [
-        ['¿Cómo se lee «base = 100»?', '<p>Cada punto es lo producido en un año (los 4 trimestres que terminan en esa fecha) dividido por lo producido en el año base, por 100.</p>' +
-          '<p>100 es «lo mismo que el año base»; por encima, la economía produce más que entonces; por debajo, menos. El botón cambia el año base: 2019 es el último año antes de la pandemia.</p>'],
-        ['¿Por qué sumar 4 trimestres?', '<p>Porque el PIB de cada trimestre tiene estación: cosechas, fiestas y aguinaldos lo suben y bajan cada año. En ' + veces[tope] + ' de los ' + total + ' años completos de la serie el trimestre más alto fue el ' + ROM[tope] + '.</p>' +
-          '<p>La suma de los últimos 4 trimestres es el PIB de un año entero que se actualiza cada trimestre: no tiene estación y en el IV trimestre coincide con el año calendario.</p>'],
-        ['¿Qué son los «bolivianos de 2017»?', '<p>El PIB a precios constantes que publica el INE en <strong>bolivianos encadenados</strong>: cada año se valora con los precios del año anterior y los eslabones se unen hasta llevarlos a precios de 2017, el año de referencia.</p>' +
-          '<p>Así se compara el <strong>volumen</strong> producido sin el efecto de la inflación. Por eso mismo las partes (actividades o componentes del gasto) no suman exactamente el total.</p>'],
-        ['El máximo y el piso', '<p>El año más alto fue ' + elAnio(mx) + ' (' + bs(N.anual[mx]) + '); el más bajo, el de los 4 trimestres a ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), en plena pandemia.</p>'],
-        ['¿Qué mide «Crecimiento»?', '<p>Cuánto cambió lo producido en los últimos 4 trimestres frente a los 4 anteriores. En el IV trimestre es el crecimiento del año calendario.</p>' +
-          '<p>Es la lectura más limpia del ritmo de la economía: no tiene estación y no salta tanto como la variación de un solo trimestre.</p>']
+        [tr('¿Cómo se lee «base = 100»?', 'How do you read “base = 100”?'), tr('<p>Cada punto es lo producido en un año (los 4 trimestres que terminan en esa fecha) dividido por lo producido en el año base, por 100.</p>' +
+          '<p>100 es «lo mismo que el año base»; por encima, la economía produce más que entonces; por debajo, menos. El botón cambia el año base: 2019 es el último año antes de la pandemia.</p>',
+          '<p>Each point is the output of one year (the 4 quarters ending on that date) divided by the output of the base year, times 100.</p>' +
+          '<p>100 means “the same as the base year”; above it, the economy produces more than it did then; below it, less. The button changes the base year: 2019 is the last year before the pandemic.</p>')],
+        [tr('¿Por qué sumar 4 trimestres?', 'Why add up 4 quarters?'), tr('<p>Porque el PIB de cada trimestre tiene estación: cosechas, fiestas y aguinaldos lo suben y bajan cada año. En ' + veces[tope] + ' de los ' + total + ' años completos de la serie el trimestre más alto fue el ' + ROM[tope] + '.</p>' +
+          '<p>La suma de los últimos 4 trimestres es el PIB de un año entero que se actualiza cada trimestre: no tiene estación y en el IV trimestre coincide con el año calendario.</p>',
+          '<p>Because each quarter’s GDP is seasonal: harvests, holidays and year-end bonuses push it up and down every year. In ' + veces[tope] + ' of the ' + total + ' complete years in the series the highest quarter was the ' + ['first', 'second', 'third', 'fourth'][tope] + '.</p>' +
+          '<p>The sum of the last 4 quarters is the GDP of a full year, updated every quarter: it has no seasonality and in the fourth quarter it matches the calendar year.</p>')],
+        [tr('¿Qué son los «bolivianos de 2017»?', 'What are “2017 bolivianos”?'), tr('<p>El PIB a precios constantes que publica el INE en <strong>bolivianos encadenados</strong>: cada año se valora con los precios del año anterior y los eslabones se unen hasta llevarlos a precios de 2017, el año de referencia.</p>' +
+          '<p>Así se compara el <strong>volumen</strong> producido sin el efecto de la inflación. Por eso mismo las partes (actividades o componentes del gasto) no suman exactamente el total.</p>',
+          '<p>GDP at constant prices, which the INE publishes in <strong>chained bolivianos</strong>: each year is valued at the previous year’s prices and the links are joined to bring them to 2017 prices, the reference year.</p>' +
+          '<p>This makes it possible to compare the <strong>volume</strong> produced without the effect of inflation. For the same reason, the parts (activities or spending components) do not add up exactly to the total.</p>')],
+        [tr('El máximo y el piso', 'The peak and the trough'), tr('<p>El año más alto fue ' + elAnio(mx) + ' (' + bs(N.anual[mx]) + '); el más bajo, el de los 4 trimestres a ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), en plena pandemia.</p>',
+          '<p>The highest year was ' + elAnio(mx) + ' (' + bs(N.anual[mx]) + '); the lowest, that of the 4 quarters to ' + PM.fecha(T[piso]) + ' (' + bs(N.anual[piso]) + '), in the midst of the pandemic.</p>')],
+        [tr('¿Qué mide «Crecimiento»?', 'What does “Growth” measure?'), tr('<p>Cuánto cambió lo producido en los últimos 4 trimestres frente a los 4 anteriores. En el IV trimestre es el crecimiento del año calendario.</p>' +
+          '<p>Es la lectura más limpia del ritmo de la economía: no tiene estación y no salta tanto como la variación de un solo trimestre.</p>',
+          '<p>How much output over the last 4 quarters changed versus the previous 4. In the fourth quarter it is the growth of the calendar year.</p>' +
+          '<p>It is the cleanest reading of the pace of the economy: it has no seasonality and does not jump around as much as the change in a single quarter.</p>')]
       ];
     }
 
     PM.leyendaImagen = function () {
       var med = estado.medida;
       return [{ name: MEDIDAS[med].serie(), itemStyle: { color: PM.col(TINTA) }, forma: 'linea' },
-        { name: med === 'crec' ? 'Cero' : 'Nivel de ' + estado.base, itemStyle: { color: pz() }, forma: 'punteada' }];
+        { name: med === 'crec' ? tr('Cero', 'Zero') : tr('Nivel de ' + estado.base, estado.base + ' level'), itemStyle: { color: pz() }, forma: 'punteada' }];
     };
   })();
   </script>

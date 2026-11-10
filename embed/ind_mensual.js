@@ -20,6 +20,7 @@
 (function () {
   'use strict';
   var C = PM.C, NB = '\u00a0', WJ = '\u2060';   // espacio duro y «word joiner»: «ene–jul 2026» no se parte en el guion
+  var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en los seis gráficos salen en inglés
   // Colores comunes a los seis (validados en los dos temas contra la tarjeta: rojo 5,8:1 y 3,2:1, turquesa
   // 3,7:1 y 4,9:1; rojo-turquesa ΔE 15 con deuteranopía). Año en curso = rojo (Foco); año anterior =
   // turquesa; contexto = grises. En las vistas continuas el rojo y el turquesa pasan a ser el signo y la
@@ -51,20 +52,20 @@
 
   // ── Unidades ───────────────────────────────────────────────────────────────
   var UNIDAD = {
-    t: { eje: 'miles de t', div: 1e3, txt: 't' },
-    m2: { eje: 'miles de m²', div: 1e3, txt: 'm²' },
-    permisos: { eje: 'permisos', div: 1, txt: 'permisos' },
-    indice: { eje: 'índice, 2017 = 100', div: 1, txt: '' },
-    pct: { eje: '% de la capacidad', div: 1, txt: '%' }
+    t: { eje: T('miles de t', 'thousand t'), div: 1e3, txt: 't' },
+    m2: { eje: T('miles de m²', 'thousand m²'), div: 1e3, txt: 'm²' },
+    permisos: { eje: T('permisos', 'permits'), div: 1, txt: T('permisos', 'permits') },
+    indice: { eje: T('índice, 2017 = 100', 'index, 2017 = 100'), div: 1, txt: '' },
+    pct: { eje: T('% de la capacidad', '% of capacity'), div: 1, txt: '%' }
   };
   function cifra(v, u) {
     if (v == null || isNaN(v)) return '—';
     if (u === 'indice') return PM.num(v, 1);
     if (u === 'pct') return PM.pct(v, 1);
-    if (u === 'permisos') return PM.num(v, 0) + NB + 'permisos';
+    if (u === 'permisos') return T(PM.num(v, 0) + NB + 'permisos', PM.num(v, 0) + NB + 'permits');
     var t = UNIDAD[u].txt, a = Math.abs(v);
-    if (a >= 1e6) return PM.num(v / 1e6, 2) + NB + 'MM' + NB + t;
-    if (a >= 1e4) return PM.num(v / 1e3, 1) + NB + 'mil' + NB + t;
+    if (a >= 1e6) return T(PM.num(v / 1e6, 2) + NB + 'MM' + NB + t, PM.num(v / 1e6, 2) + NB + 'M' + NB + t);
+    if (a >= 1e4) return T(PM.num(v / 1e3, 1) + NB + 'mil' + NB + t, PM.num(v / 1e3, 1) + NB + 'thousand' + NB + t);
     return PM.num(v, 0) + NB + t;
   }
 
@@ -119,21 +120,25 @@
     }
 
     // ── Textos de período ───────────────────────────────────────────────────
-    var TRIM_L = ['primer trimestre', 'segundo trimestre', 'tercer trimestre', 'cuarto trimestre'];
-    function nomP(q, largo) { return frec === 12 ? (largo ? PM.MES_L[q] : PM.MES[q]) : (largo ? TRIM_L[q] : 'T' + (q + 1)); }
+    var TRIM_L = [T('primer trimestre', 'first quarter'), T('segundo trimestre', 'second quarter'), T('tercer trimestre', 'third quarter'), T('cuarto trimestre', 'fourth quarter')];
+    function nomP(q, largo) { return frec === 12 ? (largo ? PM.MES_L[q] : PM.MES[q]) : (largo ? TRIM_L[q] : T('T' + (q + 1), 'Q' + (q + 1))); }
+    // sólo para las frases en inglés: el trimestre lleva artículo («the second quarter»), el mes no («July»)
+    function nomEn(q) { return (frec === 4 ? 'the ' : '') + nomP(q, true); }
     function fechaP(y, q) { return PM.fecha(clave(y, q)); }
     function tramoCorto(y, q) {
       if (q === frec - 1) return String(y);
-      if (frec === 4) return (q === 0 ? 'T1' : 'T1–' + WJ + 'T' + (q + 1)) + NB + y;
+      if (frec === 4) return T((q === 0 ? 'T1' : 'T1–' + WJ + 'T' + (q + 1)) + NB + y, (q === 0 ? 'Q1' : 'Q1–' + WJ + 'Q' + (q + 1)) + NB + y);
       return (q === 0 ? PM.MES[0] : PM.MES[0] + '–' + WJ + PM.MES[q]) + NB + y;
     }
     function tramoLargo(y, q) {
-      if (q === frec - 1) return 'todo ' + y;
-      if (frec === 4) return (q === 0 ? 'el primer trimestre' : 'T1–T' + (q + 1)) + ' de ' + y;
-      return (q === 0 ? 'enero' : 'enero–' + PM.MES_L[q]) + ' de ' + y;
+      if (q === frec - 1) return T('todo ' + y, 'all of ' + y);
+      if (frec === 4) return T((q === 0 ? 'el primer trimestre' : 'T1–T' + (q + 1)) + ' de ' + y, q === 0 ? 'the first quarter of ' + y : 'Q1–Q' + (q + 1) + ' ' + y);
+      return T((q === 0 ? 'enero' : 'enero–' + PM.MES_L[q]) + ' de ' + y, (q === 0 ? 'January' : 'January–' + PM.MES_L[q]) + ' ' + y);
     }
-    function tramoSin(q) { return q === frec - 1 ? 'año' : frec === 4 ? (q === 0 ? 'T1' : 'T1–T' + (q + 1)) : (q === 0 ? 'ene' : 'ene–' + PM.MES[q]); }
-    function NPER() { return frec === 12 ? '12 meses' : '4 trimestres'; }
+    function tramoSin(q) { return q === frec - 1 ? T('año', 'year') : frec === 4 ? (q === 0 ? T('T1', 'Q1') : T('T1–T' + (q + 1), 'Q1–Q' + (q + 1))) : (q === 0 ? T('ene', 'Jan') : T('ene–' + PM.MES[q], 'Jan–' + PM.MES[q])); }
+    function NPER() { return frec === 12 ? T('12 meses', '12 months') : T('4 trimestres', '4 quarters'); }
+    // sólo para las frases en inglés: la forma adjetiva («12-month growth», «4-quarter average»)
+    function nperEn() { return frec === 12 ? '12-month' : '4-quarter'; }
 
     // ── Arranque ─────────────────────────────────────────────────────────────
     (cfg.cargar ? cfg.cargar() : PM.cargar([cfg.archivo]).then(function (r) { return r[0]; })).then(function (d) {
@@ -146,7 +151,7 @@
           estado.k = k; anios(true); botoneraExtra(); todo();
         });
       else document.getElementById('b-serie').parentNode.hidden = true;
-      PM.botonera(document.getElementById('b-vista'), [['anio', 'Año por año'], ['crec', 'Crecimiento'], ['nivel', 'Nivel']], estado.vista, function (x) {
+      PM.botonera(document.getElementById('b-vista'), [['anio', T('Año por año', 'Year by year')], ['crec', T('Crecimiento', 'Growth')], ['nivel', T('Nivel', 'Level')]], estado.vista, function (x) {
         estado.vista = x; botoneraExtra(); todo();
       });
       anios(false);
@@ -162,8 +167,10 @@
       panel(estado.i);
       PM.alCambiarTema(function () { cifras(); pastillas(); panel(estado.i); });
       PM.preguntas(document.getElementById('preguntas'), cfg.preguntas(ayuda()).concat([comoLeer()]));
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + D.metadata.url + '" target="_blank" rel="noopener">' + cfg.fuente + '</a>' +
-        ' · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(D.metadata.ultimo);
+      document.getElementById('fuente').innerHTML = T('Fuente: <a href="' + D.metadata.url + '" target="_blank" rel="noopener">' + cfg.fuente + '</a>' +
+        ' · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + D.metadata.url + '" target="_blank" rel="noopener">' + cfg.fuente + '</a>' +
+        ' · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(D.metadata.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
     function todo() {
@@ -180,13 +187,13 @@
     function botoneraExtra() {
       var item = document.getElementById('b-extra').parentNode, lbl = item.querySelector('.hz-lbl');
       if (estado.vista === 'anio') {
-        item.hidden = false; lbl.textContent = 'Medida';
-        PM.botonera(document.getElementById('b-extra'), [['mes', frec === 12 ? 'Del mes' : 'Del trimestre'], ['acum', flujo() ? 'Acumulado' : 'Promedio del año']], estado.medida,
+        item.hidden = false; lbl.textContent = T('Medida', 'Measure');
+        PM.botonera(document.getElementById('b-extra'), [['mes', frec === 12 ? T('Del mes', 'Monthly') : T('Del trimestre', 'Quarterly')], ['acum', flujo() ? T('Acumulado', 'Year-to-date') : T('Promedio del año', 'Year average')]], estado.medida,
           function (x) { estado.medida = x; subtitulo(); grafico.redibujar(); panel(estado.i); });
       } else if (estado.vista === 'nivel' && !tasa()) {
         var bs = bases();
         if (bs.indexOf(estado.base) < 0) estado.base = bs.indexOf(BASE_REF) >= 0 ? BASE_REF : bs[0];
-        item.hidden = false; lbl.textContent = 'Año base';
+        item.hidden = false; lbl.textContent = T('Año base', 'Base year');
         PM.botonera(document.getElementById('b-extra'), bs.map(function (b) { return [String(b), String(b)]; }), String(estado.base),
           function (x) { estado.base = +x; subtitulo(); pastillas(); grafico.redibujar(); panel(estado.i); });
       } else item.hidden = true;
@@ -216,7 +223,7 @@
       var lo = out[out.length - 1], hi = out[0];
       var sin = lo < 2020 && hi > 2020;
       // txt para la página (no se parte); plano para el CSV y la leyenda de la imagen (sin caracteres invisibles)
-      return { anios: out, txt: lo + '–' + WJ + hi + (sin ? NB + 'sin' + NB + '2020' : ''), plano: lo + '–' + hi + (sin ? ' sin 2020' : '') };
+      return { anios: out, txt: T(lo + '–' + WJ + hi + (sin ? NB + 'sin' + NB + '2020' : ''), lo + '–' + WJ + hi + (sin ? NB + 'excl.' + NB + '2020' : '')), plano: T(lo + '–' + hi + (sin ? ' sin 2020' : ''), lo + '–' + hi + (sin ? ' excl. 2020' : '')) };
     }
 
     function pastillas() {
@@ -225,21 +232,21 @@
       if (estado.vista !== 'anio') {
         // vistas continuas: una clave fija (no son series que se apaguen) que explica la línea y los dos colores
         var cre = estado.vista === 'crec', dk = PM.dk();
-        var arriba = cre ? 'Sube' : tasa() ? 'Sobre su promedio' : 'Sobre ' + estado.base, abajo = cre ? 'Baja' : tasa() ? 'Bajo su promedio' : 'Bajo ' + estado.base;
+        var arriba = cre ? T('Sube', 'Rising') : tasa() ? T('Sobre su promedio', 'Above its average') : T('Sobre ' + estado.base, 'Above ' + estado.base), abajo = cre ? T('Baja', 'Falling') : tasa() ? T('Bajo su promedio', 'Below its average') : T('Bajo ' + estado.base, 'Below ' + estado.base);
         el.innerHTML = '<span class="ref"><span class="lp" style="--pc:' + PM.col(TINTA) + '"></span>' + nombreContinua() + '</span>' +
           '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(true) + '"></span>' + arriba + '</span>' +
           '<span class="ref"><span class="lp area" style="--pc:' + PM.tinte(false) + '"></span>' + abajo + '</span>';
         return;
       }
       var f = fin(), ra = rangoAnios(), items = [{ k: String(f.y), nombre: String(f.y), fija: true }, { k: String(f.y - 1), nombre: String(f.y - 1) },
-        { k: 'rango', nombre: 'Rango ' + ra.txt, area: true }];
+        { k: 'rango', nombre: T('Rango ' + ra.txt, 'Range ' + ra.txt), area: true }];
       anios.lista.forEach(function (y) { if (+y < f.y - 1) items.push({ k: y, nombre: y }); });
       items.forEach(function (it) {
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'pill'; b.dataset.k = it.k;
         b.innerHTML = '<span class="lp' + (it.area ? ' area' : '') + '"></span>' + it.nombre;
-        if (it.fija) { b.setAttribute('aria-disabled', 'true'); b.title = 'El año en curso siempre está a la vista'; }
-        if (it.area) b.title = 'El valor más bajo y el más alto de cada ' + (frec === 12 ? 'mes' : 'trimestre') + ' en ' + ra.txt;
+        if (it.fija) { b.setAttribute('aria-disabled', 'true'); b.title = T('El año en curso siempre está a la vista', 'The current year is always shown'); }
+        if (it.area) b.title = T('El valor más bajo y el más alto de cada ' + (frec === 12 ? 'mes' : 'trimestre') + ' en ' + ra.txt, 'The lowest and the highest value of each ' + (frec === 12 ? 'month' : 'quarter') + ' in ' + ra.txt);
         b.addEventListener('click', function () {
           if (it.fija) return;
           if (activos.has(it.k)) activos.delete(it.k); else activos.add(it.k);
@@ -262,19 +269,26 @@
 
     // ── Subtítulo en lenguaje llano: qué se ve y cómo leerlo ─────────────────
     function subtitulo() {
-      var f = fin(), s = serie(), ra = rangoAnios(), txt, per = frec === 12 ? 'mes' : 'trimestre';
+      var f = fin(), s = serie(), ra = rangoAnios(), txt, per = frec === 12 ? T('mes', 'month') : T('trimestre', 'quarter');
       if (estado.vista === 'anio') {
-        var que = estado.medida === 'mes' ? s.mide + ' en cada ' + per
-          : flujo() ? s.mide + ', acumulado desde enero' : s.mide + ', promedio desde ' + (frec === 12 ? 'enero' : 'el primer trimestre');
-        txt = que + '. Cada línea es un año: ' + f.y + ', en rojo, ' + (f.q === frec - 1 ? 'está completo' : 'llega hasta ' + nomP(f.q, true)) +
-          (activos && activos.has('rango') ? '; la franja gris es el rango de ' + ra.txt : '') + '.';
+        var que = estado.medida === 'mes' ? T(s.mide + ' en cada ' + per, s.mide + ' in each ' + per)
+          : flujo() ? T(s.mide + ', acumulado desde enero', s.mide + ', cumulative since January') : T(s.mide + ', promedio desde ' + (frec === 12 ? 'enero' : 'el primer trimestre'), s.mide + ', average since ' + (frec === 12 ? 'January' : 'the first quarter'));
+        txt = T(que + '. Cada línea es un año: ' + f.y + ', en rojo, ' + (f.q === frec - 1 ? 'está completo' : 'llega hasta ' + nomP(f.q, true)) +
+          (activos && activos.has('rango') ? '; la franja gris es el rango de ' + ra.txt : '') + '.',
+          que + '. Each line is a year: ' + f.y + ', in red, ' + (f.q === frec - 1 ? 'is complete' : 'runs through ' + nomEn(f.q)) +
+          (activos && activos.has('rango') ? '; the gray band is the range of ' + ra.txt : '') + '.');
       } else if (estado.vista === 'crec') {
-        txt = (tasa() ? s.mide + ': promedio de los últimos ' + NPER() + ' menos el de los ' + NPER() + ' anteriores, en puntos'
+        txt = T((tasa() ? s.mide + ': promedio de los últimos ' + NPER() + ' menos el de los ' + NPER() + ' anteriores, en puntos'
           : s.mide + ': variación de los últimos ' + NPER() + ' frente a los ' + NPER() + ' anteriores') +
-          ', que quita la estacionalidad y el ruido de cada ' + per + '. Turquesa = sube; rojo = baja.';
+          ', que quita la estacionalidad y el ruido de cada ' + per + '. Turquesa = sube; rojo = baja.',
+          (tasa() ? s.mide + ': average of the last ' + NPER() + ' minus that of the previous ' + NPER() + ', in points'
+          : s.mide + ': change in the last ' + NPER() + ' versus the previous ' + NPER()) +
+          ', which removes the seasonality and the noise of each ' + per + '. Turquoise = rising; red = falling.');
       } else {
-        txt = tasa() ? s.mide + ', promedio de los últimos ' + NPER() + '. Turquesa = por encima de su promedio desde ' + P[primero()].a + '; rojo = por debajo.'
-          : s.mide + ': ' + (flujo() ? 'suma' : 'promedio') + ' de los últimos ' + NPER() + ', con ' + estado.base + ' = 100. Turquesa = por encima de ' + estado.base + '; rojo = por debajo.';
+        txt = tasa() ? T(s.mide + ', promedio de los últimos ' + NPER() + '. Turquesa = por encima de su promedio desde ' + P[primero()].a + '; rojo = por debajo.',
+            s.mide + ', average of the last ' + NPER() + '. Turquoise = above its average since ' + P[primero()].a + '; red = below.')
+          : T(s.mide + ': ' + (flujo() ? 'suma' : 'promedio') + ' de los últimos ' + NPER() + ', con ' + estado.base + ' = 100. Turquesa = por encima de ' + estado.base + '; rojo = por debajo.',
+            s.mide + ': ' + (flujo() ? 'sum' : 'average') + ' of the last ' + NPER() + ', with ' + estado.base + ' = 100. Turquoise = above ' + estado.base + '; red = below.');
       }
       document.getElementById('sub').textContent = txt;
     }
@@ -295,16 +309,16 @@
       var fechaH = h == null ? fechaP(f.y - 1, f.q) : PM.fecha(K[h]);
       document.getElementById('kpis').innerHTML =
         PM.kpi({ color: signoCol(y1), rotulo: sr.corto + ' · ' + PM.fecha(K[iU]), valor: cifra(s[iU], u),
-          delta: y1 == null ? 'sin dato de ' + (f.y - 1) : fdif(y1) + ' vs ' + fechaH, tono: tono(y1),
+          delta: y1 == null ? T('sin dato de ' + (f.y - 1), 'no data for ' + (f.y - 1)) : fdif(y1) + ' vs ' + fechaH, tono: tono(y1),
           serie: serieN(function (i) { return s[i]; }, nper) }) +
-        PM.kpi({ color: signoCol(ya), rotulo: f.q === frec - 1 ? 'En ' + f.y : 'En lo que va de ' + f.y, valor: fdif(ya),
+        PM.kpi({ color: signoCol(ya), rotulo: f.q === frec - 1 ? T('En ' + f.y, 'In ' + f.y) : T('En lo que va de ' + f.y, 'So far in ' + f.y), valor: fdif(ya),
           delta: tramoCorto(f.y, f.q) + ' vs ' + tramoCorto(f.y - 1, f.q), tono: tono(ya),
           serie: serieN(function (i) { var p = P[i]; return dif(agregado(p.a, pos(i)), agregado(p.a - 1, pos(i))); }, nper) }) +
-        PM.kpi({ color: signoCol(yn), rotulo: tramoCorto(f.y, f.q) + ' frente a lo normal', valor: fdif(yn),
-          delta: 'vs promedio ' + ra.txt, tono: tono(yn),
+        PM.kpi({ color: signoCol(yn), rotulo: T(tramoCorto(f.y, f.q) + ' frente a lo normal', tramoCorto(f.y, f.q) + ' versus normal'), valor: fdif(yn),
+          delta: T('vs promedio ' + ra.txt, 'vs ' + ra.txt + ' average'), tono: tono(yn),
           serie: hist }) +
-        PM.kpi({ color: signoCol(yb), rotulo: 'Frente a ' + BASE_REF, valor: fdif(yb),
-          delta: 'últimos ' + NPER() + ' vs ' + BASE_REF, tono: tono(yb),
+        PM.kpi({ color: signoCol(yb), rotulo: T('Frente a ' + BASE_REF, 'Versus ' + BASE_REF), valor: fdif(yb),
+          delta: T('últimos ' + NPER() + ' vs ' + BASE_REF, 'last ' + NPER() + ' vs ' + BASE_REF), tono: tono(yb),
           serie: serieN(function (i) { return doce(i); }, frec === 12 ? 36 : 12) });
     }
 
@@ -352,7 +366,7 @@
     }
     function ejeX(el) {
       var dk = PM.dk(), fs = PM.pequeno() ? 10 : 10.5, linea = dk ? '#3A4549' : '#C9CDCE';
-      var cats = frec === 12 ? PM.MES.slice() : ['T1', 'T2', 'T3', 'T4'];
+      var cats = frec === 12 ? PM.MES.slice() : T(['T1', 'T2', 'T3', 'T4'], ['Q1', 'Q2', 'Q3', 'Q4']);
       // meses: todos si entran; si no, uno de cada dos. Misma letra que el eje de tiempo del molde.
       var util = Math.max(140, el.clientWidth - 70), px = util / (frec - 1), necesita = 3 * (fs * 0.6 + 0.15) + (PM.pequeno() ? 12 : 14);
       var paso = frec === 4 || px >= necesita ? 0 : 2 * px >= necesita ? 1 : 2;
@@ -412,17 +426,17 @@
       PM.leyendaImagen = function () {
         var out = [];
         lista.slice().reverse().forEach(function (y) { if (rol(+y) !== 'ctx') out.push({ name: y, itemStyle: { color: PM.col(colorAnio(+y)) }, forma: 'linea' }); });
-        if (activos.has('rango')) out.push({ name: 'Rango ' + ra.plano, itemStyle: { color: PM.rgba(BANDA, 0.4) } });
+        if (activos.has('rango')) out.push({ name: T('Rango ' + ra.plano, 'Range ' + ra.plano), itemStyle: { color: PM.rgba(BANDA, 0.4) } });
         var ctx = lista.filter(function (y) { return rol(+y) === 'ctx'; });
         if (ctx.length) out.push({ name: ctx.join(', '), itemStyle: { color: PM.col(CONTEXTO) }, forma: 'linea' });
         return out;
       };
       PM.tablaDatos = function () {
-        var cols = [frec === 12 ? 'Mes' : 'Trimestre'].concat(lista.slice().reverse());
-        if (activos.has('rango')) cols.push('Mínimo ' + ra.plano, 'Máximo ' + ra.plano, 'Promedio ' + ra.plano);
+        var cols = [frec === 12 ? T('Mes', 'Month') : T('Trimestre', 'Quarter')].concat(lista.slice().reverse());
+        if (activos.has('rango')) cols.push(T('Mínimo ' + ra.plano, 'Minimum ' + ra.plano), T('Máximo ' + ra.plano, 'Maximum ' + ra.plano), T('Promedio ' + ra.plano, 'Average ' + ra.plano));
         var filas = [];
         for (var q = 0; q < frec; q++) {
-          var fila = [frec === 12 ? PM.MES_L[q] : 'T' + (q + 1)];
+          var fila = [frec === 12 ? PM.MES_L[q] : T('T' + (q + 1), 'Q' + (q + 1))];
           lista.slice().reverse().forEach(function (y) { fila.push(r2(valorAnio(+y, q))); });
           if (activos.has('rango')) { var b = bd[q]; fila.push(b ? r2(b.min) : null, b ? r2(b.max) : null, b ? r2(b.prom) : null); }
           filas.push(fila);
@@ -437,10 +451,10 @@
           if (!ps.length) return '';
           var q = ps[0].dataIndex;
           panel(q);
-          var h = PM.ttTitulo(nomP(q, true), estado.medida === 'mes' ? serie().corto : (flujo() ? 'Acumulado desde enero' : 'Promedio en el año'));
+          var h = PM.ttTitulo(nomP(q, true), estado.medida === 'mes' ? serie().corto : (flujo() ? T('Acumulado desde enero', 'Cumulative since January') : T('Promedio en el año', 'Average for the year')));
           lista.slice().reverse().forEach(function (y) { var x = valorAnio(+y, q); if (x != null) h += PM.ttFila(colorTip(+y), y, fmtNivel(x), 'linea'); });
-          if (activos.has('rango') && bd[q]) h += PM.ttFila(BANDA, 'Rango ' + ra.txt, corto(bd[q].min) + '–' + fmtNivel(bd[q].max), 'area');
-          if (q > f.q) h += PM.ttPie(f.y + ' todavía no tiene dato de ' + nomP(q, true) + '.');
+          if (activos.has('rango') && bd[q]) h += PM.ttFila(BANDA, T('Rango ' + ra.txt, 'Range ' + ra.txt), corto(bd[q].min) + '–' + fmtNivel(bd[q].max), 'area');
+          if (q > f.q) h += PM.ttPie(T(f.y + ' todavía no tiene dato de ' + nomP(q, true) + '.', f.y + ' has no data yet for ' + nomEn(q) + '.'));
           return h;
         }),
         series: series
@@ -456,7 +470,7 @@
       return Math.max(primero(), i == null ? primero() : i);
     }
     function nombreContinua() {
-      return estado.vista === 'crec' ? (tasa() ? 'Diferencia de ' + NPER() : 'Crecimiento de ' + NPER()) : tasa() ? 'Promedio de ' + NPER() : 'Nivel (' + estado.base + ' = 100)';
+      return estado.vista === 'crec' ? (tasa() ? T('Diferencia de ' + NPER(), nperEn() + ' difference') : T('Crecimiento de ' + NPER(), nperEn() + ' growth')) : tasa() ? T('Promedio de ' + NPER(), nperEn() + ' average') : T('Nivel (' + estado.base + ' = 100)', 'Level (' + estado.base + ' = 100)');
     }
     function opcContinua(el) {
       var dk = PM.dk(), cre = estado.vista === 'crec', i0 = cre ? primero() : inicioNivel(), iU = ultimo();
@@ -481,19 +495,19 @@
       linea.markLine = cre ? PM.cero() : { silent: true, symbol: 'none', animation: false, data: [{ yAxis: r2(ref) }], label: { show: false },
         lineStyle: { color: dk ? 'rgba(226,232,240,.55)' : 'rgba(0,18,25,.5)', width: 1.25, type: 'dashed' } };
       PM.leyendaImagen = function () {
-        var arriba = cre ? 'Sube' : tasa() ? 'Sobre su promedio' : 'Sobre ' + estado.base, abajo = cre ? 'Baja' : tasa() ? 'Bajo su promedio' : 'Bajo ' + estado.base;
+        var arriba = cre ? T('Sube', 'Rising') : tasa() ? T('Sobre su promedio', 'Above its average') : T('Sobre ' + estado.base, 'Above ' + estado.base), abajo = cre ? T('Baja', 'Falling') : tasa() ? T('Bajo su promedio', 'Below its average') : T('Bajo ' + estado.base, 'Below ' + estado.base);
         return [{ name: nombre, itemStyle: { color: PM.col(TINTA) }, forma: 'linea' },
           { name: arriba, itemStyle: { color: PM.tinte(true) } }, { name: abajo, itemStyle: { color: PM.tinte(false) } }];
       };
       PM.tablaDatos = function () {
-        var cols = ['Período', nombre + (cre ? (tasa() ? ' (pp)' : ' (%)') : ''), (flujo() ? 'Suma de ' : 'Promedio de ') + NPER(), serie().corto + ' del período'];
+        var cols = [T('Período', 'Period'), nombre + (cre ? (tasa() ? ' (pp)' : ' (%)') : ''), T((flujo() ? 'Suma de ' : 'Promedio de ') + NPER(), nperEn() + (flujo() ? ' sum' : ' average')), T(serie().corto + ' del período', serie().corto + ' for the period')];
         return { cols: cols, filas: KV.map(function (k, j) { var i = desde + j; return [k, vals[j], r2(doce(i)), r2(S()[i])]; }) };
       };
       var conDato = vals.filter(function (x) { return x != null; });
       var lo = Math.min(ref, Math.min.apply(null, conDato)) - 1, hi = Math.max(ref, Math.max.apply(null, conDato)) + 1;
       var ejeV = cre
         ? PM.ejeY({ unidad: tasa() ? 'pp' : '%', fmt: tasa() ? PM.tick : 'pct', extra: NOMBRE_EJE })
-        : tasa() ? PM.ejeY({ unidad: '% de la capacidad', fmt: 'pct', extra: PM.mezclar({ scale: true }, NOMBRE_EJE) })
+        : tasa() ? PM.ejeY({ unidad: T('% de la capacidad', '% of capacity'), fmt: 'pct', extra: PM.mezclar({ scale: true }, NOMBRE_EJE) })
         : PM.ejeY({ unidad: estado.base + ' = 100', extra: PM.mezclar({ scale: true }, NOMBRE_EJE) });
       return {
         grid: PM.grid(),
@@ -506,10 +520,10 @@
           if (!ps.length) return '';
           var j = ps[0].dataIndex, i = desde + j, x = vals[j];
           panel(i);
-          var h = PM.ttTitulo(PM.fecha(KV[j]), cre ? 'Últimos ' + NPER() + ' vs los ' + NPER() + ' anteriores' : tasa() ? 'Promedio de los últimos ' + NPER() : 'Últimos ' + NPER() + ', ' + estado.base + ' = 100');
+          var h = PM.ttTitulo(PM.fecha(KV[j]), cre ? T('Últimos ' + NPER() + ' vs los ' + NPER() + ' anteriores', 'Last ' + NPER() + ' vs the previous ' + NPER()) : tasa() ? T('Promedio de los últimos ' + NPER(), 'Average of the last ' + NPER()) : T('Últimos ' + NPER() + ', ' + estado.base + ' = 100', 'Last ' + NPER() + ', ' + estado.base + ' = 100'));
           if (x != null) h += PM.ttFila(TINTA, nombre, cre ? fdif(x) : tasa() ? PM.pct(x, 1) : PM.num(x, 1), 'linea');
-          h += PM.ttFila(null, (flujo() ? 'Suma de ' : 'Promedio de ') + NPER(), fmtNivel(doce(i)));
-          h += PM.ttFila(null, serie().corto + ' del ' + (frec === 12 ? 'mes' : 'trimestre'), fmtNivel(S()[i]));
+          h += PM.ttFila(null, T((flujo() ? 'Suma de ' : 'Promedio de ') + NPER(), nperEn() + (flujo() ? ' sum' : ' average')), fmtNivel(doce(i)));
+          h += PM.ttFila(null, T(serie().corto + ' del ' + (frec === 12 ? 'mes' : 'trimestre'), serie().corto + ' for the ' + (frec === 12 ? 'month' : 'quarter')), fmtNivel(S()[i]));
           return h;
         }),
         series: [area, linea]
@@ -518,12 +532,12 @@
 
     // ── Panel que sigue al cursor: el período bajo el cursor y la conclusión calculada ──
     function umbral(x) {
-      var um = serie().umbrales || cfg.umbrales, a = um[0], b = um[1], ab = Math.abs(x), un = tasa() ? ' puntos' : '%';
-      if (ab < a) return 'prácticamente sin cambio (menos de ' + PM.num(a, 0) + un + ')';
-      if (ab < b) return (x > 0 ? 'un aumento moderado' : 'una caída moderada') + ' (entre ' + PM.num(a, 0) + ' y ' + PM.num(b, 0) + un + ')';
-      return (x > 0 ? 'un aumento fuerte' : 'una caída fuerte') + ' (más de ' + PM.num(b, 0) + un + ')';
+      var um = serie().umbrales || cfg.umbrales, a = um[0], b = um[1], ab = Math.abs(x), un = tasa() ? T(' puntos', ' points') : '%';
+      if (ab < a) return T('prácticamente sin cambio (menos de ' + PM.num(a, 0) + un + ')', 'practically unchanged (less than ' + PM.num(a, 0) + un + ')');
+      if (ab < b) return T((x > 0 ? 'un aumento moderado' : 'una caída moderada') + ' (entre ' + PM.num(a, 0) + ' y ' + PM.num(b, 0) + un + ')', (x > 0 ? 'a moderate increase' : 'a moderate decline') + ' (between ' + PM.num(a, 0) + ' and ' + PM.num(b, 0) + un + ')');
+      return T((x > 0 ? 'un aumento fuerte' : 'una caída fuerte') + ' (más de ' + PM.num(b, 0) + un + ')', (x > 0 ? 'a strong increase' : 'a sharp decline') + ' (more than ' + PM.num(b, 0) + un + ')');
     }
-    function masMenos(x) { return tasa() ? (x >= 0 ? PM.num(x, 1) + ' puntos más' : PM.num(-x, 1) + ' puntos menos') : x >= 0 ? PM.pct(x, 1) + ' más' : PM.pct(-x, 1) + ' menos'; }
+    function masMenos(x) { return tasa() ? (x >= 0 ? T(PM.num(x, 1) + ' puntos más', PM.num(x, 1) + ' points more') : T(PM.num(-x, 1) + ' puntos menos', PM.num(-x, 1) + ' points less')) : x >= 0 ? T(PM.pct(x, 1) + ' más', PM.pct(x, 1) + ' more') : T(PM.pct(-x, 1) + ' menos', PM.pct(-x, 1) + ' less'); }
     function panel(i) {
       if (i == null || !D) return;
       estado.i = i;
@@ -536,16 +550,18 @@
       if (!cur || cur.y !== f.y || !prev) return '';
       if (cur.v >= prev.v) {
         for (j = n - 2; j >= 0 && hist[j].v < cur.v; j--);
-        return j < 0 ? ' Es el ' + t + ' más alto de la serie (desde ' + hist[0].y + ').' : ' Es el ' + t + ' más alto desde ' + hist[j].y + '.';
+        return j < 0 ? T(' Es el ' + t + ' más alto de la serie (desde ' + hist[0].y + ').', ' It is the highest ' + t + ' in the series (since ' + hist[0].y + ').') : T(' Es el ' + t + ' más alto desde ' + hist[j].y + '.', ' It is the highest ' + t + ' since ' + hist[j].y + '.');
       }
       for (j = n - 2; j >= 0 && hist[j].v > cur.v; j--);
-      return j < 0 ? ' Es el ' + t + ' más bajo de la serie (desde ' + hist[0].y + ').' : ' Es el ' + t + ' más bajo desde ' + hist[j].y + '.';
+      return j < 0 ? T(' Es el ' + t + ' más bajo de la serie (desde ' + hist[0].y + ').', ' It is the lowest ' + t + ' in the series (since ' + hist[0].y + ').') : T(' Es el ' + t + ' más bajo desde ' + hist[j].y + '.', ' It is the lowest ' + t + ' since ' + hist[j].y + '.');
     }
     function lecturaAnio() {
       var f = fin(), a = agregado(f.y, f.q), b = agregado(f.y - 1, f.q), va = dif(a, b), sr = serie();
       if (va == null) return '';
-      return 'En ' + tramoLargo(f.y, f.q) + ' ' + sr.acum.replace('{v}', '<strong>' + fmtNivel(a) + '</strong>') + ', <strong>' + masMenos(va) +
-        '</strong> que ' + (f.q === frec - 1 ? 'en ' : 'en el mismo tramo de ') + (f.y - 1) + ': ' + umbral(va) + '.' + posicion();
+      return T('En ' + tramoLargo(f.y, f.q) + ' ' + sr.acum.replace('{v}', '<strong>' + fmtNivel(a) + '</strong>') + ', <strong>' + masMenos(va) +
+        '</strong> que ' + (f.q === frec - 1 ? 'en ' : 'en el mismo tramo de ') + (f.y - 1) + ': ' + umbral(va) + '.',
+        'In ' + tramoLargo(f.y, f.q) + ', ' + sr.acum.replace('{v}', '<strong>' + fmtNivel(a) + '</strong>') + ', <strong>' + masMenos(va) +
+        '</strong> than ' + (f.q === frec - 1 ? 'in ' : 'in the same period of ') + (f.y - 1) + ': ' + umbral(va) + '.') + posicion();
     }
     function panelAnio(q) {
       var f = fin(), ra = rangoAnios(), bd = banda()[q], html = '';
@@ -553,11 +569,11 @@
       var cur = valorAnio(f.y, q), prev = valorAnio(f.y - 1, q), prev2 = valorAnio(f.y - 2, q);
       var etq = function (y) { return estado.medida === 'mes' ? fechaP(y, q) : tramoCorto(y, q); };
       html += cur == null
-        ? PM.pb(ROJO, String(f.y), '—', 'Todavía sin dato de ' + nomP(q, true) + ': ' + f.y + ' llega hasta ' + nomP(f.q, true) + '.')
+        ? PM.pb(ROJO, String(f.y), '—', T('Todavía sin dato de ' + nomP(q, true) + ': ' + f.y + ' llega hasta ' + nomP(f.q, true) + '.', 'No data yet for ' + nomEn(q) + ': ' + f.y + ' runs through ' + nomEn(f.q) + '.'))
         : PM.pb(ROJO, etq(f.y), fmtNivel(cur), prev == null ? '' : fdif(dif(cur, prev)) + ' vs ' + etq(f.y - 1));
       if (prev != null) html += PM.pb(PREVIO, etq(f.y - 1), fmtNivel(prev), prev2 == null ? '' : fdif(dif(prev, prev2)) + ' vs ' + etq(f.y - 2));
       if (bd) {
-        html += PM.pb(BANDA, 'Rango ' + ra.txt, corto(bd.min) + '–' + fmtNivel(bd.max), 'Promedio de esos años: ' + fmtNivel(bd.prom));
+        html += PM.pb(BANDA, T('Rango ' + ra.txt, 'Range ' + ra.txt), corto(bd.min) + '–' + fmtNivel(bd.max), T('Promedio de esos años: ' + fmtNivel(bd.prom), 'Average of those years: ' + fmtNivel(bd.prom)));
         var filas = '';
         ra.anios.forEach(function (y) { var x = valorAnio(y, q); if (x != null) filas += '<div class="anio-f"><span class="anio-a">' + y + '</span><span class="anio-v">' + fmtNivel(x) + '</span></div>'; });
         html += '<div class="anios">' + filas + '</div>';
@@ -566,11 +582,15 @@
       var txt = '';
       if (cur != null) {
         var d1 = dif(cur, prev), dn = bd ? dif(cur, bd.prom) : null;
-        txt += 'En ' + (estado.medida === 'mes' ? (frec === 4 ? 'el ' : '') + nomP(q, true) + ' de ' + f.y : tramoLargo(f.y, q)) + ': ' + (d1 == null ? '' : '<strong>' + masMenos(d1) + '</strong> que en ' + (f.y - 1)) +
+        txt += T('En ' + (estado.medida === 'mes' ? (frec === 4 ? 'el ' : '') + nomP(q, true) + ' de ' + f.y : tramoLargo(f.y, q)) + ': ' + (d1 == null ? '' : '<strong>' + masMenos(d1) + '</strong> que en ' + (f.y - 1)) +
           (bd ? (cur > bd.max ? ' y <strong>por encima de todo el rango</strong> de ' + ra.txt
             : cur < bd.min ? ' y <strong>por debajo de todo el rango</strong> de ' + ra.txt
-            : ', dentro del rango de ' + ra.txt + ' (' + fdif(dn, 0) + ' frente a su promedio)') : '') + '. ';
-      } else txt += f.y + ' todavía no llega a ' + nomP(q, true) + '. ';
+            : ', dentro del rango de ' + ra.txt + ' (' + fdif(dn, 0) + ' frente a su promedio)') : '') + '. ',
+          'In ' + (estado.medida === 'mes' ? nomEn(q) + (frec === 4 ? ' of ' : ' ') + f.y : tramoLargo(f.y, q)) + ': ' + (d1 == null ? '' : '<strong>' + masMenos(d1) + '</strong> than in ' + (f.y - 1)) +
+          (bd ? (cur > bd.max ? ' and <strong>above the entire range</strong> of ' + ra.txt
+            : cur < bd.min ? ' and <strong>below the entire range</strong> of ' + ra.txt
+            : ', within the range of ' + ra.txt + ' (' + fdif(dn, 0) + ' versus its average)') : '') + '. ');
+      } else txt += T(f.y + ' todavía no llega a ' + nomP(q, true) + '. ', f.y + ' has not yet reached ' + nomEn(q) + '. ');
       txt += lecturaAnio();
       document.getElementById('panel').innerHTML = html + PM.ctx(txt);
     }
@@ -581,29 +601,36 @@
       return n;
     }
     function panelContinua(i) {
-      var cre = estado.vista === 'crec', s = S(), h = hace(i), html = '', per = frec === 12 ? 'meses' : 'trimestres';
+      var cre = estado.vista === 'crec', s = S(), h = hace(i), html = '', per = frec === 12 ? T('meses', 'months') : T('trimestres', 'quarters');
       document.getElementById('panel-fecha').textContent = PM.fecha(K[i]);
       var c = crec(i), d = doce(i), nv = nivel(i), ref = cre ? 0 : referenciaNivel();
       var dm = dif(s[i], h == null ? null : s[h]);
-      if (cre) html += PM.pb(TINTA, tasa() ? 'Diferencia de ' + NPER() : 'Crecimiento de ' + NPER(), fdif(c), (flujo() ? 'Suma' : 'Promedio') + ' de ' + NPER() + ': ' + fmtNivel(d));
-      else html += PM.pb(TINTA, tasa() ? 'Promedio de ' + NPER() : 'Nivel (' + estado.base + ' = 100)', tasa() ? PM.pct(nv, 1) : PM.num(nv, 1),
-        tasa() ? 'Promedio desde ' + P[primero()].a + ': ' + PM.pct(ref, 1) : (flujo() ? 'Suma' : 'Promedio') + ' de ' + NPER() + ': ' + fmtNivel(d));
-      html += PM.pb(CTX_TIP, serie().corto + ' del ' + (frec === 12 ? 'mes' : 'trimestre'), fmtNivel(s[i]), dm == null ? '' : fdif(dm) + ' vs ' + PM.fecha(K[h]));
+      if (cre) html += PM.pb(TINTA, tasa() ? T('Diferencia de ' + NPER(), nperEn() + ' difference') : T('Crecimiento de ' + NPER(), nperEn() + ' growth'), fdif(c), T((flujo() ? 'Suma' : 'Promedio') + ' de ' + NPER() + ': ' + fmtNivel(d), nperEn() + (flujo() ? ' sum' : ' average') + ': ' + fmtNivel(d)));
+      else html += PM.pb(TINTA, tasa() ? T('Promedio de ' + NPER(), nperEn() + ' average') : T('Nivel (' + estado.base + ' = 100)', 'Level (' + estado.base + ' = 100)'), tasa() ? PM.pct(nv, 1) : PM.num(nv, 1),
+        tasa() ? T('Promedio desde ' + P[primero()].a + ': ' + PM.pct(ref, 1), 'Average since ' + P[primero()].a + ': ' + PM.pct(ref, 1)) : T((flujo() ? 'Suma' : 'Promedio') + ' de ' + NPER() + ': ' + fmtNivel(d), nperEn() + (flujo() ? ' sum' : ' average') + ': ' + fmtNivel(d)));
+      html += PM.pb(CTX_TIP, T(serie().corto + ' del ' + (frec === 12 ? 'mes' : 'trimestre'), serie().corto + ' for the ' + (frec === 12 ? 'month' : 'quarter')), fmtNivel(s[i]), dm == null ? '' : fdif(dm) + ' vs ' + PM.fecha(K[h]));
       var txt;
       if (cre && c != null) {
         var rn = racha(i, crec);
-        txt = 'A ' + PM.fecha(K[i]) + ', los últimos ' + NPER() + ' ' + (flujo() ? 'suman ' : 'promedian ') + '<strong>' + fmtNivel(d) + '</strong>: <strong>' + masMenos(c) + '</strong> que los ' + NPER() + ' anteriores, ' + umbral(c) + '. ' +
-          (rn > 1 ? 'Lleva <strong>' + rn + ' ' + per + ' seguidos ' + (c >= 0 ? 'en alza' : 'en baja') + '</strong>.' : 'Es el primer ' + (frec === 12 ? 'mes' : 'trimestre') + ' ' + (c >= 0 ? 'en alza' : 'en baja') + ' después de uno de signo contrario.');
+        txt = T('A ' + PM.fecha(K[i]) + ', los últimos ' + NPER() + ' ' + (flujo() ? 'suman ' : 'promedian ') + '<strong>' + fmtNivel(d) + '</strong>: <strong>' + masMenos(c) + '</strong> que los ' + NPER() + ' anteriores, ' + umbral(c) + '. ' +
+          (rn > 1 ? 'Lleva <strong>' + rn + ' ' + per + ' seguidos ' + (c >= 0 ? 'en alza' : 'en baja') + '</strong>.' : 'Es el primer ' + (frec === 12 ? 'mes' : 'trimestre') + ' ' + (c >= 0 ? 'en alza' : 'en baja') + ' después de uno de signo contrario.'),
+          'As of ' + PM.fecha(K[i]) + ', the last ' + NPER() + ' ' + (flujo() ? 'total ' : 'average ') + '<strong>' + fmtNivel(d) + '</strong>: <strong>' + masMenos(c) + '</strong> than the previous ' + NPER() + ', ' + umbral(c) + '. ' +
+          (rn > 1 ? 'It has been <strong>' + (c >= 0 ? 'rising' : 'falling') + ' for ' + rn + ' consecutive ' + per + '</strong>.' : 'It is the first ' + (frec === 12 ? 'month' : 'quarter') + ' ' + (c >= 0 ? 'on the rise' : 'on the decline') + ' after one of the opposite sign.'));
       } else if (!cre && nv != null) {
         var mx = null;
         for (var j = inicioNivel(); j <= ultimo(); j++) { var x = nivel(j); if (x != null && (!mx || x > mx.v)) mx = { v: x, i: j }; }
         txt = tasa()
-          ? 'A ' + PM.fecha(K[i]) + ', la industria usó en promedio el <strong>' + PM.pct(nv, 1) + '</strong> de su capacidad en los últimos ' + NPER() + ', ' +
-            (Math.abs(nv - ref) < 1 ? 'en línea con' : nv > ref ? PM.num(nv - ref, 1) + ' puntos <strong>por encima</strong> de' : PM.num(ref - nv, 1) + ' puntos <strong>por debajo</strong> de') + ' su promedio desde ' + P[primero()].a + ' (' + PM.pct(ref, 1) + ').'
-          : 'A ' + PM.fecha(K[i]) + ', el volumen de los últimos ' + NPER() + ' está ' + (Math.abs(nv - 100) < 0.05 ? 'igual que en ' + estado.base
-            : '<strong>' + PM.pct(Math.abs(nv - 100), 1) + (nv > 100 ? ' por encima' : ' por debajo') + '</strong> del de ' + estado.base) + '.';
-        if (mx) txt += ' Máximo desde ' + P[inicioNivel()].a + ': ' + (tasa() ? PM.pct(mx.v, 1) : PM.num(mx.v, 1)) + ' (' + PM.fecha(K[mx.i]) + ')' + (mx.i === i ? ', este mismo período.' : '.');
-      } else txt = 'Para este período todavía no hay ' + NPER() + ' anteriores con qué comparar.';
+          ? T('A ' + PM.fecha(K[i]) + ', la industria usó en promedio el <strong>' + PM.pct(nv, 1) + '</strong> de su capacidad en los últimos ' + NPER() + ', ' +
+            (Math.abs(nv - ref) < 1 ? 'en línea con' : nv > ref ? PM.num(nv - ref, 1) + ' puntos <strong>por encima</strong> de' : PM.num(ref - nv, 1) + ' puntos <strong>por debajo</strong> de') + ' su promedio desde ' + P[primero()].a + ' (' + PM.pct(ref, 1) + ').',
+            'As of ' + PM.fecha(K[i]) + ', industry used on average <strong>' + PM.pct(nv, 1) + '</strong> of its capacity over the last ' + NPER() + ', ' +
+            (Math.abs(nv - ref) < 1 ? 'in line with' : nv > ref ? PM.num(nv - ref, 1) + ' points <strong>above</strong>' : PM.num(ref - nv, 1) + ' points <strong>below</strong>') + ' its average since ' + P[primero()].a + ' (' + PM.pct(ref, 1) + ').')
+          : T('A ' + PM.fecha(K[i]) + ', el volumen de los últimos ' + NPER() + ' está ' + (Math.abs(nv - 100) < 0.05 ? 'igual que en ' + estado.base
+            : '<strong>' + PM.pct(Math.abs(nv - 100), 1) + (nv > 100 ? ' por encima' : ' por debajo') + '</strong> del de ' + estado.base) + '.',
+            'As of ' + PM.fecha(K[i]) + ', the volume of the last ' + NPER() + ' is ' + (Math.abs(nv - 100) < 0.05 ? 'the same as in ' + estado.base
+            : '<strong>' + PM.pct(Math.abs(nv - 100), 1) + (nv > 100 ? ' above' : ' below') + '</strong> that of ' + estado.base) + '.');
+        if (mx) txt += T(' Máximo desde ' + P[inicioNivel()].a + ': ' + (tasa() ? PM.pct(mx.v, 1) : PM.num(mx.v, 1)) + ' (' + PM.fecha(K[mx.i]) + ')' + (mx.i === i ? ', este mismo período.' : '.'),
+          ' Peak since ' + P[inicioNivel()].a + ': ' + (tasa() ? PM.pct(mx.v, 1) : PM.num(mx.v, 1)) + ' (' + PM.fecha(K[mx.i]) + ')' + (mx.i === i ? ', this very period.' : '.'));
+      } else txt = T('Para este período todavía no hay ' + NPER() + ' anteriores con qué comparar.', 'For this period there are no previous ' + NPER() + ' to compare with yet.');
       document.getElementById('panel').innerHTML = html + PM.ctx(txt);
     }
 
@@ -613,13 +640,18 @@
         primeroAnio: function (k) { var s = D.series[k]; for (var i = 0; i < s.length; i++) if (s[i] != null) return P[i].a; return null; } };
     }
     function comoLeer() {
-      var f = fin(), ra = rangoAnios(), per = frec === 12 ? 'mes' : 'trimestre';
-      return ['¿Cómo leer las tres vistas?',
-        '<p><strong>Año por año</strong>: cada línea es un año y el eje va de ' + (frec === 12 ? 'enero a diciembre' : 'T1 a T4') + '. ' + f.y + ' va en rojo' +
+      var f = fin(), ra = rangoAnios(), per = frec === 12 ? T('mes', 'month') : T('trimestre', 'quarter');
+      return [T('¿Cómo leer las tres vistas?', 'How to read the three views?'),
+        T('<p><strong>Año por año</strong>: cada línea es un año y el eje va de ' + (frec === 12 ? 'enero a diciembre' : 'T1 a T4') + '. ' + f.y + ' va en rojo' +
           (f.q === frec - 1 ? '' : ' y llega hasta ' + nomP(f.q, true)) + '; ' + (f.y - 1) + ', en turquesa; la franja gris es el rango de ' + ra.txt +
           ' (el valor más bajo y el más alto de cada ' + per + '): arriba de la franja es más de lo normal, abajo, menos. Las cifras comparan siempre el <strong>mismo tramo</strong> del año.</p>' +
         '<p><strong>Crecimiento</strong>: compara los últimos ' + NPER() + ' con los ' + NPER() + ' anteriores. Al tomar un año entero se cancelan la estacionalidad y los ' + per + (frec === 12 ? 'es' : 's') + ' atípicos; turquesa cuando sube, rojo cuando baja.</p>' +
-        '<p><strong>Nivel</strong>: los últimos ' + NPER() + ' con el año base elegido = 100' + (tasa() ? '; en el uso de la capacidad, la referencia es su promedio histórico.' : ': 90 es 10% menos que en el año base.') + '</p>'];
+        '<p><strong>Nivel</strong>: los últimos ' + NPER() + ' con el año base elegido = 100' + (tasa() ? '; en el uso de la capacidad, la referencia es su promedio histórico.' : ': 90 es 10% menos que en el año base.') + '</p>',
+        '<p><strong>Year by year</strong>: each line is a year and the axis runs from ' + (frec === 12 ? 'January to December' : 'Q1 to Q4') + '. ' + f.y + ' is in red' +
+          (f.q === frec - 1 ? '' : ' and runs through ' + nomEn(f.q)) + '; ' + (f.y - 1) + ', in turquoise; the gray band is the range of ' + ra.txt +
+          ' (the lowest and the highest value of each ' + per + '): above the band is more than normal; below, less. The figures always compare the <strong>same period</strong> of the year.</p>' +
+        '<p><strong>Growth</strong>: compares the last ' + NPER() + ' with the previous ' + NPER() + '. Taking a full year cancels out seasonality and atypical ' + per + 's; turquoise when it rises, red when it falls.</p>' +
+        '<p><strong>Level</strong>: the last ' + NPER() + ' with the chosen base year = 100' + (tasa() ? '; for capacity utilization, the reference is its historical average.' : ': 90 is 10% less than in the base year.') + '</p>')];
     }
   }
 

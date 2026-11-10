@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contribución al crecimiento por gasto · Populi</title>
+  <title data-en="Contribution to growth by spending · Populi">Contribución al crecimiento por gasto · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -18,14 +18,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Contribución al crecimiento por tipo de gasto</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Contribution to growth by type of spending'><span class="accent-bar"></span>Contribución al crecimiento por tipo de gasto</div>
       <div class="sec-sub" id="sub"></div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
-      <div class="hz-item" id="item-rango"><span class="hz-lbl">Rango</span><div class="hz-grp" id="b-rango"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-rango"><span class="hz-lbl" data-en="Range">Rango</span><div class="hz-grp" id="b-rango"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -33,10 +33,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas-bloques"></div><div class="tog-grp" id="pastillas-detalle" style="display:none"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando las contribuciones…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading the contributions…">Cargando las contribuciones…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Cómo se reparte</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="How it is split">Cómo se reparte</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -48,6 +48,36 @@
   <script>
   (function () {
     var C = PM.C, NB = ' ';
+    var tr = PM.t;   // tr('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés (acá T son los trimestres)
+    // ── Nombres de los componentes del gasto en inglés: UN solo diccionario, idéntico en los tres gráficos del PIB por
+    // tipo de gasto. Las claves son los nombres exactos de data/pib_gasto.json (nombre, nombre_largo) y los que arma
+    // cada gráfico (GASTO y BLOQUES). N() se aplica sólo donde el nombre se MUESTRA; los datos se buscan por su clave. ──
+    var EN = {
+      'PIB': 'GDP',
+      'Producto interno bruto (a precios de mercado)': 'Gross domestic product (at market prices)',
+      'Consumo de los hogares': 'Household consumption',
+      'Gasto de consumo final de los hogares e instituciones sin fines de lucro (ISFLSH)': 'Final consumption expenditure of households and non-profit institutions serving households (NPISH)',
+      'Hogares': 'Households',
+      'Consumo del gobierno': 'Government consumption',
+      'Gasto de consumo final de la administración pública': 'Final consumption expenditure of general government',
+      'Gobierno': 'Government',
+      'Formación bruta de capital': 'Gross capital formation',
+      'Formación bruta de capital (inversión fija + variación de existencias + objetos valiosos)': 'Gross capital formation (fixed investment + change in inventories + valuables)',
+      'Inversión fija (FBCF)': 'Fixed investment (GFCF)',
+      'Formación bruta de capital fijo': 'Gross fixed capital formation',
+      'Inversión fija': 'Fixed investment',
+      'Existencias y otros': 'Inventories and other',
+      'Variación de existencias y adquisición menos disposición de objetos valiosos (FBK − FBCF)': 'Change in inventories and acquisitions less disposals of valuables (GCF − GFCF)',
+      'Existencias': 'Inventories',
+      'Exportaciones': 'Exports',
+      'Exportaciones de bienes y servicios': 'Exports of goods and services',
+      'Importaciones': 'Imports',
+      'Importaciones de bienes y servicios': 'Imports of goods and services',
+      'Consumo': 'Consumption',
+      'Inversión': 'Investment',
+      'Sector externo neto': 'Net external sector'
+    };
+    var N = function (s) { return PM.en && EN[s] != null ? EN[s] : s; };
     // Mapa de colores del PIB por tipo de gasto: IDÉNTICO en composición, crecimiento y contribución, en el ORDEN DE
     // RAMPA de la marca (populi-marca/paleta.py, rampa(6); README, regla 7): de abajo hacia arriba, del rojo a la tinta,
     // siguiendo la identidad del gasto. El protagonista (el consumo de los hogares, ~70% del PIB) en rojo, apoyado en el
@@ -55,27 +85,27 @@
     // (visión normal / daltonismo, pisos 15 / 8): rojo-oro 26/22 · oro-menta 20/16 · menta-turquesa 22/20 ·
     // turquesa-petróleo 16/16 · petróleo-tinta 28/28 en claro y 49/46 en oscuro.
     var GASTO = {
-      hogares: { nombre: 'Consumo de los hogares', corto: 'Hogares', color: C.rojo },
-      gobierno: { nombre: 'Consumo del gobierno', corto: 'Gobierno', color: C.oro },
-      fbcf: { nombre: 'Inversión fija', corto: 'Inversión fija', color: C.menta },
-      existencias: { nombre: 'Existencias y otros', corto: 'Existencias', color: C.turquesa },
-      exportaciones: { nombre: 'Exportaciones', corto: 'Exportaciones', color: C.petroleo },
-      importaciones: { nombre: 'Importaciones', corto: 'Importaciones', color: C.tinta },
-      pib: { nombre: 'PIB', corto: 'PIB', color: C.tinta }
+      hogares: { nombre: N('Consumo de los hogares'), corto: N('Hogares'), color: C.rojo },
+      gobierno: { nombre: N('Consumo del gobierno'), corto: N('Gobierno'), color: C.oro },
+      fbcf: { nombre: N('Inversión fija'), corto: N('Inversión fija'), color: C.menta },
+      existencias: { nombre: N('Existencias y otros'), corto: N('Existencias'), color: C.turquesa },
+      exportaciones: { nombre: N('Exportaciones'), corto: N('Exportaciones'), color: C.petroleo },
+      importaciones: { nombre: N('Importaciones'), corto: N('Importaciones'), color: C.tinta },
+      pib: { nombre: N('PIB'), corto: N('PIB'), color: C.tinta }
     };
     // Los tres bloques del gasto suman el crecimiento del PIB; en la rampa de 3 de la marca: rojo, oro, turquesa
     var BLOQUES = {
-      consumo: { nombre: 'Consumo', largo: 'el consumo (hogares y gobierno)', ks: ['hogares', 'gobierno'], color: C.rojo, linea: 'hogares y gobierno' },
-      inversion: { nombre: 'Inversión', largo: 'la inversión', ks: ['fbcf', 'existencias'], color: C.oro, linea: 'fija y existencias' },
-      externo: { nombre: 'Sector externo neto', largo: 'el sector externo neto', ks: ['exportaciones', 'importaciones'], color: C.turquesa, linea: 'neto del comercio' }
+      consumo: { nombre: N('Consumo'), largo: tr('el consumo (hogares y gobierno)', 'consumption (households and government)'), ks: ['hogares', 'gobierno'], color: C.rojo, linea: tr('hogares y gobierno', 'households and government') },
+      inversion: { nombre: N('Inversión'), largo: tr('la inversión', 'investment'), ks: ['fbcf', 'existencias'], color: C.oro, linea: tr('fija y existencias', 'fixed and inventories') },
+      externo: { nombre: N('Sector externo neto'), largo: tr('el sector externo neto', 'the net external sector'), ks: ['exportaciones', 'importaciones'], color: C.turquesa, linea: tr('neto del comercio', 'net trade') }
     };
     // Orden de la pila = orden de la rampa (y de la identidad del gasto): el primero queda pegado al cero de los dos
     // lados, el siguiente encima/debajo, y así. ECharts apila por signo, así que el orden no salta de una barra a otra.
     var PILA = { bloques: ['consumo', 'inversion', 'externo'], detalle: ['hogares', 'gobierno', 'fbcf', 'existencias', 'exportaciones', 'importaciones'] };
-    var MIN = { hogares: 'el consumo de los hogares', gobierno: 'el consumo del gobierno', fbcf: 'la inversión fija', existencias: 'las existencias',
-      exportaciones: 'las exportaciones', importaciones: 'las importaciones', consumo: 'el consumo', inversion: 'la inversión', externo: 'el sector externo neto' };
-    var MEDIDAS = { c4: '4 trimestres', var: 'Trimestral', anual: 'Anual' };
-    var FRENTE = { c4: 'de los últimos 4 trimestres frente a los 4 anteriores', var: 'del trimestre frente al mismo trimestre del año anterior', anual: 'del año frente al anterior' };
+    var MIN = { hogares: tr('el consumo de los hogares', 'household consumption'), gobierno: tr('el consumo del gobierno', 'government consumption'), fbcf: tr('la inversión fija', 'fixed investment'), existencias: tr('las existencias', 'inventories'),
+      exportaciones: tr('las exportaciones', 'exports'), importaciones: tr('las importaciones', 'imports'), consumo: tr('el consumo', 'consumption'), inversion: tr('la inversión', 'investment'), externo: tr('el sector externo neto', 'the net external sector') };
+    var MEDIDAS = { c4: tr('4 trimestres', '4 quarters'), var: tr('Trimestral', 'Quarterly'), anual: tr('Anual', 'Annual') };
+    var FRENTE = { c4: tr('de los últimos 4 trimestres frente a los 4 anteriores', 'in the last 4 quarters versus the previous 4'), var: tr('del trimestre frente al mismo trimestre del año anterior', 'in the quarter versus the same quarter of the previous year'), anual: tr('del año frente al anterior', 'in the year versus the previous one') };
     var estado = { vista: 'bloques', medida: 'c4', rango: 'desde2022', idx: null };
     var activas = { bloques: new Set(PILA.bloques.concat(['pib'])), detalle: new Set(PILA.detalle.concat(['pib'])) };
     var J, M, T, DAT = {}, si = 0, grafico;
@@ -83,16 +113,16 @@
 
     PM.cargar(['pib_gasto.json']).then(function (r) {
       J = r[0]; M = J.metadata; T = J.trimestres;
-      PM.botonera(document.getElementById('b-vista'), [['bloques', 'Tres bloques'], ['detalle', 'Detalle']],
+      PM.botonera(document.getElementById('b-vista'), [['bloques', tr('Tres bloques', 'Three blocks')], ['detalle', tr('Detalle', 'Detail')]],
         estado.vista, function (v) { estado.vista = v; todo(); });
       PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k]]; }),
         estado.medida, function (v) { estado.medida = v; datos(); todo(); });
-      PM.botonera(document.getElementById('b-rango'), [['desde2022', 'Desde 2022'], ['todo', 'Todo']],
+      PM.botonera(document.getElementById('b-rango'), [['desde2022', tr('Desde 2022', 'Since 2022')], ['todo', tr('Todo', 'All')]],
         estado.rango, function (v) { estado.rango = v; grafico.redibujar(); });
       ['bloques', 'detalle'].forEach(function (vis) {
         PM.pastillas(document.getElementById('pastillas-' + vis),
           PILA[vis].map(function (k) { return { k: k, nombre: item(k).corto || item(k).nombre, color: item(k).color, forma: 'area' }; })
-            .concat([{ k: 'pib', nombre: 'PIB', color: GASTO.pib.color, forma: 'linea' }]),
+            .concat([{ k: 'pib', nombre: tr('PIB', 'GDP'), color: GASTO.pib.color, forma: 'linea' }]),
           activas[vis], function () { grafico.redibujar(); });
       });
       datos(); controles(); cifras();
@@ -103,7 +133,9 @@
       panel(estado.idx);
       PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
       PM.preguntas(document.getElementById('preguntas'), preguntas());
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+      document.getElementById('fuente').innerHTML = tr(
+        'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + M.url + '" target="_blank" rel="noopener">INE (National Statistics Institute) — Quarterly GDP by type of spending, reference year 2017</a> · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(M.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
     function todo() { controles(); cifras(); grafico.redibujar(); panel(estado.idx); }
@@ -136,7 +168,7 @@
       if (BLOQUES[k]) { var s = 0; BLOQUES[k].ks.forEach(function (x) { s += DAT.c[x][i]; }); return s; }
       return DAT.c[k][i];
     }
-    var per = function (i) { var k = DAT.K[i]; return estado.medida === 'c4' ? '4 trim. a ' + PM.fecha(k) : PM.fecha(k); };
+    var per = function (i) { var k = DAT.K[i]; return estado.medida === 'c4' ? tr('4 trim. a ' + PM.fecha(k), '4 qtrs. to ' + PM.fecha(k)) : PM.fecha(k); };
     var corto = function (i) { return PM.fecha(DAT.K[i]); };
 
     function controles() {
@@ -144,18 +176,21 @@
       document.getElementById('pastillas-bloques').style.display = vis === 'bloques' ? '' : 'none';
       document.getElementById('pastillas-detalle').style.display = vis === 'detalle' ? '' : 'none';
       document.getElementById('item-rango').style.display = estado.medida === 'anual' ? 'none' : '';
-      document.getElementById('sub').textContent = 'Puntos que aportó cada destino del gasto al crecimiento del PIB (' +
+      document.getElementById('sub').textContent = tr('Puntos que aportó cada destino del gasto al crecimiento del PIB (' +
         { c4: 'últimos 4 trimestres frente a los 4 anteriores', var: 'cada trimestre frente al mismo del año anterior', anual: 'cada año frente al anterior' }[estado.medida] +
-        '). Arriba, suma; abajo, resta: las barras suman la línea del PIB. Es una cuenta, no una explicación de causas';
+        '). Arriba, suma; abajo, resta: las barras suman la línea del PIB. Es una cuenta, no una explicación de causas',
+        'Points contributed by each type of spending to GDP growth (' +
+        { c4: 'last 4 quarters versus the previous 4', var: 'each quarter versus the same quarter of the previous year', anual: 'each year versus the previous one' }[estado.medida] +
+        '). Above, it adds; below, it subtracts: the bars add up to the GDP line. It is arithmetic, not an explanation of causes');
     }
 
     function cifras() {
       var n = DAT.K.length - 1, a = DAT.K[n], pib = v('pib', n), pa = PM.periodo(a);
-      var lin = estado.medida === 'anual' ? 'año ' + a : estado.medida === 'c4' ? (pa.t === 4 ? 'año ' + pa.a : '4 trim. a ' + PM.fecha(a)) : PM.fecha(a) + ' vs. T' + pa.t + NB + (pa.a - 1);
+      var lin = estado.medida === 'anual' ? tr('año ' + a, 'year ' + a) : estado.medida === 'c4' ? (pa.t === 4 ? tr('año ' + pa.a, 'year ' + pa.a) : tr('4 trim. a ' + PM.fecha(a), '4 qtrs. to ' + PM.fecha(a))) : tr(PM.fecha(a) + ' vs. T' + pa.t + NB + (pa.a - 1), PM.fecha(a) + ' vs. Q' + pa.t + NB + (pa.a - 1));
       var serie = function (k) { return PM.ultimos(DAT.K.map(function (_, i) { return v(k, i); }), 16); };
       var kb = function (b) { var x = v(b, n); return PM.kpi({ color: BLOQUES[b].color, rotulo: BLOQUES[b].nombre, valor: PM.pp(x), delta: BLOQUES[b].linea, tono: x < 0 ? 'malo' : 'bueno', serie: serie(b) }); };
       document.getElementById('kpis').innerHTML =
-        PM.kpi({ color: GASTO.pib.color, rotulo: 'Crecimiento del PIB', valor: PM.pct(pib, 1, true), delta: lin, tono: pib < 0 ? 'malo' : 'bueno', serie: serie('pib') }) +
+        PM.kpi({ color: GASTO.pib.color, rotulo: tr('Crecimiento del PIB', 'GDP growth'), valor: PM.pct(pib, 1, true), delta: lin, tono: pib < 0 ? 'malo' : 'bueno', serie: serie('pib') }) +
         kb('consumo') + kb('inversion') + kb('externo');
     }
 
@@ -177,7 +212,7 @@
         // La línea del PIB, sutil y sin borde blanco (pedido de Carlos): 1,5 px suavizada (smoothMonotone 'x': la curva no
         // inventa picos entre trimestres), un punto sólido chico por período y la cifra final sobre fondo de tarjeta.
         var nP = pv.length - 1, vP = pv[nP], chicoP = PM.pequeno();
-        series.push(PM.linea(GASTO.pib.color, { ancho: 1.5, extra: { name: 'PIB', data: pv, z: 6, connectNulls: false,
+        series.push(PM.linea(GASTO.pib.color, { ancho: 1.5, extra: { name: tr('PIB', 'GDP'), data: pv, z: 6, connectNulls: false,
           smooth: 0.35, smoothMonotone: 'x', showSymbol: true, symbolSize: 4, itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
           markPoint: vP == null ? undefined : { silent: true, animation: false, symbol: 'circle', symbolSize: 5,
             itemStyle: { color: PM.col(GASTO.pib.color), borderWidth: 0 },
@@ -194,9 +229,9 @@
           if (!ps.length) return '';
           var i = si + ps[0].dataIndex;
           panel(i);
-          var h = PM.ttTitulo(per(i), 'Aporte al crecimiento, en puntos');
+          var h = PM.ttTitulo(per(i), tr('Aporte al crecimiento, en puntos', 'Contribution to growth, in points'));
           PILA[estado.vista].forEach(function (k) { if (act.has(k)) h += PM.ttFila(item(k).color, item(k).nombre, PM.pp(v(k, i)), 'area'); });
-          h += PM.ttTotal('PIB', PM.pct(v('pib', i), 1, true));
+          h += PM.ttTotal(tr('PIB', 'GDP'), PM.pct(v('pib', i), 1, true));
           return h;
         }, { axisPointer: PM.sombraEje() }),
         series: series
@@ -212,9 +247,9 @@
       var neg = xs.filter(function (o) { return o.x <= -0.05; }).sort(function (a, b) { return a.x - b.x; });
       var suma = function (l) { return l.reduce(function (s, o) { return s + o.x; }, 0); };
       var chips = function (l) { return l.map(function (o) { return (item(o.k).corto || item(o.k).nombre) + ' ' + PM.dt(item(o.k).color, PM.pp(o.x)); }).join(' · '); };
-      var h = PM.pb(GASTO.pib.color, 'PIB', PM.pct(pib, 1, true), 'Variación ' + FRENTE[estado.medida] + ': la suma de los aportes.') +
-        PM.pb(C.pizarra, '▲ Sumaron', pos.length ? PM.pp(suma(pos)) : null, pos.length ? chips(pos) : 'Nada sumó.') +
-        PM.pb(C.pizarra, '▼ Restaron', neg.length ? PM.pp(suma(neg)) : null, neg.length ? chips(neg) : 'Nada restó.');
+      var h = PM.pb(GASTO.pib.color, tr('PIB', 'GDP'), PM.pct(pib, 1, true), tr('Variación ' + FRENTE[estado.medida] + ': la suma de los aportes.', 'Change ' + FRENTE[estado.medida] + ': the sum of the contributions.')) +
+        PM.pb(C.pizarra, tr('▲ Sumaron', '▲ Added'), pos.length ? PM.pp(suma(pos)) : null, pos.length ? chips(pos) : tr('Nada sumó.', 'Nothing added.')) +
+        PM.pb(C.pizarra, tr('▼ Restaron', '▼ Subtracted'), neg.length ? PM.pp(suma(neg)) : null, neg.length ? chips(neg) : tr('Nada restó.', 'Nothing subtracted.'));
       // En el detalle, si exportaciones e importaciones son grandes y de signo opuesto, la conclusión las lee juntas
       // (si no, la que más «frena» sería casi siempre la importación). Umbrales: |PIB| < 0,5% casi no cambia ·
       // un aporte de ±0,05 pp o menos no cuenta · ±1 pp para el par externo
@@ -227,36 +262,53 @@
       var iN = it.filter(function (o) { return o.x <= -0.05; }).sort(function (a, b) { return a.x - b.x; });
       var fue = function (o) { return /^(las|los) /.test(o.n) ? 'fueron' : 'fue'; };
       var t;
-      if (pib <= -0.5) t = 'El PIB <strong>cayó ' + PM.pct(Math.abs(pib), 1) + '</strong>' + (iN.length ? ': en la cuenta, lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + (ip.length ? ' y lo que más sumó, ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + '.';
-      else if (pib >= 0.5) t = 'El PIB <strong>creció ' + PM.pct(pib, 1) + '</strong>' + (ip.length ? '; en la cuenta, lo que más sumó ' + fue(ip[0]) + ' ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + (iN.length ? '; lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + '.';
-      else t = 'El PIB <strong>casi no cambió</strong> (' + PM.pct(pib, 1, true) + '): lo que sumó (' + PM.pp(suma(pos)) + ') y lo que restó (' + PM.pp(suma(neg)) + ') se compensaron.';
-      if (Math.abs(ex) >= 1 && Math.abs(im) >= 1 && ex * im < 0) t += ' Las exportaciones (' + PM.pp(ex) + ') y las importaciones (' + PM.pp(im) + ') se compensan en parte: en neto ' + (ex + im >= 0 ? 'suman ' : 'restan ') + PM.num(Math.abs(ex + im), 1) + NB + 'pp.';
-      else if (im <= -0.5) t += ' Las importaciones crecieron y figuran con ' + PM.pp(im) + ': lo importado se descuenta porque ya estaba dentro del consumo y la inversión, no porque importar haga caer el PIB.';
+      if (pib <= -0.5) t = tr('El PIB <strong>cayó ' + PM.pct(Math.abs(pib), 1) + '</strong>' + (iN.length ? ': en la cuenta, lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + (ip.length ? ' y lo que más sumó, ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + '.',
+        'GDP <strong>fell ' + PM.pct(Math.abs(pib), 1) + '</strong>' + (iN.length ? ': in the arithmetic, what subtracted the most was ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + (ip.length ? ' and what added the most, ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + '.');
+      else if (pib >= 0.5) t = tr('El PIB <strong>creció ' + PM.pct(pib, 1) + '</strong>' + (ip.length ? '; en la cuenta, lo que más sumó ' + fue(ip[0]) + ' ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + (iN.length ? '; lo que más restó ' + fue(iN[0]) + ' ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + '.',
+        'GDP <strong>grew ' + PM.pct(pib, 1) + '</strong>' + (ip.length ? '; in the arithmetic, what added the most was ' + ip[0].n + ' (' + PM.pp(ip[0].x) + ')' : '') + (iN.length ? '; what subtracted the most was ' + iN[0].n + ' (' + PM.pp(iN[0].x) + ')' : '') + '.');
+      else t = tr('El PIB <strong>casi no cambió</strong> (' + PM.pct(pib, 1, true) + '): lo que sumó (' + PM.pp(suma(pos)) + ') y lo que restó (' + PM.pp(suma(neg)) + ') se compensaron.',
+        'GDP <strong>barely changed</strong> (' + PM.pct(pib, 1, true) + '): what added (' + PM.pp(suma(pos)) + ') and what subtracted (' + PM.pp(suma(neg)) + ') offset each other.');
+      if (Math.abs(ex) >= 1 && Math.abs(im) >= 1 && ex * im < 0) t += tr(' Las exportaciones (' + PM.pp(ex) + ') y las importaciones (' + PM.pp(im) + ') se compensan en parte: en neto ' + (ex + im >= 0 ? 'suman ' : 'restan ') + PM.num(Math.abs(ex + im), 1) + NB + 'pp.',
+        ' Exports (' + PM.pp(ex) + ') and imports (' + PM.pp(im) + ') partly offset each other: on a net basis they ' + (ex + im >= 0 ? 'add ' : 'subtract ') + PM.num(Math.abs(ex + im), 1) + NB + 'pp.');
+      else if (im <= -0.5) t += tr(' Las importaciones crecieron y figuran con ' + PM.pp(im) + ': lo importado se descuenta porque ya estaba dentro del consumo y la inversión, no porque importar haga caer el PIB.',
+        ' Imports grew and show up with ' + PM.pp(im) + ': what is imported is deducted because it was already within consumption and investment, not because importing makes GDP fall.');
       document.getElementById('panel-fecha').textContent = corto(i);
       document.getElementById('panel').innerHTML = h + PM.ctx(t);
     }
 
     function preguntas() {
       return [
-        ['¿Qué es la contribución al crecimiento?', '<p>Cuántos puntos porcentuales del crecimiento del PIB explica cada destino del gasto: su variación por su peso en el PIB.</p>' +
-          '<p>Las barras de cada período suman exactamente la variación del PIB, la línea con puntos.</p>'],
-        ['Una identidad no explica causas', '<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
+        [tr('¿Qué es la contribución al crecimiento?', 'What is the contribution to growth?'), tr('<p>Cuántos puntos porcentuales del crecimiento del PIB explica cada destino del gasto: su variación por su peso en el PIB.</p>' +
+          '<p>Las barras de cada período suman exactamente la variación del PIB, la línea con puntos.</p>',
+          '<p>How many percentage points of GDP growth each type of spending accounts for: its change times its share of GDP.</p>' +
+          '<p>The bars of each period add up exactly to the change in GDP, the line with dots.</p>')],
+        [tr('Una identidad no explica causas', 'An identity does not explain causes'), tr('<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
           '<p>El caso típico son las importaciones. Llevan signo menos porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo sólo evita contarlo como producción nacional. Importar más no resta PIB por sí mismo. Si un arancel recorta las importaciones, también recorta el consumo y la inversión que se hacían con ellas; el efecto neto depende de cómo responda cada componente.</p>' +
-          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
-        ['Los tres bloques', '<p><strong>Consumo</strong> (hogares y gobierno), <strong>inversión</strong> (fija y existencias) y <strong>sector externo neto</strong> (exportaciones menos importaciones). En <strong>Detalle</strong> se separan los seis componentes.</p>'],
-        ['¿Por qué las importaciones llevan signo menos?', '<p>Porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo menos lo descuenta para que el PIB mida sólo la producción nacional. Por eso, en la cuenta, el aporte de las importaciones lleva el signo contrario a su variación, aunque importar más no haga caer el PIB por sí mismo.</p>' +
-          '<p>Por eso exportaciones e importaciones que crecen a la vez pueden dejar un aporte externo neto casi nulo.</p>'],
-        ['¿Qué son las existencias y la inversión fija?', '<p>La <strong>inversión fija</strong> (formación bruta de capital fijo, FBCF) es lo que se gasta en construcción, maquinaria y equipo. Las <strong>existencias y otros</strong> son la variación de inventarios y la compra neta de objetos valiosos: aportan poco, pero cambian de signo.</p>'],
-        ['4 trimestres, trimestral o anual', '<p><strong>4 trimestres</strong> explica el crecimiento de lo producido en el último año móvil: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> usa las contribuciones del INE a la tasa interanual de cada trimestre; <strong>Anual</strong>, las del año completo.</p>' +
-          '<p>Las de 4 trimestres son el promedio de las cuatro trimestrales del INE, ponderado por el PIB de cada trimestre un año antes: así suman exactamente el crecimiento del año móvil.</p>'],
-        ['¿Por qué «Desde 2022»?', '<p>Porque el desplome de 2020 y el rebote de 2021 tienen aportes tan grandes que, con «Todo», las barras de los últimos años casi no se ven.</p>']
+          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>',
+          '<p>This breakdown comes from an <strong>accounting identity</strong>: GDP = C + I + G + X − M. It always holds, by definition, and for that reason it does not say what caused what. That a component “adds” or “subtracts” points describes how the arithmetic is split, not what moved GDP.</p>' +
+          '<p>The typical case is imports. They carry a minus sign because what is imported is already counted within consumption, investment and exports, and was not produced in the country: the sign merely avoids counting it as domestic production. Importing more does not subtract from GDP by itself. If a tariff cuts imports, it also cuts the consumption and investment that were made with them; the net effect depends on how each component responds.</p>' +
+          '<p>Faced with a change, the useful question is what caused it (prices, policy, an external shock) and “and then what?”, without assuming that the rest of the identity stays put. Brian Albrecht explains it in <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">“Never Reason from an Accounting Identity”</a> (Economic Forces, 2026).</p>')],
+        [tr('Los tres bloques', 'The three blocks'), tr('<p><strong>Consumo</strong> (hogares y gobierno), <strong>inversión</strong> (fija y existencias) y <strong>sector externo neto</strong> (exportaciones menos importaciones). En <strong>Detalle</strong> se separan los seis componentes.</p>',
+          '<p><strong>Consumption</strong> (households and government), <strong>investment</strong> (fixed and inventories) and <strong>net external sector</strong> (exports minus imports). <strong>Detail</strong> separates the six components.</p>')],
+        [tr('¿Por qué las importaciones llevan signo menos?', 'Why do imports carry a minus sign?'), tr('<p>Porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo menos lo descuenta para que el PIB mida sólo la producción nacional. Por eso, en la cuenta, el aporte de las importaciones lleva el signo contrario a su variación, aunque importar más no haga caer el PIB por sí mismo.</p>' +
+          '<p>Por eso exportaciones e importaciones que crecen a la vez pueden dejar un aporte externo neto casi nulo.</p>',
+          '<p>Because what is imported is already counted within consumption, investment and exports, and was not produced in the country: the minus sign deducts it so that GDP measures only domestic production. That is why, in the arithmetic, the contribution of imports carries the opposite sign to their change, even though importing more does not make GDP fall by itself.</p>' +
+          '<p>That is why exports and imports that grow at the same time can leave an almost zero net external contribution.</p>')],
+        [tr('¿Qué son las existencias y la inversión fija?', 'What are inventories and fixed investment?'), tr('<p>La <strong>inversión fija</strong> (formación bruta de capital fijo, FBCF) es lo que se gasta en construcción, maquinaria y equipo. Las <strong>existencias y otros</strong> son la variación de inventarios y la compra neta de objetos valiosos: aportan poco, pero cambian de signo.</p>',
+          '<p><strong>Fixed investment</strong> (gross fixed capital formation, GFCF) is what is spent on construction, machinery and equipment. <strong>Inventories and other</strong> are the change in inventories and net purchases of valuables: they contribute little, but they change sign.</p>')],
+        [tr('4 trimestres, trimestral o anual', '4 quarters, quarterly or annual'), tr('<p><strong>4 trimestres</strong> explica el crecimiento de lo producido en el último año móvil: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> usa las contribuciones del INE a la tasa interanual de cada trimestre; <strong>Anual</strong>, las del año completo.</p>' +
+          '<p>Las de 4 trimestres son el promedio de las cuatro trimestrales del INE, ponderado por el PIB de cada trimestre un año antes: así suman exactamente el crecimiento del año móvil.</p>',
+          '<p><strong>4 quarters</strong> explains the growth of output in the latest rolling year: it has no seasonality and is the cleanest reading. <strong>Quarterly</strong> uses the INE contributions to each quarter’s year-on-year rate; <strong>Annual</strong>, those for the full year.</p>' +
+          '<p>The 4-quarter contributions are the average of the INE’s four quarterly ones, weighted by each quarter’s GDP a year earlier: that way they add up exactly to the growth of the rolling year.</p>')],
+        [tr('¿Por qué «Desde 2022»?', 'Why “Since 2022”?'), tr('<p>Porque el desplome de 2020 y el rebote de 2021 tienen aportes tan grandes que, con «Todo», las barras de los últimos años casi no se ven.</p>',
+          '<p>Because the 2020 collapse and the 2021 rebound have such large contributions that, with “All”, the bars of recent years can barely be seen.</p>')]
       ];
     }
 
     PM.leyendaImagen = function () {
       var act = activas[estado.vista];
       return PILA[estado.vista].concat(['pib']).filter(function (k) { return act.has(k); }).map(function (k) {
-        return { name: k === 'pib' ? 'PIB' : item(k).nombre, itemStyle: { color: PM.col(item(k).color) }, forma: k === 'pib' ? 'linea' : 'area' };
+        return { name: k === 'pib' ? tr('PIB', 'GDP') : item(k).nombre, itemStyle: { color: PM.col(item(k).color) }, forma: k === 'pib' ? 'linea' : 'area' };
       });
     };
   })();

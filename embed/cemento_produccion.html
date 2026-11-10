@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Producción de Cemento · Populi</title>
+  <title data-en="Cement Production · Populi">Producción de Cemento · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +15,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Producción de Cemento</div>
-      <div class="sec-sub" id="sub">Toneladas por mes, un año por línea</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Cement Production'><span class="accent-bar"></span>Producción de Cemento</div>
+      <div class="sec-sub" id="sub" data-en="Tonnes per month, one year per line">Toneladas por mes, un año por línea</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Serie</span><div class="hz-grp" id="b-serie"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Series">Serie</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -30,10 +30,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando producción de cemento…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading cement production…">Cargando producción de cemento…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -43,23 +43,29 @@
   </div>
 
   <script>
+  var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés
   IND.armar({
     archivo: 'ind_cemento.json',
     tipo: 'flujo',
     unidad: 't',
     umbrales: [3, 10],
-    fuente: 'INE — Producción, venta y consumo de cemento',
+    fuente: T('INE — Producción, venta y consumo de cemento', 'INE (National Statistics Institute) — Cement production, sales and consumption'),
     series: [
-      { k: 'produccion', boton: 'Producción', corto: 'Producción', mide: 'Toneladas de cemento producidas', acum: 'se produjeron {v} de cemento' },
-      { k: 'consumo', boton: 'Consumo', corto: 'Consumo', mide: 'Toneladas de cemento consumidas en el país', acum: 'se consumieron {v} de cemento' }
+      { k: 'produccion', boton: T('Producción', 'Production'), corto: T('Producción', 'Production'), mide: T('Toneladas de cemento producidas', 'Tonnes of cement produced'), acum: T('se produjeron {v} de cemento', '{v} of cement were produced') },
+      { k: 'consumo', boton: T('Consumo', 'Consumption'), corto: T('Consumo', 'Consumption'), mide: T('Toneladas de cemento consumidas en el país', 'Tonnes of cement consumed in the country'), acum: T('se consumieron {v} de cemento', '{v} of cement were consumed') }
     ],
     preguntas: function (A) {
       return [
-        ['¿Qué mide?', '<p>La <strong>producción</strong> es el cemento que sale de las fábricas del país en el mes, en toneladas métricas. El <strong>consumo</strong> es el cemento demandado en el país, por departamento de destino.</p>' +
-          '<p>Las cifras las reportan las empresas productoras al INE. La producción se publica desde ' + A.primeroAnio('produccion') + ' y el consumo, desde ' + A.primeroAnio('consumo') + '.</p>'],
-        ['¿Por qué adelanta al PIB?', 'Casi todo el cemento termina en una obra: viviendas, edificios, caminos. No se guarda mucho tiempo, así que lo que se despacha este mes es obra que se está haciendo ahora. Es uno de los primeros datos de la <strong>construcción</strong> y de la <strong>inversión</strong>, que el PIB trimestral recién muestra meses después.'],
-        ['¿Producción o consumo?', 'Se mueven juntos y en el largo plazo casi coinciden. El <strong>consumo</strong> se acerca más a la demanda de las obras; la <strong>producción</strong> puede adelantarse o atrasarse respecto de las ventas cuando las fábricas acumulan o reducen inventario, y la afectan las paradas de planta.'],
-        ['Notas del INE', 'Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p): el INE puede revisarlas cuando las empresas corrigen sus reportes. Un mes con una caída brusca suele ser una parada de planta o un bloqueo de caminos, no necesariamente un cambio de la demanda.']
+        [T('¿Qué mide?', 'What does it measure?'), T('<p>La <strong>producción</strong> es el cemento que sale de las fábricas del país en el mes, en toneladas métricas. El <strong>consumo</strong> es el cemento demandado en el país, por departamento de destino.</p>' +
+          '<p>Las cifras las reportan las empresas productoras al INE. La producción se publica desde ' + A.primeroAnio('produccion') + ' y el consumo, desde ' + A.primeroAnio('consumo') + '.</p>',
+          '<p><strong>Production</strong> is the cement that leaves the country’s plants during the month, in metric tonnes. <strong>Consumption</strong> is the cement demanded in the country, by department of destination.</p>' +
+          '<p>The figures are reported to the INE by the producing companies. Production has been published since ' + A.primeroAnio('produccion') + ' and consumption since ' + A.primeroAnio('consumo') + '.</p>')],
+        [T('¿Por qué adelanta al PIB?', 'Why is it a leading indicator of GDP?'), T('Casi todo el cemento termina en una obra: viviendas, edificios, caminos. No se guarda mucho tiempo, así que lo que se despacha este mes es obra que se está haciendo ahora. Es uno de los primeros datos de la <strong>construcción</strong> y de la <strong>inversión</strong>, que el PIB trimestral recién muestra meses después.',
+          'Almost all cement ends up in a building project: housing, buildings, roads. It is not stored for long, so what is shipped this month is work being done now. It is one of the first data points on <strong>construction</strong> and <strong>investment</strong>, which quarterly GDP only shows months later.')],
+        [T('¿Producción o consumo?', 'Production or consumption?'), T('Se mueven juntos y en el largo plazo casi coinciden. El <strong>consumo</strong> se acerca más a la demanda de las obras; la <strong>producción</strong> puede adelantarse o atrasarse respecto de las ventas cuando las fábricas acumulan o reducen inventario, y la afectan las paradas de planta.',
+          'They move together and in the long run they almost coincide. <strong>Consumption</strong> is closer to the demand from building projects; <strong>production</strong> can run ahead of or behind sales when plants build up or run down inventories, and it is affected by plant shutdowns.')],
+        [T('Notas del INE', 'INE notes'), T('Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p): el INE puede revisarlas cuando las empresas corrigen sus reportes. Un mes con una caída brusca suele ser una parada de planta o un bloqueo de caminos, no necesariamente un cambio de la demanda.',
+          'The figures ' + (A.prelim ? 'from ' + A.prelim + ' onward ' : '') + 'are <strong>preliminary</strong> (p): the INE may revise them when companies correct their reports. A month with a sharp drop is usually a plant shutdown or a road blockade, not necessarily a change in demand.')]
       ];
     }
   });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crecimiento del gasto · Populi</title>
+  <title data-en="Growth of spending · Populi">Crecimiento del gasto · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -29,15 +29,15 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Crecimiento y nivel del gasto</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Growth and level of spending'><span class="accent-bar"></span>Crecimiento y nivel del gasto</div>
       <div class="sec-sub" id="sub"></div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item" id="item-medida"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
-      <div class="hz-item" id="item-base"><span class="hz-lbl">Año base</span><div class="hz-grp" id="b-base"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Escala</span><div class="hz-grp" id="b-escala"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item" id="item-medida"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item" id="item-base"><span class="hz-lbl" data-en="Base year">Año base</span><div class="hz-grp" id="b-base"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Scale">Escala</span><div class="hz-grp" id="b-escala"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -45,10 +45,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el crecimiento del gasto…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading the growth of spending…">Cargando el crecimiento del gasto…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -60,25 +60,55 @@
   <script>
   (function () {
     var C = PM.C, NB = ' ';
+    var tr = PM.t;   // tr('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés (acá T son los trimestres)
+    // ── Nombres de los componentes del gasto en inglés: UN solo diccionario, idéntico en los tres gráficos del PIB por
+    // tipo de gasto. Las claves son los nombres exactos de data/pib_gasto.json (nombre, nombre_largo) y los que arma
+    // cada gráfico (GASTO y BLOQUES). N() se aplica sólo donde el nombre se MUESTRA; los datos se buscan por su clave. ──
+    var EN = {
+      'PIB': 'GDP',
+      'Producto interno bruto (a precios de mercado)': 'Gross domestic product (at market prices)',
+      'Consumo de los hogares': 'Household consumption',
+      'Gasto de consumo final de los hogares e instituciones sin fines de lucro (ISFLSH)': 'Final consumption expenditure of households and non-profit institutions serving households (NPISH)',
+      'Hogares': 'Households',
+      'Consumo del gobierno': 'Government consumption',
+      'Gasto de consumo final de la administración pública': 'Final consumption expenditure of general government',
+      'Gobierno': 'Government',
+      'Formación bruta de capital': 'Gross capital formation',
+      'Formación bruta de capital (inversión fija + variación de existencias + objetos valiosos)': 'Gross capital formation (fixed investment + change in inventories + valuables)',
+      'Inversión fija (FBCF)': 'Fixed investment (GFCF)',
+      'Formación bruta de capital fijo': 'Gross fixed capital formation',
+      'Inversión fija': 'Fixed investment',
+      'Existencias y otros': 'Inventories and other',
+      'Variación de existencias y adquisición menos disposición de objetos valiosos (FBK − FBCF)': 'Change in inventories and acquisitions less disposals of valuables (GCF − GFCF)',
+      'Existencias': 'Inventories',
+      'Exportaciones': 'Exports',
+      'Exportaciones de bienes y servicios': 'Exports of goods and services',
+      'Importaciones': 'Imports',
+      'Importaciones de bienes y servicios': 'Imports of goods and services',
+      'Consumo': 'Consumption',
+      'Inversión': 'Investment',
+      'Sector externo neto': 'Net external sector'
+    };
+    var N = function (s) { return PM.en && EN[s] != null ? EN[s] : s; };
     // Mapa de colores del PIB por tipo de gasto: IDÉNTICO en composición, crecimiento y contribución, en el ORDEN DE
     // RAMPA de la marca (populi-marca/paleta.py, rampa(6); README, regla 7). En ESTE gráfico de paneles no se usan:
     // los paneles son los de pib_crecimiento_sectores.html (la lámina «Cada actividad contra su punto de partida» del
     // deck): el nombre en tinta, la línea en tinta, y el color dice SÓLO arriba o abajo de la referencia.
     var GASTO = {
-      hogares: { nombre: 'Consumo de los hogares', corto: 'Hogares', color: C.rojo },
-      gobierno: { nombre: 'Consumo del gobierno', corto: 'Gobierno', color: C.oro },
-      fbcf: { nombre: 'Inversión fija', corto: 'Inversión fija', color: C.menta },
-      existencias: { nombre: 'Existencias y otros', corto: 'Existencias', color: C.turquesa },
-      exportaciones: { nombre: 'Exportaciones', corto: 'Exportaciones', color: C.petroleo },
-      importaciones: { nombre: 'Importaciones', corto: 'Importaciones', color: C.tinta },
-      pib: { nombre: 'PIB', corto: 'PIB', color: C.tinta }
+      hogares: { nombre: N('Consumo de los hogares'), corto: N('Hogares'), color: C.rojo },
+      gobierno: { nombre: N('Consumo del gobierno'), corto: N('Gobierno'), color: C.oro },
+      fbcf: { nombre: N('Inversión fija'), corto: N('Inversión fija'), color: C.menta },
+      existencias: { nombre: N('Existencias y otros'), corto: N('Existencias'), color: C.turquesa },
+      exportaciones: { nombre: N('Exportaciones'), corto: N('Exportaciones'), color: C.petroleo },
+      importaciones: { nombre: N('Importaciones'), corto: N('Importaciones'), color: C.tinta },
+      pib: { nombre: N('PIB'), corto: N('PIB'), color: C.tinta }
     };
     var ARRIBA = { claro: '#0A9396', oscuro: '#94D2BD' }, ABAJO = { claro: '#C71E1D', oscuro: '#E8706B' }, PIB = C.tinta;
     // Un orden fijo, el de la identidad del gasto (el PIB, ancla, primero): no cambia con la medida ni el año base
     var PANELES = ['pib', 'hogares', 'gobierno', 'fbcf', 'exportaciones', 'importaciones'];
-    var MIN = { pib: 'el PIB', hogares: 'el consumo de los hogares', gobierno: 'el consumo del gobierno', fbcf: 'la inversión fija', exportaciones: 'las exportaciones', importaciones: 'las importaciones' };
-    var MEDIDAS = { c4: '4 trimestres', var: 'Trimestral', anual: 'Anual' };
-    var FRENTE = { c4: 'frente a los 4 trimestres anteriores', var: 'frente al mismo trimestre del año anterior', anual: 'frente al año anterior' };
+    var MIN = { pib: tr('el PIB', 'GDP'), hogares: tr('el consumo de los hogares', 'household consumption'), gobierno: tr('el consumo del gobierno', 'government consumption'), fbcf: tr('la inversión fija', 'fixed investment'), exportaciones: tr('las exportaciones', 'exports'), importaciones: tr('las importaciones', 'imports') };
+    var MEDIDAS = { c4: tr('4 trimestres', '4 quarters'), var: tr('Trimestral', 'Quarterly'), anual: tr('Anual', 'Annual') };
+    var FRENTE = { c4: tr('frente a los 4 trimestres anteriores', 'versus the previous 4 quarters'), var: tr('frente al mismo trimestre del año anterior', 'versus the same quarter of the previous year'), anual: tr('frente al año anterior', 'versus the previous year') };
     var estado = { vista: 'crec', medida: 'c4', base: '2019', escala: 'propia', idx: null, k: null };
     // «Comparar con el PIB» es UNA pastilla: el molde no deja apagar la última encendida, así que el conjunto lleva
     // una clave fija sin pastilla (como en el gráfico de actividades)
@@ -94,15 +124,15 @@
       });
       var bases = ['2017', '2019', String(+T[T.length - 1].slice(0, 4) - 1)].filter(function (a) { return T.indexOf(a + '-T4') >= 0; });
       if (bases.indexOf(estado.base) < 0) estado.base = bases[0];
-      PM.botonera(document.getElementById('b-vista'), [['crec', 'Crecimiento'], ['nivel', 'Nivel (base = 100)']],
+      PM.botonera(document.getElementById('b-vista'), [['crec', tr('Crecimiento', 'Growth')], ['nivel', tr('Nivel (base = 100)', 'Level (base = 100)')]],
         estado.vista, function (v) { estado.vista = v; todo(); });
       PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k]]; }),
         estado.medida, function (v) { estado.medida = v; todo(); });
       PM.botonera(document.getElementById('b-base'), bases.map(function (a) { return [a, a]; }),
         estado.base, function (v) { estado.base = v; todo(); });
-      PM.botonera(document.getElementById('b-escala'), [['propia', 'Por panel'], ['comun', 'Común']],
+      PM.botonera(document.getElementById('b-escala'), [['propia', tr('Por panel', 'Per panel')], ['comun', tr('Común', 'Shared')]],
         estado.escala, function (v) { estado.escala = v; grafico.redibujar(); });
-      PM.pastillas(document.getElementById('pastillas'), [{ k: 'pib', nombre: 'Comparar con el PIB', color: { claro: C.pizarra, oscuro: C.gris }, forma: 'punteada' }],
+      PM.pastillas(document.getElementById('pastillas'), [{ k: 'pib', nombre: tr('Comparar con el PIB', 'Compare with GDP'), color: { claro: C.pizarra, oscuro: C.gris }, forma: 'punteada' }],
         activas, function () { grafico.redibujar(); });
       datos(); controles(); cifras();
       var el = document.getElementById('chart');
@@ -119,7 +149,9 @@
       panel(estado.idx, null);
       PM.alCambiarTema(function () { cifras(); panel(estado.idx, estado.k); });
       PM.preguntas(document.getElementById('preguntas'), preguntas());
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+      document.getElementById('fuente').innerHTML = tr(
+        'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por tipo de gasto, año de referencia 2017</a> · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + M.url + '" target="_blank" rel="noopener">INE (National Statistics Institute) — Quarterly GDP by type of spending, reference year 2017</a> · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(M.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
     function todo() { datos(); controles(); cifras(); grafico.redibujar(); panel(estado.idx, estado.k); }
@@ -160,8 +192,10 @@
       document.getElementById('item-medida').style.display = crec ? '' : 'none';
       document.getElementById('item-base').style.display = crec ? 'none' : '';
       document.getElementById('sub').textContent = crec
-        ? 'Cuánto creció cada destino de la producción ' + FRENTE[estado.medida] + ', en %: sobre el cero, crece; debajo, cae. La raya gris repite el PIB'
-        : 'Cada destino de la producción frente a ' + estado.base + ' (= 100), con la suma de los últimos 4 trimestres: sobre la raya punteada, más que ese año. La raya gris repite el PIB';
+        ? tr('Cuánto creció cada destino de la producción ' + FRENTE[estado.medida] + ', en %: sobre el cero, crece; debajo, cae. La raya gris repite el PIB',
+          'How much each use of output grew ' + FRENTE[estado.medida] + ', in %: above zero, it grows; below, it falls. The gray line repeats GDP')
+        : tr('Cada destino de la producción frente a ' + estado.base + ' (= 100), con la suma de los últimos 4 trimestres: sobre la raya punteada, más que ese año. La raya gris repite el PIB',
+          'Each use of output versus ' + estado.base + ' (= 100), with the sum of the last 4 quarters: above the dashed line, more than in that year. The gray line repeats GDP');
     }
 
     function fmt(v) { return v == null ? '—' : nivel() ? PM.num(v, 1) : PM.pct(v, 1, true); }
@@ -173,14 +207,14 @@
       var orden = comps.slice().sort(function (a, b) { return v[b][n] - v[a][n]; }), hi = orden[0], lo = orden[orden.length - 1];
       var pa = PM.periodo(DAT.K[n]), med = estado.medida;
       // la línea chica dice qué período mide la cifra; el color, de qué lado de la referencia está (no el componente)
-      var linea = nivel() ? f + ' · ' + estado.base + ' = 100' : med === 'anual' ? 'año ' + DAT.K[n] : med === 'c4' ? (pa.t === 4 ? 'año ' + pa.a : '4 trim. a ' + f) : f + ' vs. T' + pa.t + NB + (pa.a - 1);
+      var linea = nivel() ? f + ' · ' + estado.base + ' = 100' : med === 'anual' ? tr('año ' + DAT.K[n], 'year ' + DAT.K[n]) : med === 'c4' ? (pa.t === 4 ? tr('año ' + pa.a, 'year ' + pa.a) : tr('4 trim. a ' + f, '4 qtrs. to ' + f)) : tr(f + ' vs. T' + pa.t + NB + (pa.a - 1), f + ' vs. Q' + pa.t + NB + (pa.a - 1));
       var serie = function (k) { return PM.ultimos(v[k], 12); };
       var kpi = function (k, rot, delta) { return PM.kpi({ color: lado(v[k][n]), rotulo: rot, valor: fmt(v[k][n]), delta: delta, tono: v[k][n] < R ? 'malo' : 'bueno', serie: serie(k) }); };
       document.getElementById('kpis').innerHTML =
-        kpi('pib', 'PIB', linea) +
-        kpi('hogares', 'Consumo de los hogares', linea) +
-        kpi(hi, nivel() ? 'Más arriba' : 'Lo que más creció', GASTO[hi].nombre) +
-        kpi(lo, nivel() ? 'Más abajo' : 'Lo que más cayó', GASTO[lo].nombre);
+        kpi('pib', tr('PIB', 'GDP'), linea) +
+        kpi('hogares', N('Consumo de los hogares'), linea) +
+        kpi(hi, nivel() ? tr('Más arriba', 'Highest') : tr('Lo que más creció', 'Grew the most'), GASTO[hi].nombre) +
+        kpi(lo, nivel() ? tr('Más abajo', 'Lowest') : tr('Lo que más cayó', 'Fell the most'), GASTO[lo].nombre);
     }
 
     // Escala redondeada (la de los paneles de actividades y del deck): poco aire y más divisiones en la común; con el
@@ -291,7 +325,7 @@
           markLine: { silent: true, symbol: 'none', animation: false, label: { show: false },
             lineStyle: { color: dk ? 'rgba(226,232,240,.7)' : 'rgba(0,18,25,.65)', width: 0.9, type: [4, 3] }, data: [{ yAxis: R }] } });
         // cabeza: el nombre en tinta y, debajo, la cifra del último dato en el color de su lado de la referencia
-        var nom = k === 'pib' ? 'Producto interno bruto' : GASTO[k].nombre;
+        var nom = k === 'pib' ? tr('Producto interno bruto', 'Gross domestic product') : GASTO[k].nombre;
         if (ancho(nom, fNom) > cw) nom = GASTO[k].corto;
         var v = dat[ult][1];
         graphic.push({ type: 'text', silent: true, x: x0, y: y0, style: { text: nom, font: fNom, fill: tinta, align: 'left', verticalAlign: 'top' } });
@@ -311,11 +345,11 @@
           var v = DAT.v[k][i], pv = DAT.v.pib[i];
           if (v == null) return '';
           panel(i, k);
-          var h = PM.ttTitulo(GASTO[k].nombre + ' · ' + per(DAT.K[i]), nivel() ? 'Cuatro trimestres · ' + estado.base + ' = 100' : 'Crecimiento ' + FRENTE[estado.medida]);
+          var h = PM.ttTitulo(GASTO[k].nombre + ' · ' + per(DAT.K[i]), nivel() ? tr('Cuatro trimestres · ' + estado.base + ' = 100', 'Four quarters · ' + estado.base + ' = 100') : tr('Crecimiento ' + FRENTE[estado.medida], 'Growth ' + FRENTE[estado.medida]));
           h += PM.ttFila(PIB, GASTO[k].nombre, fmt(v), 'linea');
-          if (k !== 'pib' && pv != null) h += PM.ttFila(pz, 'PIB', fmt(pv), 'punteada');
+          if (k !== 'pib' && pv != null) h += PM.ttFila(pz, tr('PIB', 'GDP'), fmt(pv), 'punteada');
           var dif = v - R;
-          return h + PM.ttTotal(nivel() ? 'Frente a ' + estado.base : (dif >= 0 ? 'Crece' : 'Cae'), nivel() ? PM.pct(dif, 1, true) : PM.pct(Math.abs(dif), 1));
+          return h + PM.ttTotal(nivel() ? tr('Frente a ' + estado.base, 'Versus ' + estado.base) : (dif >= 0 ? tr('Crece', 'Growing') : tr('Cae', 'Falling')), nivel() ? PM.pct(dif, 1, true) : PM.pct(Math.abs(dif), 1));
         }, chico ? {
           axisPointer: { type: 'line' },
           // en el teléfono el lienzo es más alto que la pantalla: el vidrio va justo encima del panel tocado (o debajo,
@@ -338,7 +372,7 @@
       var fil = PANELES.slice(1).map(function (c) { return { k: c, v: v[c][i] }; }).filter(function (x) { return x.v != null; }).sort(function (a, b) { return b.v - a.v; });
       var filas = [{ k: 'pib', v: pib }].concat(fil);
       var tope = Math.max.apply(null, filas.map(function (x) { return Math.abs(x.v - R); })) || 1;
-      var titulo = nivel() ? 'Nivel · ' + estado.base + ' = 100' : { c4: 'Crecimiento de 4 trimestres', var: 'Variación interanual', anual: 'Crecimiento del año' }[estado.medida];
+      var titulo = nivel() ? tr('Nivel · ' + estado.base + ' = 100', 'Level · ' + estado.base + ' = 100') : { c4: tr('Crecimiento de 4 trimestres', '4-quarter growth'), var: tr('Variación interanual', 'Year-on-year change'), anual: tr('Crecimiento del año', 'Growth for the year') }[estado.medida];
       var html = '<div class="rk"><div class="rk-t">' + titulo + '</div>' + filas.map(function (x) {
         var dv = x.v - R, w = Math.abs(dv) / tope * 50, col = PM.col(lado(x.v));
         var barra = '<i style="background:' + (x.k === 'pib' ? PM.col(PIB) : col) + ';' + (dv >= 0 ? 'left:50%' : 'left:' + (50 - w) + '%') + ';width:' + w + '%"></i>';
@@ -349,18 +383,21 @@
       var t;
       if (nivel()) {
         var d = pib - 100;
-        t = 'En los 4 trimestres a <strong>' + f + '</strong> la economía produjo ' + (Math.abs(d) < 0.05 ? 'lo mismo que' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' más' : ' menos') + ' que') + ' en ' + estado.base + '.';
-        if (sube.length) t += ' Lo que más se alejó hacia arriba: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')';
-        if (baja.length) t += (sube.length ? '; ' : ' ') + 'hacia abajo, ' + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')';
+        t = tr('En los 4 trimestres a <strong>' + f + '</strong> la economía produjo ' + (Math.abs(d) < 0.05 ? 'lo mismo que' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' más' : ' menos') + ' que') + ' en ' + estado.base + '.',
+          'In the 4 quarters to <strong>' + f + '</strong> the economy produced ' + (Math.abs(d) < 0.05 ? 'the same as' : PM.pct(Math.abs(d), 1) + (d > 0 ? ' more' : ' less') + ' than') + ' in ' + estado.base + '.');
+        if (sube.length) t += tr(' Lo que más se alejó hacia arriba: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')', ' Furthest above: ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')');
+        if (baja.length) t += tr((sube.length ? '; ' : ' ') + 'hacia abajo, ' + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')', (sube.length ? '; furthest below, ' : ' Furthest below, ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')');
         t += '.';
       } else {
         // umbrales del PIB: ≤ −0,5% cae · < 0,5% casi no cambia · en adelante crece
-        t = 'En <strong>' + f + '</strong> el PIB ' + (pib <= -0.5 ? '<strong>cayó</strong>' : pib < 0.5 ? '<strong>casi no cambió</strong>' : '<strong>creció</strong>') + ' (' + PM.dt(lado(pib), fmt(pib)) + ').';
-        if (sube.length) t += ' Lo que más creció fue ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')';
-        if (baja.length) t += (sube.length ? '; lo que más cayó, ' : ' Lo que más cayó fue ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')';
+        t = tr('En <strong>' + f + '</strong> el PIB ' + (pib <= -0.5 ? '<strong>cayó</strong>' : pib < 0.5 ? '<strong>casi no cambió</strong>' : '<strong>creció</strong>') + ' (' + PM.dt(lado(pib), fmt(pib)) + ').',
+          'In <strong>' + f + '</strong> GDP ' + (pib <= -0.5 ? '<strong>fell</strong>' : pib < 0.5 ? '<strong>barely changed</strong>' : '<strong>grew</strong>') + ' (' + PM.dt(lado(pib), fmt(pib)) + ').');
+        if (sube.length) t += tr(' Lo que más creció fue ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')', ' What grew the most was ' + MIN[sube[0].k] + ' (' + PM.dt(ARRIBA, fmt(sube[0].v)) + ')');
+        if (baja.length) t += tr((sube.length ? '; lo que más cayó, ' : ' Lo que más cayó fue ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')', (sube.length ? '; what fell the most, ' : ' What fell the most was ') + MIN[baja[0].k] + ' (' + PM.dt(ABAJO, fmt(baja[0].v)) + ')');
         t += '.';
         var im = v.importaciones[i];
-        if (im != null && im >= 1) t += ' Que crezcan las importaciones no resta PIB por sí mismo: lo importado ya estaba dentro del consumo y la inversión (ver «Una identidad no explica causas»).';
+        if (im != null && im >= 1) t += tr(' Que crezcan las importaciones no resta PIB por sí mismo: lo importado ya estaba dentro del consumo y la inversión (ver «Una identidad no explica causas»).',
+          ' Growing imports do not subtract from GDP by themselves: what is imported was already within consumption and investment (see “An identity does not explain causes”).');
       }
       document.getElementById('panel-fecha').textContent = f;
       document.getElementById('panel').innerHTML = html + PM.ctx(t);
@@ -368,31 +405,42 @@
 
     function preguntas() {
       return [
-        ['¿Cómo se lee?', '<p>Cada panel es un destino de lo que produce el país, con el <strong>PIB primero</strong>: el consumo de los hogares, el del gobierno, la inversión fija, las exportaciones y las importaciones. La línea es el componente; el relleno <strong>turquesa</strong> marca cuándo está sobre la referencia (el cero en el crecimiento, el 100 en el nivel) y el <strong>rojo</strong> cuándo está debajo. La raya gris punteada repite el PIB.</p>' +
-          '<p>El cursor sobre un período lo marca en los seis paneles, y la lectura de la derecha los ordena para ese período.</p>'],
-        ['4 trimestres, trimestral o anual', '<p><strong>4 trimestres</strong> compara lo de los últimos 4 trimestres con los 4 anteriores: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> es la tasa que publica el INE (cada trimestre frente al mismo del año anterior). <strong>Anual</strong>, el año calendario completo.</p>'],
-        ['¿Qué responde «Nivel (base = 100)»?', '<p>Si cada componente está por encima o por debajo de donde estaba en el año base. Con 2019, el último año antes de la pandemia: ¿quién se recuperó y quién no?</p>' +
-          '<p>Se calcula con los valores a precios constantes de cada componente (bolivianos encadenados de 2017): sirven para comparar un componente consigo mismo, no para sumar componentes entre sí.</p>'],
-        ['¿Qué es la inversión fija?', '<p>Lo que se gasta en construcción, maquinaria y equipo: la <strong>formación bruta de capital fijo</strong> (FBCF) de las cuentas nacionales. Es la que amplía la capacidad de producir.</p>' +
-          '<p>La formación bruta de capital total suma además la variación de existencias, una partida chica y volátil sin tasa propia: aparece en la contribución al crecimiento.</p>'],
-        ['Una identidad no explica causas', '<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
+        [tr('¿Cómo se lee?', 'How do you read it?'), tr('<p>Cada panel es un destino de lo que produce el país, con el <strong>PIB primero</strong>: el consumo de los hogares, el del gobierno, la inversión fija, las exportaciones y las importaciones. La línea es el componente; el relleno <strong>turquesa</strong> marca cuándo está sobre la referencia (el cero en el crecimiento, el 100 en el nivel) y el <strong>rojo</strong> cuándo está debajo. La raya gris punteada repite el PIB.</p>' +
+          '<p>El cursor sobre un período lo marca en los seis paneles, y la lectura de la derecha los ordena para ese período.</p>',
+          '<p>Each panel is one use of what the country produces, with <strong>GDP first</strong>: household consumption, government consumption, fixed investment, exports and imports. The line is the component; the <strong>turquoise</strong> fill marks when it is above the reference (zero for growth, 100 for the level) and the <strong>red</strong> fill when it is below. The dashed gray line repeats GDP.</p>' +
+          '<p>Hovering over a period marks it in all six panels, and the reading on the right ranks them for that period.</p>')],
+        [tr('4 trimestres, trimestral o anual', '4 quarters, quarterly or annual'), tr('<p><strong>4 trimestres</strong> compara lo de los últimos 4 trimestres con los 4 anteriores: no tiene estación y es la lectura más limpia. <strong>Trimestral</strong> es la tasa que publica el INE (cada trimestre frente al mismo del año anterior). <strong>Anual</strong>, el año calendario completo.</p>',
+          '<p><strong>4 quarters</strong> compares the last 4 quarters with the previous 4: it has no seasonality and is the cleanest reading. <strong>Quarterly</strong> is the rate published by the INE (each quarter versus the same quarter of the previous year). <strong>Annual</strong>, the full calendar year.</p>')],
+        [tr('¿Qué responde «Nivel (base = 100)»?', 'What does “Level (base = 100)” answer?'), tr('<p>Si cada componente está por encima o por debajo de donde estaba en el año base. Con 2019, el último año antes de la pandemia: ¿quién se recuperó y quién no?</p>' +
+          '<p>Se calcula con los valores a precios constantes de cada componente (bolivianos encadenados de 2017): sirven para comparar un componente consigo mismo, no para sumar componentes entre sí.</p>',
+          '<p>Whether each component is above or below where it was in the base year. With 2019, the last year before the pandemic: who recovered and who did not?</p>' +
+          '<p>It is calculated with each component’s values at constant prices (chained 2017 bolivianos): they are useful for comparing a component with itself, not for adding components together.</p>')],
+        [tr('¿Qué es la inversión fija?', 'What is fixed investment?'), tr('<p>Lo que se gasta en construcción, maquinaria y equipo: la <strong>formación bruta de capital fijo</strong> (FBCF) de las cuentas nacionales. Es la que amplía la capacidad de producir.</p>' +
+          '<p>La formación bruta de capital total suma además la variación de existencias, una partida chica y volátil sin tasa propia: aparece en la contribución al crecimiento.</p>',
+          '<p>What is spent on construction, machinery and equipment: the <strong>gross fixed capital formation</strong> (GFCF) of the national accounts. It is what expands productive capacity.</p>' +
+          '<p>Total gross capital formation also adds the change in inventories, a small and volatile item with no rate of its own: it appears in the contribution to growth.</p>')],
+        [tr('Una identidad no explica causas', 'An identity does not explain causes'), tr('<p>Esta descomposición sale de una <strong>identidad contable</strong>: PIB = C + I + G + X − M. Se cumple siempre, por definición, y por eso no dice qué causó qué. Que un componente «sume» o «reste» puntos describe cómo se reparte la cuenta, no qué movió al PIB.</p>' +
           '<p>El caso típico son las importaciones. Llevan signo menos porque lo importado ya está contado dentro del consumo, la inversión y las exportaciones, y no se produjo en el país: el signo sólo evita contarlo como producción nacional. Importar más no resta PIB por sí mismo. Si un arancel recorta las importaciones, también recorta el consumo y la inversión que se hacían con ellas; el efecto neto depende de cómo responda cada componente.</p>' +
-          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
-        ['¿Escala por panel o común?', '<p><strong>Por panel</strong>, cada componente usa su propia escala: se ve bien la forma de cada uno. <strong>Común</strong>, todos comparten la misma: se ve cuál se mueve más (la inversión y el comercio exterior oscilan mucho más que el consumo).</p>']
+          '<p>Ante un cambio, la pregunta útil es qué lo causó (precios, política, un shock externo) y «¿y después qué?», sin suponer que el resto de la identidad queda quieto. Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>',
+          '<p>This breakdown comes from an <strong>accounting identity</strong>: GDP = C + I + G + X − M. It always holds, by definition, and for that reason it does not say what caused what. That a component “adds” or “subtracts” points describes how the arithmetic is split, not what moved GDP.</p>' +
+          '<p>The typical case is imports. They carry a minus sign because what is imported is already counted within consumption, investment and exports, and was not produced in the country: the sign merely avoids counting it as domestic production. Importing more does not subtract from GDP by itself. If a tariff cuts imports, it also cuts the consumption and investment that were made with them; the net effect depends on how each component responds.</p>' +
+          '<p>Faced with a change, the useful question is what caused it (prices, policy, an external shock) and “and then what?”, without assuming that the rest of the identity stays put. Brian Albrecht explains it in <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">“Never Reason from an Accounting Identity”</a> (Economic Forces, 2026).</p>')],
+        [tr('¿Escala por panel o común?', 'Per-panel or shared scale?'), tr('<p><strong>Por panel</strong>, cada componente usa su propia escala: se ve bien la forma de cada uno. <strong>Común</strong>, todos comparten la misma: se ve cuál se mueve más (la inversión y el comercio exterior oscilan mucho más que el consumo).</p>',
+          '<p><strong>Per panel</strong>, each component uses its own scale: the shape of each one is clearly visible. <strong>Shared</strong>, they all use the same one: you can see which moves the most (investment and foreign trade swing much more than consumption).</p>')]
       ];
     }
 
     // Imagen: los paneles llevan su nombre; la leyenda explica los rellenos y la raya del PIB
     PM.leyendaImagen = function () {
       var b = nivel() ? estado.base : null;
-      return [{ name: b ? 'Sobre ' + b : 'Crece', color: PM.tinte(true), forma: 'area' },
-              { name: b ? 'Bajo ' + b : 'Cae', color: PM.tinte(false), forma: 'area' }]
-        .concat(activas.has('pib') ? [{ name: 'PIB', color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }] : []);
+      return [{ name: b ? tr('Sobre ' + b, 'Above ' + b) : tr('Crece', 'Growing'), color: PM.tinte(true), forma: 'area' },
+              { name: b ? tr('Bajo ' + b, 'Below ' + b) : tr('Cae', 'Falling'), color: PM.tinte(false), forma: 'area' }]
+        .concat(activas.has('pib') ? [{ name: tr('PIB', 'GDP'), color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }] : []);
     };
     // Datos: el eje X es numérico (años decimales), así que la tabla se declara
     PM.tablaDatos = function () {
-      var u = nivel() ? 'índice de 4 trimestres, ' + estado.base + ' = 100' : { c4: 'crecimiento de 4 trimestres, %', var: 'variación interanual, %', anual: 'crecimiento del año, %' }[estado.medida];
-      return { cols: ['Período (' + u + ')'].concat(PANELES.map(function (k) { return GASTO[k].nombre; })),
+      var u = nivel() ? tr('índice de 4 trimestres, ' + estado.base + ' = 100', '4-quarter index, ' + estado.base + ' = 100') : { c4: tr('crecimiento de 4 trimestres, %', '4-quarter growth, %'), var: tr('variación interanual, %', 'year-on-year change, %'), anual: tr('crecimiento del año, %', 'growth for the year, %') }[estado.medida];
+      return { cols: [tr('Período (' + u + ')', 'Period (' + u + ')')].concat(PANELES.map(function (k) { return GASTO[k].nombre; })),
         filas: DAT.K.map(function (k, i) { return [k].concat(PANELES.map(function (c) { return DAT.v[c][i] == null ? null : +DAT.v[c][i].toFixed(3); })); }) };
     };
   })();

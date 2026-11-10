@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ranking de actividades del PIB · Populi</title>
+  <title data-en="Ranking of GDP activities · Populi">Ranking de actividades del PIB · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -20,23 +20,23 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Ranking de actividades económicas</div>
-      <div class="sec-sub" id="sub">Variación interanual del PIB por actividad económica, de la que más crece a la que más cae (%)</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Ranking of economic activities'><span class="accent-bar"></span>Ranking de actividades económicas</div>
+      <div class="sec-sub" id="sub" data-en="Year-on-year change in GDP by economic activity, from the fastest-growing to the steepest-falling (%)">Variación interanual del PIB por actividad económica, de la que más crece a la que más cae (%)</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Trimestre</span><div class="hz-grp" id="b-trim"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Quarter">Trimestre</span><div class="hz-grp" id="b-trim"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
 
     <div class="main-grid">
       <div class="chart-card">
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el ranking de actividades…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading the ranking of activities…">Cargando el ranking de actividades…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -48,6 +48,42 @@
   <script>
   (function () {
     var C = PM.C;
+    var tr = PM.t;   // tr('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés (acá T son los trimestres)
+    // ── Nombres de los datos en inglés (actividades del INE): UN solo diccionario, idéntico en los cuatro gráficos
+    // sectoriales del PIB. Las claves son los nombres exactos de data/pib_actividad.json (nombre, nombre_largo y los
+    // grandes sectores). N() se aplica sólo donde el nombre se MUESTRA; los datos se buscan siempre por su clave (k). ──
+    var EN = {
+      'PIB': 'GDP',
+      'Producto interno bruto (a precios de mercado)': 'Gross domestic product (at market prices)',
+      'Impuestos': 'Taxes',
+      'Derechos sobre importaciones, IVA no deducible, IT y otros impuestos indirectos': 'Import duties, non-deductible VAT, transactions tax (IT) and other indirect taxes',
+      'VAB': 'GVA',
+      'Valor agregado bruto': 'Gross value added',
+      'Agropecuaria': 'Agriculture',
+      'Agricultura, ganadería, silvicultura y pesca': 'Agriculture, livestock, forestry and fishing',
+      'Extractiva': 'Extractive industries',
+      'Actividad extractiva (hidrocarburos y minería)': 'Extractive activity (hydrocarbons and mining)',
+      'Manufactura': 'Manufacturing',
+      'Industrias manufactureras': 'Manufacturing industries',
+      'Electricidad y agua': 'Electricity and water',
+      'Suministro de electricidad, gas, agua y recolección de desechos': 'Electricity, gas and water supply and waste collection',
+      'Construcción': 'Construction',
+      'Comercio': 'Commerce',
+      'Transporte': 'Transport',
+      'Transporte y comunicaciones': 'Transport and communications',
+      'Alojamiento': 'Accommodation',
+      'Actividades de alojamiento y servicio de comidas': 'Accommodation and food service activities',
+      'Financieras': 'Financial services',
+      'Actividades financieras y de seguros, inmobiliarias y servicios a las empresas': 'Financial and insurance activities, real estate and business services',
+      'Adm. pública': 'Public admin.',
+      'Administración pública, salud y educación de no mercado': 'Public administration, non-market health and education',
+      'Comunales': 'Community services',
+      'Actividades comunales, sociales y personales': 'Community, social and personal activities',
+      'Primario': 'Primary',
+      'Secundario': 'Secondary',
+      'Terciario': 'Tertiary'
+    };
+    var N = function (s) { return PM.en && EN[s] != null ? EN[s] : s; };
     // ── Colores de las actividades: UN solo mapa, idéntico en los cuatro gráficos sectoriales del PIB ──
     // Por familia de gran sector: primario en oro, secundario en rojo, terciario en turquesa/petróleo y
     // tierra; la administración pública (no de mercado) y los impuestos en gris. Las actividades grandes
@@ -75,17 +111,17 @@
     var ARRIBA = { claro: '#0A9396', oscuro: '#94D2BD' }, ABAJO = { claro: '#C71E1D', oscuro: '#E8706B' };
     var signo = function (v) { return v >= 0 ? ARRIBA : ABAJO; };
     var PIB = COLOR.pib, NB = ' ';
-    var MED = { var: { nombre: 'Interanual', serie: 'var', pp: false },
-                acum: { nombre: 'Acumulada en el año', serie: 'var_acum', pp: false },
-                contrib: { nombre: 'Contribución', serie: 'contrib', pp: true } };
+    var MED = { var: { nombre: tr('Interanual', 'Year-on-year'), serie: 'var', pp: false },
+                acum: { nombre: tr('Acumulada en el año', 'Year-to-date'), serie: 'var_acum', pp: false },
+                contrib: { nombre: tr('Contribución', 'Contribution'), serie: 'contrib', pp: true } };
     var estado = { medida: 'var', t: null, fila: null };
     var D, M, T, NOM = {}, LARGO = {}, filas = [], grafico;
 
     PM.cargar(['pib_actividad.json']).then(function (r) {
       D = r[0]; M = D.metadata; T = D.trimestres;
-      D.rubros.forEach(function (x) { NOM[x.k] = x.nombre; LARGO[x.k] = x.nombre_largo; });
+      D.rubros.forEach(function (x) { NOM[x.k] = N(x.nombre); LARGO[x.k] = N(x.nombre_largo); });
       estado.t = T.length - 1;
-      PM.botonera(document.getElementById('b-medida'), [['var', 'Interanual'], ['acum', 'Acumulada'], ['contrib', 'Contribución']],
+      PM.botonera(document.getElementById('b-medida'), [['var', tr('Interanual', 'Year-on-year')], ['acum', tr('Acumulada', 'Year-to-date')], ['contrib', tr('Contribución', 'Contribution')]],
         estado.medida, function (v) { estado.medida = v; todo(); });
       // los cuatro últimos trimestres publicados
       var ult = []; for (var i = Math.max(0, T.length - 4); i < T.length; i++) ult.push([String(i), PM.fecha(T[i])]);
@@ -113,7 +149,9 @@
       panel(filas[filas.length - 1].k);
       PM.alCambiarTema(function () { cifras(); panel(estado.fila); });
       PM.preguntas(document.getElementById('preguntas'), preguntas());
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por actividad económica (referencia 2017)</a> · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+      document.getElementById('fuente').innerHTML = tr(
+        'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — PIB trimestral por actividad económica (referencia 2017)</a> · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + M.url + '" target="_blank" rel="noopener">INE (National Statistics Institute) — Quarterly GDP by economic activity (reference year 2017)</a> · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(M.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
     // Al cambiar de trimestre o de medida, la opción se FUSIONA (no se reemplaza, como hace el molde al
@@ -129,7 +167,7 @@
     function valor(k, i, m) { var s = D[(m || med()).serie][k]; return s ? s[i] : null; }
     function fmt(v, m) { return (m || med()).pp ? PM.pp(v, 2) : PM.pct(v, 1, true); }
     // el período que se compara: «T4 2025» o, acumulada, «T1–T4 2025»
-    function per(i) { var p = PM.periodo(T[i]); return estado.medida === 'acum' && p.t > 1 ? 'T1–T' + p.t + NB + p.a : PM.fecha(T[i]); }
+    function per(i) { var p = PM.periodo(T[i]); return estado.medida === 'acum' && p.t > 1 ? tr('T1–T' + p.t + NB + p.a, 'Q1–Q' + p.t + NB + p.a) : PM.fecha(T[i]); }
     // el mismo trimestre del año anterior, buscado por FECHA
     function haceUnAnio(i) { return T.indexOf((+T[i].slice(0, 4) - 1) + T[i].slice(4)); }
 
@@ -144,9 +182,12 @@
     function subtitulo() {
       var i = estado.t, m = estado.medida;
       document.getElementById('sub').textContent = (m === 'contrib'
-        ? 'Puntos porcentuales (pp) del crecimiento del PIB que aporta cada actividad en el ' + per(i) + ': a la derecha del cero suma, a la izquierda resta.'
-        : 'Cuánto cambió cada actividad en ' + (m === 'acum' ? per(i) + ' frente al mismo período' : 'el ' + per(i) + ' frente al mismo trimestre') +
-          ' del año anterior (%): a la derecha del cero crece, a la izquierda cae.') + ' La raya vertical marca el PIB.';
+        ? tr('Puntos porcentuales (pp) del crecimiento del PIB que aporta cada actividad en el ' + per(i) + ': a la derecha del cero suma, a la izquierda resta.',
+          'Percentage points (pp) of GDP growth contributed by each activity in ' + per(i) + ': to the right of zero it adds, to the left it subtracts.')
+        : tr('Cuánto cambió cada actividad en ' + (m === 'acum' ? per(i) + ' frente al mismo período' : 'el ' + per(i) + ' frente al mismo trimestre') +
+          ' del año anterior (%): a la derecha del cero crece, a la izquierda cae.',
+          'How much each activity changed in ' + per(i) + (m === 'acum' ? ' versus the same period' : ' versus the same quarter') +
+          ' of the previous year (%): to the right of zero it grows, to the left it falls.')) + tr(' La raya vertical marca el PIB.', ' The vertical line marks GDP.');
     }
 
     function cifras() {
@@ -155,23 +196,23 @@
       // minilíneas: los 12 trimestres hasta el elegido
       var serie = function (f) { var out = []; for (var j = Math.max(0, i - 11); j <= i; j++) out.push(f(j)); return out; };
       document.getElementById('kpis').innerHTML =
-        PM.kpi({ color: PIB, rotulo: 'PIB · ' + per(i), valor: PM.pct(pib, 1, true), delta: pp ? 'suma de los aportes' : (estado.medida === 'acum' ? 'acumulada en el año' : 'interanual'),
+        PM.kpi({ color: PIB, rotulo: tr('PIB · ' + per(i), 'GDP · ' + per(i)), valor: PM.pct(pib, 1, true), delta: pp ? tr('suma de los aportes', 'sum of the contributions') : (estado.medida === 'acum' ? tr('acumulada en el año', 'year-to-date') : tr('interanual', 'year-on-year')),
           tono: pib < 0 ? 'malo' : 'bueno', serie: serie(function (j) { return pibDe(j); }) }) +
-        PM.kpi({ color: signo(alto.v), rotulo: pp ? 'Mayor aporte' : 'Mayor alza', valor: fmt(alto.v), delta: NOM[alto.k],
+        PM.kpi({ color: signo(alto.v), rotulo: pp ? tr('Mayor aporte', 'Largest contribution') : tr('Mayor alza', 'Largest rise'), valor: fmt(alto.v), delta: NOM[alto.k],
           tono: alto.v >= 0 ? 'bueno' : 'malo', serie: serie(function (j) { return valor(alto.k, j); }) }) +
-        PM.kpi({ color: signo(bajo.v), rotulo: pp ? 'Mayor resta' : 'Mayor caída', valor: fmt(bajo.v), delta: NOM[bajo.k],
+        PM.kpi({ color: signo(bajo.v), rotulo: pp ? tr('Mayor resta', 'Largest drag') : tr('Mayor caída', 'Largest fall'), valor: fmt(bajo.v), delta: NOM[bajo.k],
           tono: bajo.v < 0 ? 'malo' : 'bueno', serie: serie(function (j) { return valor(bajo.k, j); }) }) +
-        PM.kpi({ color: C.rojo, rotulo: pp ? 'Actividades que restan' : 'Actividades en caída', valor: caen + ' de ' + filas.length,
-          delta: pp ? 'restan ' + PM.pp(filas.reduce(function (z, x) { return z + (x.v < 0 ? x.v : 0); }, 0), 2)
-            : filas.filter(function (x) { return x.v > pib; }).length + ' crecen más que el PIB', tono: caen > filas.length / 2 ? 'malo' : 'neutro',
+        PM.kpi({ color: C.rojo, rotulo: pp ? tr('Actividades que restan', 'Activities that subtract') : tr('Actividades en caída', 'Activities in decline'), valor: tr(caen + ' de ' + filas.length, caen + ' of ' + filas.length),
+          delta: pp ? tr('restan ' + PM.pp(filas.reduce(function (z, x) { return z + (x.v < 0 ? x.v : 0); }, 0), 2), 'they subtract ' + PM.pp(filas.reduce(function (z, x) { return z + (x.v < 0 ? x.v : 0); }, 0), 2))
+            : tr(filas.filter(function (x) { return x.v > pib; }).length + ' crecen más que el PIB', filas.filter(function (x) { return x.v > pib; }).length + ' grow faster than GDP'), tono: caen > filas.length / 2 ? 'malo' : 'neutro',
           serie: serie(function (j) { return D.sectores.filter(function (k) { var v = valor(k, j); return v != null && v < 0; }).length; }) });
     }
 
     var medidor;
     function ancho(t, fuente) { medidor = medidor || document.createElement('canvas').getContext('2d'); medidor.font = fuente; return medidor.measureText(t).width; }
     // en el teléfono, el nombre largo se acorta para no comerse el ancho de las barras
-    var CORTO = { electricidad: 'Electricidad' };
-    function nombre(k, chico) { return k === 'pib' ? 'PIB' : chico && CORTO[k] ? CORTO[k] : NOM[k]; }
+    var CORTO = { electricidad: tr('Electricidad', 'Electricity') };
+    function nombre(k, chico) { return k === 'pib' ? tr('PIB', 'GDP') : chico && CORTO[k] ? CORTO[k] : NOM[k]; }
     var ITEMS = [], hover = null;   // ITEMS: el PIB y las 11 actividades, en el orden FIJO del INE
     // casillero del eje (0 = PIB, 1…11 = puesto) → índice en ITEMS
     function casillero(c) {
@@ -223,15 +264,15 @@
           if (!ps.length) return '';
           var x = ITEMS[ps[0].dataIndex];
           if (!x) return '';
-          if (x.k === 'pib') return PM.ttTitulo('PIB', med().nombre + ' · ' + per(i)) + PM.ttFila(PIB, 'PIB', PM.pct(pib, 1, true), 'area') +
-            PM.ttTotal(pp ? 'Actividades que restan' : 'Actividades en caída', filas.filter(function (f) { return f.v < 0; }).length + ' de ' + filas.length);
+          if (x.k === 'pib') return PM.ttTitulo(tr('PIB', 'GDP'), med().nombre + ' · ' + per(i)) + PM.ttFila(PIB, tr('PIB', 'GDP'), PM.pct(pib, 1, true), 'area') +
+            PM.ttTotal(pp ? tr('Actividades que restan', 'Activities that subtract') : tr('Actividades en caída', 'Activities in decline'), tr(filas.filter(function (f) { return f.v < 0; }).length + ' de ' + filas.length, filas.filter(function (f) { return f.v < 0; }).length + ' of ' + filas.length));
           panel(x.k);
           var h = PM.ttTitulo(NOM[x.k], med().nombre + ' · ' + per(i));
           // en la contribución, la actividad se lee con su variación y su peso (la resta contra el PIB no tiene sentido: pp contra %)
-          if (pp) return h + PM.ttFila(signo(x.v), 'Aporte', fmt(x.v), 'area') + PM.ttFila(null, 'Variación interanual', PM.pct(D.var[x.k][i], 1, true)) +
-            PM.ttFila(null, 'Peso en el PIB', PM.pct(D.estructura[x.k][i], 1)) + PM.ttTotal('PIB', PM.pct(pib, 1, true));
-          return h + PM.ttFila(signo(x.v), NOM[x.k], fmt(x.v), 'area') + PM.ttFila(PIB, 'PIB', PM.pct(pib, 1, true), 'area') +
-            PM.ttTotal('Diferencia', PM.pp(x.v - pib, 1));
+          if (pp) return h + PM.ttFila(signo(x.v), tr('Aporte', 'Contribution'), fmt(x.v), 'area') + PM.ttFila(null, tr('Variación interanual', 'Year-on-year change'), PM.pct(D.var[x.k][i], 1, true)) +
+            PM.ttFila(null, tr('Peso en el PIB', 'Share of GDP'), PM.pct(D.estructura[x.k][i], 1)) + PM.ttTotal(tr('PIB', 'GDP'), PM.pct(pib, 1, true));
+          return h + PM.ttFila(signo(x.v), NOM[x.k], fmt(x.v), 'area') + PM.ttFila(PIB, tr('PIB', 'GDP'), PM.pct(pib, 1, true), 'area') +
+            PM.ttTotal(tr('Diferencia', 'Difference'), PM.pp(x.v - pib, 1));
         }, { axisPointer: { type: 'shadow', shadowStyle: { color: dk ? 'rgba(226,232,240,.07)' : 'rgba(0,18,25,.05)' } } }),
         series: [{
           type: 'custom', id: 'ranking', name: med().nombre, coordinateSystem: 'cartesian2d',
@@ -287,18 +328,22 @@
         var pos = todos.filter(function (x) { return x.v > 0; }).sort(function (a, b) { return b.v - a.v; });
         var s = function (a) { return a.reduce(function (z, x) { return z + x.v; }, 0); }, sN = s(neg), sP = s(pos);
         var lado = pib < 0 ? neg : pos, tot = pib < 0 ? sN : sP;
-        t = 'El PIB ' + (pib < 0 ? 'cae' : 'crece') + ' <strong>' + PM.pct(pib, 1, true) + '</strong>: sumaron ' + PM.pp(sP, 2) + ' y restaron ' + PM.pp(sN, 2) + '. ';
+        t = tr('El PIB ' + (pib < 0 ? 'cae' : 'crece') + ' <strong>' + PM.pct(pib, 1, true) + '</strong>: sumaron ' + PM.pp(sP, 2) + ' y restaron ' + PM.pp(sN, 2) + '. ',
+          'GDP ' + (pib < 0 ? 'falls' : 'grows') + ' <strong>' + PM.pct(pib, 1, true) + '</strong>: ' + PM.pp(sP, 2) + ' was added and ' + PM.pp(sN, 2) + ' subtracted. ');
         t += lado.length && lado[0].v / tot >= CONCENTRA
-          ? 'Lo concentra sobre todo <strong>' + NOM[lado[0].k] + '</strong>, con ' + PM.pct(lado[0].v / tot * 100, 0) + ' de lo que ' + (pib < 0 ? 'restó.' : 'sumó.')
-          : 'Ningún rubro concentra el 40% o más de lo que ' + (pib < 0 ? 'restó.' : 'sumó.');
-        return t + ' Los impuestos, fuera del ranking, aportaron ' + PM.pp(imp, 2) + '.';
+          ? tr('Lo concentra sobre todo <strong>' + NOM[lado[0].k] + '</strong>, con ' + PM.pct(lado[0].v / tot * 100, 0) + ' de lo que ' + (pib < 0 ? 'restó.' : 'sumó.'),
+            'It is concentrated above all in <strong>' + NOM[lado[0].k] + '</strong>, with ' + PM.pct(lado[0].v / tot * 100, 0) + ' of what was ' + (pib < 0 ? 'subtracted.' : 'added.'))
+          : tr('Ningún rubro concentra el 40% o más de lo que ' + (pib < 0 ? 'restó.' : 'sumó.'), 'No single item accounts for 40% or more of what was ' + (pib < 0 ? 'subtracted.' : 'added.'));
+        return t + tr(' Los impuestos, fuera del ranking, aportaron ' + PM.pp(imp, 2) + '.', ' Taxes, outside the ranking, contributed ' + PM.pp(imp, 2) + '.');
       }
-      if (caen >= EXTENDIDA) t = 'La caída es <strong>extendida</strong>: ' + caen + ' de ' + n + ' actividades retroceden.';
-      else if (caen === 0) t = '<strong>Las ' + n + ' actividades crecen</strong>.';
-      else if (caen <= POCAS) t = '<strong>La mayoría crece</strong>: sólo ' + caen + ' de ' + n + ' actividades retroceden.';
-      else t = 'La economía está <strong>dividida</strong>: ' + (n - caen) + ' actividades crecen y ' + caen + ' caen.';
-      return t + ' Entre <strong>' + NOM[alto.k] + '</strong> (' + fmt(alto.v) + ') y <strong>' + NOM[bajo.k] + '</strong> (' + fmt(bajo.v) + ') hay ' +
-        PM.num(alto.v - bajo.v, 1) + NB + 'pp de distancia; ' + filas.filter(function (x) { return x.v > pib; }).length + ' actividades superan al PIB (' + PM.pct(pib, 1, true) + ').';
+      if (caen >= EXTENDIDA) t = tr('La caída es <strong>extendida</strong>: ' + caen + ' de ' + n + ' actividades retroceden.', 'The decline is <strong>widespread</strong>: ' + caen + ' of ' + n + ' activities are contracting.');
+      else if (caen === 0) t = tr('<strong>Las ' + n + ' actividades crecen</strong>.', '<strong>All ' + n + ' activities are growing</strong>.');
+      else if (caen <= POCAS) t = tr('<strong>La mayoría crece</strong>: sólo ' + caen + ' de ' + n + ' actividades retroceden.', '<strong>Most are growing</strong>: only ' + caen + ' of ' + n + ' activities are contracting.');
+      else t = tr('La economía está <strong>dividida</strong>: ' + (n - caen) + ' actividades crecen y ' + caen + ' caen.', 'The economy is <strong>split</strong>: ' + (n - caen) + ' activities are growing and ' + caen + ' are falling.');
+      return t + tr(' Entre <strong>' + NOM[alto.k] + '</strong> (' + fmt(alto.v) + ') y <strong>' + NOM[bajo.k] + '</strong> (' + fmt(bajo.v) + ') hay ' +
+        PM.num(alto.v - bajo.v, 1) + NB + 'pp de distancia; ' + filas.filter(function (x) { return x.v > pib; }).length + ' actividades superan al PIB (' + PM.pct(pib, 1, true) + ').',
+        ' Between <strong>' + NOM[alto.k] + '</strong> (' + fmt(alto.v) + ') and <strong>' + NOM[bajo.k] + '</strong> (' + fmt(bajo.v) + ') there is a gap of ' +
+        PM.num(alto.v - bajo.v, 1) + NB + 'pp; ' + filas.filter(function (x) { return x.v > pib; }).length + ' activities outpace GDP (' + PM.pct(pib, 1, true) + ').');
     }
 
     function panel(k) {
@@ -308,13 +353,17 @@
       if (!x) return;
       var r = filas.indexOf(x) + 1, a = haceUnAnio(i), antes = a >= 0 ? valor(k, a) : null;
       var peso = D.estructura[k][i], aporte = D.contrib[k][i], vi = D.var[k][i];
-      var desc = 'Puesto <strong>' + r + ' de ' + filas.length + '</strong>. ' + (med().pp
+      var desc = tr('Puesto <strong>' + r + ' de ' + filas.length + '</strong>. ' + (med().pp
         ? (vi >= 0 ? 'Creció ' : 'Cayó ') + PM.pct(Math.abs(vi), 1) + ' interanual y pesa ' + PM.pct(peso, 1) + ' del PIB a precios corrientes.'
         : 'Diferencia con el PIB: <strong>' + PM.pp(x.v - pib, 1) + '</strong>. Pesa ' + PM.pct(peso, 1) + ' del PIB y aportó ' + PM.pp(aporte, 2) + ' a su variación interanual.') +
-        (antes != null ? ' Un año antes: ' + fmt(antes) + '.' : '');
+        (antes != null ? ' Un año antes: ' + fmt(antes) + '.' : ''),
+        'Ranked <strong>' + r + ' of ' + filas.length + '</strong>. ' + (med().pp
+        ? (vi >= 0 ? 'It grew ' : 'It fell ') + PM.pct(Math.abs(vi), 1) + ' year-on-year and accounts for ' + PM.pct(peso, 1) + ' of GDP at current prices.'
+        : 'Difference from GDP: <strong>' + PM.pp(x.v - pib, 1) + '</strong>. It accounts for ' + PM.pct(peso, 1) + ' of GDP and contributed ' + PM.pp(aporte, 2) + ' to its year-on-year change.') +
+        (antes != null ? ' A year earlier: ' + fmt(antes) + '.' : ''));
       document.getElementById('panel-fecha').textContent = per(i);
       document.getElementById('panel').innerHTML =
-        PM.pb(PIB, 'PIB', PM.pct(pib, 1, true), med().pp ? 'Variación interanual: la suma de los aportes de las 11 actividades y de los impuestos.' : 'Variación ' + (estado.medida === 'acum' ? 'acumulada en el año, ' : 'interanual del ') + per(i) + '.') +
+        PM.pb(PIB, tr('PIB', 'GDP'), PM.pct(pib, 1, true), med().pp ? tr('Variación interanual: la suma de los aportes de las 11 actividades y de los impuestos.', 'Year-on-year change: the sum of the contributions of the 11 activities and of taxes.') : tr('Variación ' + (estado.medida === 'acum' ? 'acumulada en el año, ' : 'interanual del ') + per(i) + '.', (estado.medida === 'acum' ? 'Year-to-date change, ' : 'Year-on-year change in ') + per(i) + '.')) +
         PM.pb(signo(x.v), NOM[k], fmt(x.v), (LARGO[k] !== NOM[k] ? '<span style="display:block">' + LARGO[k] + '.</span>' : '') + desc) +
         PM.ctx(lectura(i));
     }
@@ -322,27 +371,35 @@
     // Imagen y CSV: el eje de categorías son las actividades, no el tiempo
     PM.leyendaImagen = function () {
       var pp = med().pp;
-      return [{ name: pp ? 'Suma' : 'Crece', color: PM.col(ARRIBA), forma: 'area' }, { name: pp ? 'Resta' : 'Cae', color: PM.col(ABAJO), forma: 'area' },
-              { name: 'PIB: ' + PM.pct(pibDe(estado.t), 1, true), color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }];
+      return [{ name: pp ? tr('Suma', 'Adds') : tr('Crece', 'Growing'), color: PM.col(ARRIBA), forma: 'area' }, { name: pp ? tr('Resta', 'Subtracts') : tr('Cae', 'Falling'), color: PM.col(ABAJO), forma: 'area' },
+              { name: tr('PIB: ' + PM.pct(pibDe(estado.t), 1, true), 'GDP: ' + PM.pct(pibDe(estado.t), 1, true)), color: PM.dk() ? '#8A9699' : '#5C6B70', forma: 'punteada' }];
     };
     PM.tablaDatos = function () {
       var i = estado.t, fila = function (k) {
         return [NOM[k], T[i], D.var[k][i], D.var_acum[k][i], D.contrib[k][i], D.estructura[k][i]];
       };
-      return { cols: ['Actividad', 'Trimestre', 'Variación interanual (%)', 'Variación acumulada en el año (%)', 'Contribución interanual (pp)', 'Peso en el PIB a precios corrientes (%)'],
+      return { cols: [tr('Actividad', 'Activity'), tr('Trimestre', 'Quarter'), tr('Variación interanual (%)', 'Year-on-year change (%)'), tr('Variación acumulada en el año (%)', 'Year-to-date change (%)'), tr('Contribución interanual (pp)', 'Year-on-year contribution (pp)'), tr('Peso en el PIB a precios corrientes (%)', 'Share of GDP at current prices (%)')],
         filas: filas.map(function (x) { return fila(x.k); }).concat([fila('impuestos'), fila('pib')]) };
     };
 
     function preguntas() {
       return [
-        ['¿Qué muestra el ranking?', 'Las <strong>11 actividades</strong> en que el INE divide el PIB, ordenadas de la que más crece a la que más cae en el trimestre elegido. La primera fila es el PIB y su raya vertical baja por detrás de las barras: las actividades cuya barra termina a su derecha crecen más que la economía en su conjunto.'],
-        ['¿Por qué las actividades no suman el PIB?', 'Las variaciones se calculan sobre <strong>medidas de volumen encadenadas</strong> (referencia 2017), que el INE advierte que <strong>no son aditivas</strong>: la suma de las actividades no iguala el PIB. Para ver cuánto pesa cada una en el resultado está la <strong>contribución</strong>, que sí suma: las 11 actividades y los impuestos dan la variación del PIB.'],
-        ['Interanual, acumulada y contribución', '<strong>Interanual</strong>: el trimestre frente al mismo trimestre del año anterior. <strong>Acumulada</strong>: lo que va del año frente al mismo período del año anterior (en el cuarto trimestre es el crecimiento del año). <strong>Contribución</strong>: cuántos puntos porcentuales del cambio del PIB corresponden a cada actividad, según lo que crece y lo que pesa.'],
-        ['¿Qué es una contribución en puntos porcentuales?', 'Es la variación de una actividad multiplicada por su peso en el PIB del año anterior. Por eso una actividad chica que crece mucho (o cae mucho) pesa menos en la cuenta del PIB que una grande que cambia poco.'],
-        ['La contribución no explica causas', '<p>La contribución reparte el cambio del PIB entre las actividades según su peso: es aritmética de una <strong>identidad contable</strong> (el PIB es la suma del valor agregado de las actividades más los impuestos) y se cumple siempre. Dice dónde se registró el cambio, no por qué ocurrió.</p>' +
-          '<p>Que una actividad «reste» puntos no muestra la causa: la misma causa —un problema de combustible, de divisas o de demanda— mueve a varias actividades a la vez, y una arrastra a otras (el transporte y el comercio viven de lo que se produce). Para explicar hay que identificar qué cambió y seguir la cadena preguntando «¿y después qué?». Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>'],
-        ['Los colores', '<strong>Turquesa</strong>: la actividad crece (o, en la contribución, suma al PIB). <strong>Rojo</strong>: cae (o resta). El PIB va en tinta, en la primera fila. Es el mismo código de los paneles de actividad.'],
-        ['¿Son cifras definitivas?', 'No. El INE publica el PIB trimestral como <strong>cifras preliminares</strong>, sujetas a revisión: un trimestre puede cambiar en publicaciones posteriores.']
+        [tr('¿Qué muestra el ranking?', 'What does the ranking show?'), tr('Las <strong>11 actividades</strong> en que el INE divide el PIB, ordenadas de la que más crece a la que más cae en el trimestre elegido. La primera fila es el PIB y su raya vertical baja por detrás de las barras: las actividades cuya barra termina a su derecha crecen más que la economía en su conjunto.',
+          'The <strong>11 activities</strong> into which the INE divides GDP, sorted from the fastest-growing to the steepest-falling in the chosen quarter. The first row is GDP and its vertical line runs down behind the bars: the activities whose bar ends to its right are growing faster than the economy as a whole.')],
+        [tr('¿Por qué las actividades no suman el PIB?', 'Why don’t the activities add up to GDP?'), tr('Las variaciones se calculan sobre <strong>medidas de volumen encadenadas</strong> (referencia 2017), que el INE advierte que <strong>no son aditivas</strong>: la suma de las actividades no iguala el PIB. Para ver cuánto pesa cada una en el resultado está la <strong>contribución</strong>, que sí suma: las 11 actividades y los impuestos dan la variación del PIB.',
+          'The changes are calculated on <strong>chained volume measures</strong> (reference year 2017), which the INE warns <strong>are not additive</strong>: the sum of the activities does not equal GDP. To see how much each one weighs in the result there is the <strong>contribution</strong>, which does add up: the 11 activities and taxes give the change in GDP.')],
+        [tr('Interanual, acumulada y contribución', 'Year-on-year, year-to-date and contribution'), tr('<strong>Interanual</strong>: el trimestre frente al mismo trimestre del año anterior. <strong>Acumulada</strong>: lo que va del año frente al mismo período del año anterior (en el cuarto trimestre es el crecimiento del año). <strong>Contribución</strong>: cuántos puntos porcentuales del cambio del PIB corresponden a cada actividad, según lo que crece y lo que pesa.',
+          '<strong>Year-on-year</strong>: the quarter versus the same quarter of the previous year. <strong>Year-to-date</strong>: the year so far versus the same period of the previous year (in the fourth quarter it is the growth for the year). <strong>Contribution</strong>: how many percentage points of the change in GDP correspond to each activity, according to how much it grows and how much it weighs.')],
+        [tr('¿Qué es una contribución en puntos porcentuales?', 'What is a contribution in percentage points?'), tr('Es la variación de una actividad multiplicada por su peso en el PIB del año anterior. Por eso una actividad chica que crece mucho (o cae mucho) pesa menos en la cuenta del PIB que una grande que cambia poco.',
+          'It is the change in an activity multiplied by its share of the previous year’s GDP. That is why a small activity that grows a lot (or falls a lot) weighs less in the GDP arithmetic than a large one that changes little.')],
+        [tr('La contribución no explica causas', 'Contribution does not explain causes'), tr('<p>La contribución reparte el cambio del PIB entre las actividades según su peso: es aritmética de una <strong>identidad contable</strong> (el PIB es la suma del valor agregado de las actividades más los impuestos) y se cumple siempre. Dice dónde se registró el cambio, no por qué ocurrió.</p>' +
+          '<p>Que una actividad «reste» puntos no muestra la causa: la misma causa —un problema de combustible, de divisas o de demanda— mueve a varias actividades a la vez, y una arrastra a otras (el transporte y el comercio viven de lo que se produce). Para explicar hay que identificar qué cambió y seguir la cadena preguntando «¿y después qué?». Lo explica Brian Albrecht en <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">«Never Reason from an Accounting Identity»</a> (Economic Forces, 2026).</p>',
+          '<p>The contribution splits the change in GDP among the activities according to their weight: it is the arithmetic of an <strong>accounting identity</strong> (GDP is the sum of the value added of the activities plus taxes) and it always holds. It says where the change was recorded, not why it happened.</p>' +
+          '<p>That an activity “subtracts” points does not reveal the cause: the same cause—a fuel, foreign exchange or demand problem—moves several activities at once, and one drags others along (transport and commerce live off what is produced). To explain, one has to identify what changed and follow the chain by asking “and then what?”. Brian Albrecht explains it in <a href="https://www.economicforces.xyz/p/never-reason-from-an-accounting-identity-c4f" target="_blank" rel="noopener">“Never Reason from an Accounting Identity”</a> (Economic Forces, 2026).</p>')],
+        [tr('Los colores', 'The colors'), tr('<strong>Turquesa</strong>: la actividad crece (o, en la contribución, suma al PIB). <strong>Rojo</strong>: cae (o resta). El PIB va en tinta, en la primera fila. Es el mismo código de los paneles de actividad.',
+          '<strong>Turquoise</strong>: the activity is growing (or, in the contribution view, adds to GDP). <strong>Red</strong>: it is falling (or subtracts). GDP is shown in ink, in the first row. It is the same code as in the activity panels.')],
+        [tr('¿Son cifras definitivas?', 'Are these final figures?'), tr('No. El INE publica el PIB trimestral como <strong>cifras preliminares</strong>, sujetas a revisión: un trimestre puede cambiar en publicaciones posteriores.',
+          'No. The INE publishes quarterly GDP as <strong>preliminary figures</strong>, subject to revision: a quarter may change in later releases.')]
       ];
     }
   })();

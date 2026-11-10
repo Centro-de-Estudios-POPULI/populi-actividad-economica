@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Consumo de Energía Eléctrica · Populi</title>
+  <title data-en="Electricity Consumption · Populi">Consumo de Energía Eléctrica · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +15,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Consumo de Energía Eléctrica</div>
-      <div class="sec-sub" id="sub">Índice de volumen del consumo (2017 = 100), un año por línea</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Electricity Consumption'><span class="accent-bar"></span>Consumo de Energía Eléctrica</div>
+      <div class="sec-sub" id="sub" data-en="Volume index of consumption (2017 = 100), one year per line">Índice de volumen del consumo (2017 = 100), un año por línea</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Categoría</span><div class="hz-grp" id="b-serie"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Category">Categoría</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -30,10 +30,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando consumo de energía eléctrica…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading electricity consumption…">Cargando consumo de energía eléctrica…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -43,26 +43,32 @@
   </div>
 
   <script>
+  var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés
   IND.armar({
     archivo: 'ind_energia.json',
     tipo: 'indice',
     unidad: 'indice',
     umbrales: [1, 4],
-    fuente: 'INE — Índice de consumo de energía eléctrica',
+    fuente: T('INE — Índice de consumo de energía eléctrica', 'INE (National Statistics Institute) — Electricity consumption index'),
     series: [
-      { k: 'general', boton: 'Total', corto: 'Índice general', mide: 'Consumo de electricidad (índice: 100 = promedio de 2017)', acum: 'el consumo promedió {v}' },
-      { k: 'domestico', boton: 'Hogares', corto: 'Hogares', mide: 'Consumo de electricidad de los hogares (índice: 100 = promedio de 2017)', acum: 'el consumo de los hogares promedió {v}' },
-      { k: 'comercial', boton: 'Comercio', corto: 'Comercio y servicios', mide: 'Consumo de electricidad de comercio y servicios (índice: 100 = promedio de 2017)', acum: 'el consumo de comercio y servicios promedió {v}' },
-      { k: 'industria', boton: 'Industria', corto: 'Industria', mide: 'Consumo de electricidad de la industria (índice: 100 = promedio de 2017)', acum: 'el consumo de la industria promedió {v}' },
-      { k: 'mineria', boton: 'Minería', corto: 'Minería', mide: 'Consumo de electricidad de la minería (índice: 100 = promedio de 2017)', acum: 'el consumo de la minería promedió {v}' }
+      { k: 'general', boton: T('Total', 'Total'), corto: T('Índice general', 'General index'), mide: T('Consumo de electricidad (índice: 100 = promedio de 2017)', 'Electricity consumption (index: 100 = 2017 average)'), acum: T('el consumo promedió {v}', 'consumption averaged {v}') },
+      { k: 'domestico', boton: T('Hogares', 'Households'), corto: T('Hogares', 'Households'), mide: T('Consumo de electricidad de los hogares (índice: 100 = promedio de 2017)', 'Household electricity consumption (index: 100 = 2017 average)'), acum: T('el consumo de los hogares promedió {v}', 'household consumption averaged {v}') },
+      { k: 'comercial', boton: T('Comercio', 'Commerce'), corto: T('Comercio y servicios', 'Commerce and services'), mide: T('Consumo de electricidad de comercio y servicios (índice: 100 = promedio de 2017)', 'Electricity consumption of commerce and services (index: 100 = 2017 average)'), acum: T('el consumo de comercio y servicios promedió {v}', 'consumption by commerce and services averaged {v}') },
+      { k: 'industria', boton: T('Industria', 'Industry'), corto: T('Industria', 'Industry'), mide: T('Consumo de electricidad de la industria (índice: 100 = promedio de 2017)', 'Industrial electricity consumption (index: 100 = 2017 average)'), acum: T('el consumo de la industria promedió {v}', 'industrial consumption averaged {v}') },
+      { k: 'mineria', boton: T('Minería', 'Mining'), corto: T('Minería', 'Mining'), mide: T('Consumo de electricidad de la minería (índice: 100 = promedio de 2017)', 'Mining electricity consumption (index: 100 = 2017 average)'), acum: T('el consumo de la minería promedió {v}', 'mining consumption averaged {v}') }
     ],
     preguntas: function (A) {
       return [
-        ['¿Qué mide?', '<p>El <strong>volumen de electricidad</strong> que consumen los usuarios del sistema, expresado como índice: el promedio de 2017 vale 100, así que 120 es 20% más consumo que en 2017.</p>' +
-          '<p>Las categorías: <strong>Doméstico</strong> (hogares), <strong>General</strong> (comercio, servicios y entidades sin fines de lucro de mediana demanda), <strong>Industria</strong>, <strong>Minería</strong>, alumbrado público y otros (riego, servicios temporales, caminos). Los grandes consumidores no regulados se suman a la categoría de su actividad.</p>'],
-        ['¿Por qué adelanta al PIB?', 'La electricidad acompaña casi toda la producción y no se almacena: lo que se consume en el mes es actividad de ese mes. El consumo de la <strong>industria</strong> y de la <strong>minería</strong> sigue de cerca a esos sectores del PIB; el de comercio y servicios, al sector terciario. Y se publica meses antes que el PIB trimestral.'],
-        ['¿Por qué ver cada categoría?', 'El índice general mezcla hogares y empresas. Cuando los hogares consumen más (por ejemplo, por el calor) el total puede subir aunque las fábricas consuman menos: la categoría <strong>Industria</strong> es la que mejor muestra la actividad productiva.'],
-        ['Notas del INE', 'Índice de volumen con año de referencia 2017 (base móvil), elaborado con datos de la Autoridad de Fiscalización de Electricidad y Tecnología Nuclear (AETN). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p). Las variaciones de este gráfico se calculan desde el índice publicado.']
+        [T('¿Qué mide?', 'What does it measure?'), T('<p>El <strong>volumen de electricidad</strong> que consumen los usuarios del sistema, expresado como índice: el promedio de 2017 vale 100, así que 120 es 20% más consumo que en 2017.</p>' +
+          '<p>Las categorías: <strong>Doméstico</strong> (hogares), <strong>General</strong> (comercio, servicios y entidades sin fines de lucro de mediana demanda), <strong>Industria</strong>, <strong>Minería</strong>, alumbrado público y otros (riego, servicios temporales, caminos). Los grandes consumidores no regulados se suman a la categoría de su actividad.</p>',
+          '<p>The <strong>volume of electricity</strong> consumed by the system’s users, expressed as an index: the 2017 average equals 100, so 120 is 20% more consumption than in 2017.</p>' +
+          '<p>The categories: <strong>Residential</strong> (households), <strong>General</strong> (commerce, services and medium-demand non-profit entities), <strong>Industry</strong>, <strong>Mining</strong>, street lighting and others (irrigation, temporary services, roads). Large unregulated consumers are added to the category of their activity.</p>')],
+        [T('¿Por qué adelanta al PIB?', 'Why is it a leading indicator of GDP?'), T('La electricidad acompaña casi toda la producción y no se almacena: lo que se consume en el mes es actividad de ese mes. El consumo de la <strong>industria</strong> y de la <strong>minería</strong> sigue de cerca a esos sectores del PIB; el de comercio y servicios, al sector terciario. Y se publica meses antes que el PIB trimestral.',
+          'Electricity accompanies almost all production and cannot be stored: what is consumed in the month is that month’s activity. Consumption by <strong>industry</strong> and <strong>mining</strong> closely tracks those sectors of GDP; that of commerce and services, the tertiary sector. And it is published months before quarterly GDP.')],
+        [T('¿Por qué ver cada categoría?', 'Why look at each category?'), T('El índice general mezcla hogares y empresas. Cuando los hogares consumen más (por ejemplo, por el calor) el total puede subir aunque las fábricas consuman menos: la categoría <strong>Industria</strong> es la que mejor muestra la actividad productiva.',
+          'The general index mixes households and businesses. When households consume more (for example, because of the heat) the total can rise even if factories consume less: the <strong>Industry</strong> category is the one that best shows productive activity.')],
+        [T('Notas del INE', 'INE notes'), T('Índice de volumen con año de referencia 2017 (base móvil), elaborado con datos de la Autoridad de Fiscalización de Electricidad y Tecnología Nuclear (AETN). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p). Las variaciones de este gráfico se calculan desde el índice publicado.',
+          'Volume index with reference year 2017 (moving base), compiled with data from the Electricity and Nuclear Technology Oversight Authority (AETN). The figures ' + (A.prelim ? 'from ' + A.prelim + ' onward ' : '') + 'are <strong>preliminary</strong> (p). The changes in this chart are calculated from the published index.')]
       ];
     }
   });

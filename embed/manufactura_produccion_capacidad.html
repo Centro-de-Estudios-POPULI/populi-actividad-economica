@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Industria Manufacturera · Populi</title>
+  <title data-en="Manufacturing Industry · Populi">Industria Manufacturera · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +15,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Industria Manufacturera</div>
-      <div class="sec-sub" id="sub">Producción de la industria por trimestre, un año por línea</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Manufacturing Industry'><span class="accent-bar"></span>Industria Manufacturera</div>
+      <div class="sec-sub" id="sub" data-en="Industrial output per quarter, one year per line">Producción de la industria por trimestre, un año por línea</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Serie</span><div class="hz-grp" id="b-serie"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Series">Serie</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -30,10 +30,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando industria manufacturera…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading manufacturing industry…">Cargando industria manufacturera…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -47,12 +47,13 @@
   // trimestres y nivel con año base). La producción y el uso de la capacidad tienen unidades distintas: se eligen
   // con la botonera, nunca en dos ejes. El uso de la capacidad es una tasa: se compara en puntos porcentuales.
   var PIB = null;
+  var tr = PM.t;   // tr('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés (acá T son los trimestres)
   IND.armar({
     frec: 4,
     tipo: 'indice',
     unidad: 'indice',
     umbrales: [3, 8],
-    fuente: 'INE — Encuesta trimestral de la industria manufacturera',
+    fuente: tr('INE — Encuesta trimestral de la industria manufacturera', 'INE (National Statistics Institute) — Quarterly survey of the manufacturing industry'),
     cargar: function () {
       return PM.cargar(['ind_manufactura.json', 'pib_actividad.json']).then(function (r) {
         var d = r[0], series = {};
@@ -62,11 +63,11 @@
       });
     },
     series: [
-      { k: 'produccion_total', boton: 'Total', corto: 'Producción', mide: 'Producción de la industria manufacturera (índice: 100 = promedio de 2017)', acum: 'el índice de producción promedió {v}' },
-      { k: 'produccion_alimentos', boton: 'Alimentos', corto: 'Alimentos y bebidas', mide: 'Producción de alimentos y bebidas (índice: 100 = promedio de 2017)', acum: 'la producción de alimentos y bebidas promedió {v}' },
-      { k: 'produccion_otras', boton: 'Otras', corto: 'Otras industrias', mide: 'Producción de las otras industrias (índice: 100 = promedio de 2017)', acum: 'la producción de las otras industrias promedió {v}' },
-      { k: 'capacidad_total', boton: 'Capacidad', corto: 'Uso de capacidad', tipo: 'tasa', unidad: 'pct', umbrales: [1, 3],
-        mide: 'Uso de la capacidad instalada de la industria, en %', acum: 'la industria usó en promedio el {v} de su capacidad' }
+      { k: 'produccion_total', boton: tr('Total', 'Total'), corto: tr('Producción', 'Output'), mide: tr('Producción de la industria manufacturera (índice: 100 = promedio de 2017)', 'Manufacturing output (index: 100 = 2017 average)'), acum: tr('el índice de producción promedió {v}', 'the output index averaged {v}') },
+      { k: 'produccion_alimentos', boton: tr('Alimentos', 'Food'), corto: tr('Alimentos y bebidas', 'Food and beverages'), mide: tr('Producción de alimentos y bebidas (índice: 100 = promedio de 2017)', 'Output of food and beverages (index: 100 = 2017 average)'), acum: tr('la producción de alimentos y bebidas promedió {v}', 'the output of food and beverages averaged {v}') },
+      { k: 'produccion_otras', boton: tr('Otras', 'Other'), corto: tr('Otras industrias', 'Other industries'), mide: tr('Producción de las otras industrias (índice: 100 = promedio de 2017)', 'Output of the other industries (index: 100 = 2017 average)'), acum: tr('la producción de las otras industrias promedió {v}', 'the output of the other industries averaged {v}') },
+      { k: 'capacidad_total', boton: tr('Capacidad', 'Capacity'), corto: tr('Uso de capacidad', 'Capacity utilization'), tipo: 'tasa', unidad: 'pct', umbrales: [1, 3],
+        mide: tr('Uso de la capacidad instalada de la industria, en %', 'Utilization of the industry’s installed capacity, in %'), acum: tr('la industria usó en promedio el {v} de su capacidad', 'industry used on average {v} of its capacity') }
     ],
     preguntas: function (A) {
       var D = A.D, T = D.meses, s = D.series.produccion_total, anios = 0, bajos = 0, por = {};
@@ -85,14 +86,22 @@
         peso = n ? PM.pct(t / n, 0) : null;
       }
       return [
-        ['¿Qué mide?', '<p>El <strong>índice de producción</strong> mide el volumen que producen las fábricas en el trimestre: el promedio de 2017 vale 100. El <strong>uso de la capacidad</strong> es la parte de la capacidad instalada (máquinas, turnos) que efectivamente se usó, en porcentaje.</p>' +
-          '<p>Los dos salen de la encuesta trimestral del INE a la industria, que cubre sobre todo a <strong>empresas grandes y medianas</strong>, separadas en alimentos y bebidas y el resto de las industrias.</p>'],
-        ['¿Por qué importa para el PIB?', (peso ? 'La industria manufacturera generó cerca del <strong>' + peso + ' del PIB</strong> en ' + ya + ' (a precios corrientes). ' : '') +
-          'Este índice mide directamente a las fábricas y acompaña al PIB de la manufactura. El uso de la capacidad agrega algo que el PIB no dice: cuánto margen hay para producir más <strong>sin invertir</strong> en nuevas máquinas.'],
-        ['¿Por qué el primer trimestre siempre baja?', 'El índice no está desestacionalizado. ' + (anios ? 'En <strong>' + bajos + ' de ' + anios + ' años</strong> completos el primer trimestre fue el más bajo del año' : 'El primer trimestre suele ser el más bajo del año') +
-          ' (vacaciones, lluvias, carnaval, menos días hábiles). Por eso se compara con el <strong>mismo trimestre</strong> del año anterior, o con la vista «Crecimiento», que suma cuatro trimestres.'],
-        ['Notas del INE', 'Índice con año de referencia 2017 (base móvil). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') +
-          'son <strong>preliminares</strong> (p). El último dato publicado es ' + PM.fecha(D.metadata.ultimo) + '. La muestra no incluye a la mayoría de las micro y pequeñas empresas.']
+        [tr('¿Qué mide?', 'What does it measure?'), tr('<p>El <strong>índice de producción</strong> mide el volumen que producen las fábricas en el trimestre: el promedio de 2017 vale 100. El <strong>uso de la capacidad</strong> es la parte de la capacidad instalada (máquinas, turnos) que efectivamente se usó, en porcentaje.</p>' +
+          '<p>Los dos salen de la encuesta trimestral del INE a la industria, que cubre sobre todo a <strong>empresas grandes y medianas</strong>, separadas en alimentos y bebidas y el resto de las industrias.</p>',
+          '<p>The <strong>output index</strong> measures the volume produced by factories in the quarter: the 2017 average equals 100. <strong>Capacity utilization</strong> is the share of installed capacity (machines, shifts) that was actually used, as a percentage.</p>' +
+          '<p>Both come from the INE’s quarterly survey of industry, which mostly covers <strong>large and medium-sized companies</strong>, split into food and beverages and the rest of the industries.</p>')],
+        [tr('¿Por qué importa para el PIB?', 'Why does it matter for GDP?'), tr((peso ? 'La industria manufacturera generó cerca del <strong>' + peso + ' del PIB</strong> en ' + ya + ' (a precios corrientes). ' : '') +
+          'Este índice mide directamente a las fábricas y acompaña al PIB de la manufactura. El uso de la capacidad agrega algo que el PIB no dice: cuánto margen hay para producir más <strong>sin invertir</strong> en nuevas máquinas.',
+          (peso ? 'Manufacturing generated about <strong>' + peso + ' of GDP</strong> in ' + ya + ' (at current prices). ' : '') +
+          'This index measures factories directly and tracks manufacturing GDP. Capacity utilization adds something GDP does not tell: how much room there is to produce more <strong>without investing</strong> in new machines.')],
+        [tr('¿Por qué el primer trimestre siempre baja?', 'Why does the first quarter always fall?'), tr('El índice no está desestacionalizado. ' + (anios ? 'En <strong>' + bajos + ' de ' + anios + ' años</strong> completos el primer trimestre fue el más bajo del año' : 'El primer trimestre suele ser el más bajo del año') +
+          ' (vacaciones, lluvias, carnaval, menos días hábiles). Por eso se compara con el <strong>mismo trimestre</strong> del año anterior, o con la vista «Crecimiento», que suma cuatro trimestres.',
+          'The index is not seasonally adjusted. ' + (anios ? 'In <strong>' + bajos + ' of ' + anios + '</strong> complete years the first quarter was the lowest of the year' : 'The first quarter is usually the lowest of the year') +
+          ' (vacations, rains, carnival, fewer working days). That is why it is compared with the <strong>same quarter</strong> of the previous year, or with the “Growth” view, which adds up four quarters.')],
+        [tr('Notas del INE', 'INE notes'), tr('Índice con año de referencia 2017 (base móvil). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') +
+          'son <strong>preliminares</strong> (p). El último dato publicado es ' + PM.fecha(D.metadata.ultimo) + '. La muestra no incluye a la mayoría de las micro y pequeñas empresas.',
+          'Index with reference year 2017 (moving base). The figures ' + (A.prelim ? 'from ' + A.prelim + ' onward ' : '') +
+          'are <strong>preliminary</strong> (p). The latest published data point is ' + PM.fecha(D.metadata.ultimo) + '. The sample does not include most micro and small enterprises.')]
       ];
     }
   });

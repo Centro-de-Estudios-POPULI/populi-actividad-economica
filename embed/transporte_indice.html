@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Índice de Transporte · Populi</title>
+  <title data-en="Transport Index · Populi">Índice de Transporte · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +15,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Índice de Transporte</div>
-      <div class="sec-sub" id="sub">Índice general de transporte (2017 = 100), un año por línea</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Transport Index'><span class="accent-bar"></span>Índice de Transporte</div>
+      <div class="sec-sub" id="sub" data-en="General transport index (2017 = 100), one year per line">Índice general de transporte (2017 = 100), un año por línea</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Modo</span><div class="hz-grp" id="b-serie"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Mode">Modo</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -30,10 +30,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando índice de transporte…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading transport index…">Cargando índice de transporte…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -43,27 +43,33 @@
   </div>
 
   <script>
+  var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés
   IND.armar({
     archivo: 'ind_transporte.json',
     tipo: 'indice',
     unidad: 'indice',
     umbrales: [2, 8],
-    fuente: 'INE — Índice general de transporte',
+    fuente: T('INE — Índice general de transporte', 'INE (National Statistics Institute) — General transport index'),
     series: [
-      { k: 'general', boton: 'Total', corto: 'Índice general', mide: 'Volumen de transporte de carga y pasajeros (índice: 100 = promedio de 2017)', acum: 'el índice promedió {v}' },
-      { k: 'carretero', boton: 'Carretera', corto: 'Carretero', mide: 'Transporte por carretera (índice: 100 = promedio de 2017)', acum: 'el transporte carretero promedió {v}' },
-      { k: 'aereo', boton: 'Aéreo', corto: 'Aéreo', mide: 'Transporte aéreo (índice: 100 = promedio de 2017)', acum: 'el transporte aéreo promedió {v}' },
-      { k: 'ferroviario', boton: 'Tren', corto: 'Ferroviario', mide: 'Transporte por tren (índice: 100 = promedio de 2017)', acum: 'el transporte ferroviario promedió {v}' },
-      { k: 'ductos', boton: 'Ductos', corto: 'Ductos', mide: 'Transporte de hidrocarburos por ductos (índice: 100 = promedio de 2017)', acum: 'el transporte por ductos promedió {v}' },
-      { k: 'urbano', boton: 'Urbano', corto: 'Urbano', mide: 'Transporte urbano de pasajeros (índice: 100 = promedio de 2017)', acum: 'el transporte urbano promedió {v}' }
+      { k: 'general', boton: T('Total', 'Total'), corto: T('Índice general', 'General index'), mide: T('Volumen de transporte de carga y pasajeros (índice: 100 = promedio de 2017)', 'Volume of freight and passenger transport (index: 100 = 2017 average)'), acum: T('el índice promedió {v}', 'the index averaged {v}') },
+      { k: 'carretero', boton: T('Carretera', 'Road'), corto: T('Carretero', 'Road'), mide: T('Transporte por carretera (índice: 100 = promedio de 2017)', 'Road transport (index: 100 = 2017 average)'), acum: T('el transporte carretero promedió {v}', 'road transport averaged {v}') },
+      { k: 'aereo', boton: T('Aéreo', 'Air'), corto: T('Aéreo', 'Air'), mide: T('Transporte aéreo (índice: 100 = promedio de 2017)', 'Air transport (index: 100 = 2017 average)'), acum: T('el transporte aéreo promedió {v}', 'air transport averaged {v}') },
+      { k: 'ferroviario', boton: T('Tren', 'Rail'), corto: T('Ferroviario', 'Rail'), mide: T('Transporte por tren (índice: 100 = promedio de 2017)', 'Rail transport (index: 100 = 2017 average)'), acum: T('el transporte ferroviario promedió {v}', 'rail transport averaged {v}') },
+      { k: 'ductos', boton: T('Ductos', 'Pipelines'), corto: T('Ductos', 'Pipelines'), mide: T('Transporte de hidrocarburos por ductos (índice: 100 = promedio de 2017)', 'Pipeline transport of hydrocarbons (index: 100 = 2017 average)'), acum: T('el transporte por ductos promedió {v}', 'pipeline transport averaged {v}') },
+      { k: 'urbano', boton: T('Urbano', 'Urban'), corto: T('Urbano', 'Urban'), mide: T('Transporte urbano de pasajeros (índice: 100 = promedio de 2017)', 'Urban passenger transport (index: 100 = 2017 average)'), acum: T('el transporte urbano promedió {v}', 'urban transport averaged {v}') }
     ],
     preguntas: function (A) {
       return [
-        ['¿Qué mide?', '<p>El <strong>volumen de transporte</strong> de carga y pasajeros del país como índice: el promedio de 2017 vale 100, así que 90 es 10% menos movimiento que en 2017.</p>' +
-          '<p>Combina cinco modalidades: <strong>carretero</strong>, <strong>ferroviario</strong>, <strong>aéreo</strong>, <strong>ductos</strong> (gas y líquidos por tubería) y <strong>urbano</strong> (pasajeros en las ciudades).</p>'],
-        ['¿Por qué adelanta al PIB?', 'Casi todo lo que se produce, se importa o se exporta se mueve por camino, tren o ducto antes de venderse. El índice anticipa al sector <strong>Transporte y comunicaciones</strong> del PIB y refleja el pulso del comercio y de la producción; el de ductos sigue a los hidrocarburos.'],
-        ['¿Por qué mirar cada modalidad?', 'Cada una cuenta algo distinto. Los <strong>bloqueos de caminos</strong> y la <strong>falta de combustible</strong> se ven primero en el carretero y arrastran al índice general; el aéreo responde al turismo y a los viajes de negocios; el de ductos, a la producción y la exportación de gas.'],
-        ['Notas del INE', 'Índice de volumen con año de referencia 2017 (base móvil). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p), sujetas a revisión.']
+        [T('¿Qué mide?', 'What does it measure?'), T('<p>El <strong>volumen de transporte</strong> de carga y pasajeros del país como índice: el promedio de 2017 vale 100, así que 90 es 10% menos movimiento que en 2017.</p>' +
+          '<p>Combina cinco modalidades: <strong>carretero</strong>, <strong>ferroviario</strong>, <strong>aéreo</strong>, <strong>ductos</strong> (gas y líquidos por tubería) y <strong>urbano</strong> (pasajeros en las ciudades).</p>',
+          '<p>The country’s <strong>volume of freight and passenger transport</strong> as an index: the 2017 average equals 100, so 90 is 10% less traffic than in 2017.</p>' +
+          '<p>It combines five modes: <strong>road</strong>, <strong>rail</strong>, <strong>air</strong>, <strong>pipelines</strong> (gas and liquids by pipe) and <strong>urban</strong> (passengers in cities).</p>')],
+        [T('¿Por qué adelanta al PIB?', 'Why is it a leading indicator of GDP?'), T('Casi todo lo que se produce, se importa o se exporta se mueve por camino, tren o ducto antes de venderse. El índice anticipa al sector <strong>Transporte y comunicaciones</strong> del PIB y refleja el pulso del comercio y de la producción; el de ductos sigue a los hidrocarburos.',
+          'Almost everything that is produced, imported or exported moves by road, rail or pipeline before it is sold. The index anticipates the <strong>Transport and communications</strong> sector of GDP and reflects the pulse of commerce and production; the pipeline index tracks hydrocarbons.')],
+        [T('¿Por qué mirar cada modalidad?', 'Why look at each mode?'), T('Cada una cuenta algo distinto. Los <strong>bloqueos de caminos</strong> y la <strong>falta de combustible</strong> se ven primero en el carretero y arrastran al índice general; el aéreo responde al turismo y a los viajes de negocios; el de ductos, a la producción y la exportación de gas.',
+          'Each one tells a different story. <strong>Road blockades</strong> and <strong>fuel shortages</strong> show up first in road transport and drag down the general index; air transport responds to tourism and business travel; pipelines, to gas production and exports.')],
+        [T('Notas del INE', 'INE notes'), T('Índice de volumen con año de referencia 2017 (base móvil). Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p), sujetas a revisión.',
+          'Volume index with reference year 2017 (moving base). The figures ' + (A.prelim ? 'from ' + A.prelim + ' onward ' : '') + 'are <strong>preliminary</strong> (p), subject to revision.')]
       ];
     }
   });

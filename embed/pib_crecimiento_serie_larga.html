@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crecimiento del PIB · Populi</title>
+  <title data-en="GDP growth · Populi">Crecimiento del PIB · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -14,13 +14,13 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Crecimiento del PIB</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>GDP growth'><span class="accent-bar"></span>Crecimiento del PIB</div>
       <div class="sec-sub" id="sub"></div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-medida"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Rango</span><div class="hz-grp" id="b-rango"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-medida"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Range">Rango</span><div class="hz-grp" id="b-rango"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -28,10 +28,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div><span id="aviso" style="font:500 .62rem/1.4 Inter,sans-serif;color:var(--muted)"></span></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando el crecimiento del PIB…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading GDP growth…">Cargando el crecimiento del PIB…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -42,18 +42,19 @@
 
   <script>
   (function () {
+    var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés
     var C = PM.C, NB = ' ';
     // Dos mediciones del mismo PIB que NO se empalman: cada una es su propia línea. La vigente (año de referencia
     // 2017) en tinta, con el lenguaje de los paneles del deck y del blog: el área contra el cero en turquesa (crece)
     // o rojo (cae) y la cifra final junto a un punto hueco. La anterior (base 1990), en la familia oro (paso
     // oscuro en claro: el oro puro no llega a 3:1 sobre la tarjeta blanca), sin relleno. Validado en los dos temas.
     var COL = { b17: C.tinta, b90: { claro: C.oroOscuro, oscuro: C.oro } };
-    var NOM = { b17: 'Serie vigente (ref. 2017)', b90: 'Serie anterior (base 1990)' };
-    var CORTO = { b17: 'Vigente · 2017', b90: 'Anterior · 1990' };
+    var NOM = { b17: T('Serie vigente (ref. 2017)', 'Current series (ref. 2017)'), b90: T('Serie anterior (base 1990)', 'Previous series (1990 base)') };
+    var CORTO = { b17: T('Vigente · 2017', 'Current · 2017'), b90: T('Anterior · 1990', 'Previous · 1990') };
     var MEDIDAS = {
-      c4: { boton: '4 trimestres', frente: 'frente a los 4 trimestres anteriores', sub: 'Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %' },
-      trim: { boton: 'Trimestral', frente: 'frente al mismo trimestre del año anterior', sub: 'Cuánto creció la producción de cada trimestre frente al mismo trimestre del año anterior, en %' },
-      anual: { boton: 'Anual', frente: 'frente al año anterior', sub: 'Cuánto creció la producción de cada año frente al año anterior, en %' }
+      c4: { boton: T('4 trimestres', '4 quarters'), frente: T('frente a los 4 trimestres anteriores', 'versus the previous 4 quarters'), sub: T('Cuánto creció lo producido en los últimos 4 trimestres frente a los 4 anteriores, en %', 'How much output over the last 4 quarters grew versus the previous 4, in %') },
+      trim: { boton: T('Trimestral', 'Quarterly'), frente: T('frente al mismo trimestre del año anterior', 'versus the same quarter of the previous year'), sub: T('Cuánto creció la producción de cada trimestre frente al mismo trimestre del año anterior, en %', 'How much output in each quarter grew versus the same quarter of the previous year, in %') },
+      anual: { boton: T('Anual', 'Annual'), frente: T('frente al año anterior', 'versus the previous year'), sub: T('Cuánto creció la producción de cada año frente al año anterior, en %', 'How much output in each year grew versus the previous year, in %') }
     };
     // Por defecto, la lectura más limpia (sin estación y sin el salto de un trimestre suelto) y toda la historia
     var estado = { rango: 'todo', medida: 'c4', idx: null };
@@ -69,7 +70,7 @@
       estado.idx = D[estado.medida].K.length - 1;
       PM.botonera(document.getElementById('b-medida'), Object.keys(MEDIDAS).map(function (k) { return [k, MEDIDAS[k].boton]; }),
         estado.medida, function (v) { estado.medida = v; estado.idx = D[v].K.length - 1; subtitulo(); grafico.redibujar(); panel(estado.idx); });
-      PM.botonera(document.getElementById('b-rango'), [['10a', '10 años'], ['desde2000', 'Desde 2000'], ['todo', 'Todo']],
+      PM.botonera(document.getElementById('b-rango'), [['10a', T('10 años', '10 years')], ['desde2000', T('Desde 2000', 'Since 2000')], ['todo', T('Todo', 'All')]],
         estado.rango, function (v) { estado.rango = v; grafico.redibujar(); });
       PM.pastillas(document.getElementById('pastillas'),
         ['b17', 'b90'].map(function (k) { return { k: k, nombre: CORTO[k], color: COL[k], forma: 'linea' }; }),
@@ -83,10 +84,12 @@
       panel(estado.idx);
       PM.alCambiarTema(function () { cifras(); panel(estado.idx); });
       PM.preguntas(document.getElementById('preguntas'), preguntas());
-      document.getElementById('fuente').innerHTML = 'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — Cuentas Nacionales Trimestrales</a> (base 1990 y año de referencia 2017) · Elaboración: Centro de Estudios POPULI · Datos al: ' + PM.fecha(M.ultimo);
+      document.getElementById('fuente').innerHTML = T(
+        'Fuente: <a href="' + M.url + '" target="_blank" rel="noopener">INE — Cuentas Nacionales Trimestrales</a> (base 1990 y año de referencia 2017) · Elaboración: Centro de Estudios POPULI · Datos al: ',
+        'Source: <a href="' + M.url + '" target="_blank" rel="noopener">INE (National Statistics Institute) — Quarterly National Accounts</a> (1990 base and reference year 2017) · Analysis: Centro de Estudios POPULI · Data as of: ') + PM.fecha(M.ultimo);
     }).catch(function (e) { console.error(e); PM.error(document.getElementById('chart')); });
 
-    function subtitulo() { document.getElementById('sub').textContent = MEDIDAS[estado.medida].sub + '. Dos mediciones del INE que no se unen: la vigente y la anterior.'; }
+    function subtitulo() { document.getElementById('sub').textContent = MEDIDAS[estado.medida].sub + T('. Dos mediciones del INE que no se unen: la vigente y la anterior.', '. Two INE measurements that are not spliced together: the current one and the previous one.'); }
 
     // Un eje común para las dos bases; cada una queda en su serie, con null donde no existe
     function armar(l90, l17) {
@@ -185,14 +188,14 @@
       var ua = valor(a17, String(I.completo)), ut = t17[t17.length - 1], p17 = I.per17[0], b = I.brecha, p = PM.periodo(ut[0]);
       var corto = function (a) { return String(a).slice(2); };
       document.getElementById('kpis').innerHTML =
-        PM.kpi({ color: ua < 0 ? C.rojo : C.turquesa, rotulo: 'Crecimiento ' + I.completo, valor: PM.pct(ua, 1, true),
-          delta: 'año ' + I.completo + ' completo', tono: ua < 0 ? 'malo' : 'bueno', serie: a17.map(function (x) { return x[1]; }) }) +
-        PM.kpi({ color: ut[1] < 0 ? C.rojo : C.turquesa, rotulo: 'Último trimestre', valor: PM.pct(ut[1], 1, true),
-          delta: PM.fecha(ut[0]) + ' vs. T' + p.t + NB + (p.a - 1), tono: ut[1] < 0 ? 'malo' : 'bueno', serie: PM.ultimos(t17.map(function (x) { return x[1]; }), 24) }) +
-        PM.kpi({ color: COL.b17, rotulo: 'Promedio por año ' + p17.desde + '–' + corto(p17.hasta), valor: PM.pct(p17.v, 1, true),
-          delta: 'en ' + I.auge.desde + '–' + corto(I.auge.hasta) + ': ' + PM.pct(I.auge.v, 1, true), tono: p17.v < I.auge.v ? 'malo' : 'bueno' }) +
-        PM.kpi({ color: COL.b90, rotulo: 'Mayor brecha entre series', valor: PM.num(Math.abs(b.d), 1) + NB + 'pp',
-          delta: b.k + ': ' + PM.num(b.v17, 1) + ' y ' + PM.pct(b.v90, 1), tono: 'neutro', serie: I.solape.map(function (x) { return x.d; }) });
+        PM.kpi({ color: ua < 0 ? C.rojo : C.turquesa, rotulo: T('Crecimiento ' + I.completo, I.completo + ' growth'), valor: PM.pct(ua, 1, true),
+          delta: T('año ' + I.completo + ' completo', 'full year ' + I.completo), tono: ua < 0 ? 'malo' : 'bueno', serie: a17.map(function (x) { return x[1]; }) }) +
+        PM.kpi({ color: ut[1] < 0 ? C.rojo : C.turquesa, rotulo: T('Último trimestre', 'Latest quarter'), valor: PM.pct(ut[1], 1, true),
+          delta: T(PM.fecha(ut[0]) + ' vs. T' + p.t + NB + (p.a - 1), PM.fecha(ut[0]) + ' vs. Q' + p.t + NB + (p.a - 1)), tono: ut[1] < 0 ? 'malo' : 'bueno', serie: PM.ultimos(t17.map(function (x) { return x[1]; }), 24) }) +
+        PM.kpi({ color: COL.b17, rotulo: T('Promedio por año ' + p17.desde + '–' + corto(p17.hasta), 'Average per year ' + p17.desde + '–' + corto(p17.hasta)), valor: PM.pct(p17.v, 1, true),
+          delta: T('en ' + I.auge.desde + '–' + corto(I.auge.hasta) + ': ' + PM.pct(I.auge.v, 1, true), 'in ' + I.auge.desde + '–' + corto(I.auge.hasta) + ': ' + PM.pct(I.auge.v, 1, true)), tono: p17.v < I.auge.v ? 'malo' : 'bueno' }) +
+        PM.kpi({ color: COL.b90, rotulo: T('Mayor brecha entre series', 'Largest gap between series'), valor: PM.num(Math.abs(b.d), 1) + NB + 'pp',
+          delta: T(b.k + ': ' + PM.num(b.v17, 1) + ' y ' + PM.pct(b.v90, 1), b.k + ': ' + PM.num(b.v17, 1) + ' and ' + PM.pct(b.v90, 1)), tono: 'neutro', serie: I.solape.map(function (x) { return x.d; }) });
     }
 
     var ultimo = function (v) { for (var i = v.length - 1; i >= 0; i--) if (v[i] != null) return i; return -1; };
@@ -233,9 +236,12 @@
             if (v > I.recorte && (!ext.hi || v > ext.hi.v)) ext.hi = { v: v, k: KV[i] };
           });
         });
-        if (ext.lo || ext.hi) aviso = 'Escala recortada a ±' + I.recorte + '%: ' +
+        if (ext.lo || ext.hi) aviso = T('Escala recortada a ±' + I.recorte + '%: ' +
           [ext.lo ? PM.pct(ext.lo.v, 1) + ' en ' + PM.fecha(ext.lo.k) : '', ext.hi ? PM.pct(ext.hi.v, 1, true) + ' en ' + PM.fecha(ext.hi.k) : '']
-            .filter(Boolean).join(' y ') + ' quedan fuera';
+            .filter(Boolean).join(' y ') + ' quedan fuera',
+          'Scale clipped to ±' + I.recorte + '%: ' +
+          [ext.lo ? PM.pct(ext.lo.v, 1) + ' in ' + PM.fecha(ext.lo.k) : '', ext.hi ? PM.pct(ext.hi.v, 1, true) + ' in ' + PM.fecha(ext.hi.k) : '']
+            .filter(Boolean).join(' and ') + (ext.lo && ext.hi ? ' fall outside' : ' falls outside'));
       }
       document.getElementById('aviso').textContent = aviso;
       // Referencias en una serie auxiliar: el cero (firme) y la pandemia, punteada en pizarra
@@ -243,7 +249,7 @@
       var marcas = { silent: true, symbol: 'none', animation: false, label: { show: false }, lineStyle: cero.lineStyle, data: [{ yAxis: 0 }] };
       if (pand && KV.indexOf(pand) >= 0) marcas.data.push({ xAxis: pand,
         lineStyle: { color: pz, width: 1.25, type: [4, 3] },
-        label: { show: true, position: 'end', distance: 6, formatter: 'Pandemia', color: pz, fontFamily: PM.inter(), fontSize: chico ? 10 : 10.5, fontWeight: 600 } });
+        label: { show: true, position: 'end', distance: 6, formatter: T('Pandemia', 'Pandemic'), color: pz, fontFamily: PM.inter(), fontSize: chico ? 10 : 10.5, fontWeight: 600 } });
       series.push({ type: 'line', name: '_ref', data: KV.map(function () { return null; }), silent: true, symbol: 'none', markLine: marcas });
       var el = document.getElementById('chart');
       var vm = activas.has('b17') ? [{ show: false, type: 'piecewise', seriesIndex: 0, dimension: 1,
@@ -258,10 +264,10 @@
           if (!ps.length) return '';
           var i = ps[0].dataIndex, x17 = V.b17[i], x90 = V.b90[i];
           panel(si + i);
-          var h = PM.ttTitulo(PM.fecha(KV[i]), 'Crecimiento ' + MEDIDAS[med].frente);
+          var h = PM.ttTitulo(PM.fecha(KV[i]), T('Crecimiento ' + MEDIDAS[med].frente, 'Growth ' + MEDIDAS[med].frente));
           if (activas.has('b17') && x17 != null) h += PM.ttFila(COL.b17, NOM.b17, PM.pct(x17, 1, true), 'linea');
           if (activas.has('b90') && x90 != null) h += PM.ttFila(COL.b90, NOM.b90, PM.pct(x90, 1, true), 'linea');
-          if (x17 != null && x90 != null) h += PM.ttTotal('Diferencia', PM.pp(x17 - x90));
+          if (x17 != null && x90 != null) h += PM.ttTotal(T('Diferencia', 'Difference'), PM.pp(x17 - x90));
           return h;
         }),
         series: series
@@ -281,28 +287,31 @@
       var q = promedioDe(base === 'b17' ? I.per17 : I.per90, a);
       var vals = serie.filter(function (v) { return v != null; }), menor = Math.min.apply(null, vals), mayor = Math.max.apply(null, vals);
       var colG = g < 0 ? C.rojo : C.turquesa;
-      var h = PM.pb(colG, NOM[base], PM.pct(g, 1, true), (med === 'c4' ? 'Crecimiento de los 4 trimestres a ' + f + ' frente a los 4 anteriores.' : 'Crecimiento de ' + f + ' ' + MEDIDAS[med].frente + '.'));
-      if (x17 != null && x90 != null) h += PM.pb(COL.b90, NOM.b90, PM.pct(x90, 1, true), 'La misma fecha en la otra medición: <strong>' + PM.pp(x17 - x90) + '</strong> de diferencia.');
-      if (q && q.v != null) h += PM.pb(C.pizarra, 'Promedio ' + q.desde + '–' + q.hasta, PM.pct(q.v, 1, true), 'Crecimiento medio por año en ese período, en la misma serie.');
+      var h = PM.pb(colG, NOM[base], PM.pct(g, 1, true), (med === 'c4' ? T('Crecimiento de los 4 trimestres a ' + f + ' frente a los 4 anteriores.', 'Growth of the 4 quarters to ' + f + ' versus the previous 4.') : T('Crecimiento de ' + f + ' ' + MEDIDAS[med].frente + '.', 'Growth in ' + f + ' ' + MEDIDAS[med].frente + '.')));
+      if (x17 != null && x90 != null) h += PM.pb(COL.b90, NOM.b90, PM.pct(x90, 1, true), T('La misma fecha en la otra medición: <strong>' + PM.pp(x17 - x90) + '</strong> de diferencia.', 'The same date in the other measurement: a difference of <strong>' + PM.pp(x17 - x90) + '</strong>.'));
+      if (q && q.v != null) h += PM.pb(C.pizarra, T('Promedio ' + q.desde + '–' + q.hasta, 'Average ' + q.desde + '–' + q.hasta), PM.pct(q.v, 1, true), T('Crecimiento medio por año en ese período, en la misma serie.', 'Average growth per year in that period, in the same series.'));
       // racha: cuántos períodos seguidos con el mismo signo, hasta este
       var n = 1; for (var j = i - 1; j >= 0 && serie[j] != null && (serie[j] < 0) === (g < 0); j--) n++;
       // la historia, con umbrales explícitos: < 0 se achica · 0–2 poco · 2–4 moderado · ≥ 4 con fuerza
-      var t = 'En <strong>' + f + '</strong> la economía ' + (g < 0 ? '<strong>se achicó</strong>' : g < 2 ? 'creció <strong>poco</strong>' : g < 4 ? 'creció a un ritmo <strong>moderado</strong>' : 'creció <strong>con fuerza</strong>') +
-        ' (' + PM.dt(colG, PM.pct(g, 1, true)) + ')';
-      if (g === menor) t += ', <strong>la peor cifra</strong> de esa serie';
-      else if (g === mayor) t += ', <strong>la mejor cifra</strong> de esa serie';
-      else if (q && q.v != null) t += Math.abs(g - q.v) < 0.5 ? ', en línea con el promedio del período' : g < q.v ? ', por debajo del promedio del período' : ', por encima del promedio del período';
+      var t = T('En <strong>' + f + '</strong> la economía ' + (g < 0 ? '<strong>se achicó</strong>' : g < 2 ? 'creció <strong>poco</strong>' : g < 4 ? 'creció a un ritmo <strong>moderado</strong>' : 'creció <strong>con fuerza</strong>') +
+        ' (' + PM.dt(colG, PM.pct(g, 1, true)) + ')',
+        'In <strong>' + f + '</strong> the economy ' + (g < 0 ? '<strong>shrank</strong>' : g < 2 ? 'grew <strong>little</strong>' : g < 4 ? 'grew at a <strong>moderate</strong> pace' : 'grew <strong>strongly</strong>') +
+        ' (' + PM.dt(colG, PM.pct(g, 1, true)) + ')');
+      if (g === menor) t += T(', <strong>la peor cifra</strong> de esa serie', ', <strong>the worst figure</strong> in that series');
+      else if (g === mayor) t += T(', <strong>la mejor cifra</strong> de esa serie', ', <strong>the best figure</strong> in that series');
+      else if (q && q.v != null) t += Math.abs(g - q.v) < 0.5 ? T(', en línea con el promedio del período', ', in line with the period average') : g < q.v ? T(', por debajo del promedio del período', ', below the period average') : T(', por encima del promedio del período', ', above the period average');
       t += '.';
-      if (n > 1) t += ' Lleva ' + n + (med === 'anual' ? ' años' : ' trimestres') + ' seguidos ' + (g < 0 ? 'en caída' : 'creciendo') + '.';
+      if (n > 1) t += T(' Lleva ' + n + (med === 'anual' ? ' años' : ' trimestres') + ' seguidos ' + (g < 0 ? 'en caída' : 'creciendo') + '.',
+        ' It has been ' + (g < 0 ? 'falling' : 'growing') + ' for ' + n + ' consecutive ' + (med === 'anual' ? 'years' : 'quarters') + '.');
       if (x17 != null && x90 != null) {
         var ad = Math.abs(x17 - x90);
         // umbrales: < 0,5 pp coinciden · < 2 pp difieren · ≥ 2 pp difieren mucho · signo opuesto
-        t += x17 * x90 < 0 ? ' Las dos mediciones <strong>no coinciden ni en el signo</strong>.'
-          : ad < 0.5 ? ' Las dos mediciones prácticamente coinciden.'
-          : ad < 2 ? ' Las dos mediciones cuentan lo mismo con distinto ritmo.'
-          : ' Las dos mediciones difieren <strong>mucho</strong> (' + PM.num(ad, 1) + NB + 'pp).';
-      } else if (base === 'b17' && a > I.fin90) t += ' La serie anterior ya no se actualiza: sólo existe la vigente.';
-      else if (base === 'b90') t += ' Es la única medición del INE para esa fecha.';
+        t += x17 * x90 < 0 ? T(' Las dos mediciones <strong>no coinciden ni en el signo</strong>.', ' The two measurements <strong>do not even agree on the sign</strong>.')
+          : ad < 0.5 ? T(' Las dos mediciones prácticamente coinciden.', ' The two measurements practically coincide.')
+          : ad < 2 ? T(' Las dos mediciones cuentan lo mismo con distinto ritmo.', ' The two measurements tell the same story at a different pace.')
+          : T(' Las dos mediciones difieren <strong>mucho</strong> (' + PM.num(ad, 1) + NB + 'pp).', ' The two measurements differ <strong>a lot</strong> (' + PM.num(ad, 1) + NB + 'pp).');
+      } else if (base === 'b17' && a > I.fin90) t += T(' La serie anterior ya no se actualiza: sólo existe la vigente.', ' The previous series is no longer updated: only the current one exists.');
+      else if (base === 'b90') t += T(' Es la única medición del INE para esa fecha.', ' It is the only INE measurement for that date.');
       document.getElementById('panel-fecha').textContent = f;
       document.getElementById('panel').innerHTML = h + PM.ctx(t);
     }
@@ -310,23 +319,36 @@
     // Las cifras de las respuestas salen del dato
     function preguntas() {
       var b = I.brecha, s = I.sol;
-      var signo = I.signo.map(function (x) { return x.k + ' (' + PM.pct(x.v17, 1, true) + ' en la vigente y ' + PM.pct(x.v90, 1, true) + ' en la anterior)'; });
+      var signo = I.signo.map(function (x) { return T(x.k + ' (' + PM.pct(x.v17, 1, true) + ' en la vigente y ' + PM.pct(x.v90, 1, true) + ' en la anterior)', x.k + ' (' + PM.pct(x.v17, 1, true) + ' in the current series and ' + PM.pct(x.v90, 1, true) + ' in the previous one)'); });
       var lista = I.per90.map(function (p) { return '<strong>' + p.desde + '–' + p.hasta + '</strong>: ' + PM.pct(p.v, 1, true); }).join(' · ');
       var p17 = I.per17[0];
       return [
-        ['¿Qué mide este gráfico?', '<p>El crecimiento del PIB: cuánto cambió el volumen de bienes y servicios finales que produce el país, sin el efecto de los precios.</p>' +
-          '<p><strong>4 trimestres</strong> compara lo producido en el último año móvil con el año móvil anterior; <strong>Trimestral</strong>, cada trimestre con el mismo del año anterior (la tasa que publica el INE); <strong>Anual</strong>, cada año calendario con el anterior.</p>'],
-        ['¿Por qué «4 trimestres» por defecto?', '<p>Porque es la lectura más limpia del ritmo de la economía: se actualiza cada trimestre, no tiene estación y no salta como un trimestre suelto. En cada IV trimestre coincide con la tasa anual.</p>' +
-          '<p>POPULI la calcula con las variaciones del INE: encadena la variación de cada trimestre y toma de los datos anuales el peso de cada trimestre en el año.</p>'],
-        ['¿Por qué hay dos líneas?', '<p>Son dos mediciones distintas del mismo PIB. La <strong>serie anterior</strong> (base 1990) cubre ' + I.ini90 + '–' + I.fin90 + '; el INE dejó de actualizarla al adoptar la <strong>serie vigente</strong> (año de referencia 2017), con variaciones desde ' + I.ini17 + '.</p>' +
-          '<p>POPULI no las une en una sola línea: entre ' + s.desde + ' y ' + s.hasta + ' se superponen y no dan lo mismo, así que pegar un tramo con el otro inventaría un salto que no ocurrió.</p>'],
-        ['¿Por qué difieren donde se superponen?', '<p>Cambian tres cosas: el <strong>año base</strong> (la anterior pondera cada actividad con los precios relativos de 1990; la vigente parte de 2017 y actualiza los pesos año a año), el <strong>manual de cuentas nacionales</strong> (la anterior seguía el SCN 1968 con elementos del SCN 1993, según la metodología del INE; la vigente, el SCN 2008, que redefine qué se cuenta como producción e inversión) y la <strong>estructura de ponderaciones y fuentes</strong>.</p>' +
+        [T('¿Qué mide este gráfico?', 'What does this chart measure?'), T('<p>El crecimiento del PIB: cuánto cambió el volumen de bienes y servicios finales que produce el país, sin el efecto de los precios.</p>' +
+          '<p><strong>4 trimestres</strong> compara lo producido en el último año móvil con el año móvil anterior; <strong>Trimestral</strong>, cada trimestre con el mismo del año anterior (la tasa que publica el INE); <strong>Anual</strong>, cada año calendario con el anterior.</p>',
+          '<p>GDP growth: how much the volume of final goods and services the country produces changed, without the effect of prices.</p>' +
+          '<p><strong>4 quarters</strong> compares output in the latest rolling year with the previous rolling year; <strong>Quarterly</strong>, each quarter with the same quarter of the previous year (the rate published by the INE); <strong>Annual</strong>, each calendar year with the previous one.</p>')],
+        [T('¿Por qué «4 trimestres» por defecto?', 'Why “4 quarters” by default?'), T('<p>Porque es la lectura más limpia del ritmo de la economía: se actualiza cada trimestre, no tiene estación y no salta como un trimestre suelto. En cada IV trimestre coincide con la tasa anual.</p>' +
+          '<p>POPULI la calcula con las variaciones del INE: encadena la variación de cada trimestre y toma de los datos anuales el peso de cada trimestre en el año.</p>',
+          '<p>Because it is the cleanest reading of the pace of the economy: it is updated every quarter, has no seasonality and does not jump around like a single quarter. In every fourth quarter it matches the annual rate.</p>' +
+          '<p>POPULI calculates it from the INE growth rates: it chains each quarter’s change and takes each quarter’s weight in the year from the annual data.</p>')],
+        [T('¿Por qué hay dos líneas?', 'Why are there two lines?'), T('<p>Son dos mediciones distintas del mismo PIB. La <strong>serie anterior</strong> (base 1990) cubre ' + I.ini90 + '–' + I.fin90 + '; el INE dejó de actualizarla al adoptar la <strong>serie vigente</strong> (año de referencia 2017), con variaciones desde ' + I.ini17 + '.</p>' +
+          '<p>POPULI no las une en una sola línea: entre ' + s.desde + ' y ' + s.hasta + ' se superponen y no dan lo mismo, así que pegar un tramo con el otro inventaría un salto que no ocurrió.</p>',
+          '<p>They are two different measurements of the same GDP. The <strong>previous series</strong> (1990 base) covers ' + I.ini90 + '–' + I.fin90 + '; the INE stopped updating it when it adopted the <strong>current series</strong> (reference year 2017), with growth rates from ' + I.ini17 + ' onward.</p>' +
+          '<p>POPULI does not join them into a single line: between ' + s.desde + ' and ' + s.hasta + ' they overlap and do not give the same result, so splicing one segment onto the other would invent a jump that never happened.</p>')],
+        [T('¿Por qué difieren donde se superponen?', 'Why do they differ where they overlap?'), T('<p>Cambian tres cosas: el <strong>año base</strong> (la anterior pondera cada actividad con los precios relativos de 1990; la vigente parte de 2017 y actualiza los pesos año a año), el <strong>manual de cuentas nacionales</strong> (la anterior seguía el SCN 1968 con elementos del SCN 1993, según la metodología del INE; la vigente, el SCN 2008, que redefine qué se cuenta como producción e inversión) y la <strong>estructura de ponderaciones y fuentes</strong>.</p>' +
           '<p>La mayor brecha anual es la de <strong>' + b.k + '</strong>: ' + PM.pct(b.v17, 1, true) + ' en la vigente y ' + PM.pct(b.v90, 1, true) + ' en la anterior.' +
           (signo.length ? ' En ' + signo.join(' y ') + ' ni el signo coincide.' : '') +
-          ' Entre ' + s.desde + ' y ' + s.hasta + ' la anterior promedia ' + PM.pct(s.p90, 1, true) + ' por año y la vigente ' + PM.pct(s.p17, 1, true) + '.</p>'],
-        ['Promedios por período', '<p>Promedio anual compuesto: la tasa constante que lleva del primer al último año, calculada dentro de cada serie.</p>' +
-          '<p>Serie anterior: ' + lista + '.</p><p>Serie vigente: <strong>' + p17.desde + '–' + p17.hasta + '</strong>: ' + PM.pct(p17.v, 1, true) + '.</p>'],
-        ['¿Por qué el trimestral tiene la escala recortada?', '<p>Porque el desplome de 2020 y el rebote de 2021 son tan grandes que, a escala completa, el resto de la serie se vería plano. El eje se corta en ±' + I.recorte + '% y el aviso de arriba dice cuánto llegaron a valer; el cursor muestra la cifra exacta.</p>']
+          ' Entre ' + s.desde + ' y ' + s.hasta + ' la anterior promedia ' + PM.pct(s.p90, 1, true) + ' por año y la vigente ' + PM.pct(s.p17, 1, true) + '.</p>',
+          '<p>Three things change: the <strong>base year</strong> (the previous series weights each activity with the relative prices of 1990; the current one starts from 2017 and updates the weights year by year), the <strong>national accounts manual</strong> (the previous series followed the 1968 SNA with elements of the 1993 SNA, according to the INE methodology; the current one follows the 2008 SNA, which redefines what counts as output and investment) and the <strong>structure of weights and sources</strong>.</p>' +
+          '<p>The largest annual gap is that of <strong>' + b.k + '</strong>: ' + PM.pct(b.v17, 1, true) + ' in the current series and ' + PM.pct(b.v90, 1, true) + ' in the previous one.' +
+          (signo.length ? ' In ' + signo.join(' and ') + ' not even the sign matches.' : '') +
+          ' Between ' + s.desde + ' and ' + s.hasta + ' the previous series averages ' + PM.pct(s.p90, 1, true) + ' per year and the current one ' + PM.pct(s.p17, 1, true) + '.</p>')],
+        [T('Promedios por período', 'Averages by period'), T('<p>Promedio anual compuesto: la tasa constante que lleva del primer al último año, calculada dentro de cada serie.</p>' +
+          '<p>Serie anterior: ' + lista + '.</p><p>Serie vigente: <strong>' + p17.desde + '–' + p17.hasta + '</strong>: ' + PM.pct(p17.v, 1, true) + '.</p>',
+          '<p>Compound annual average: the constant rate that leads from the first year to the last, calculated within each series.</p>' +
+          '<p>Previous series: ' + lista + '.</p><p>Current series: <strong>' + p17.desde + '–' + p17.hasta + '</strong>: ' + PM.pct(p17.v, 1, true) + '.</p>')],
+        [T('¿Por qué el trimestral tiene la escala recortada?', 'Why is the scale clipped in the quarterly view?'), T('<p>Porque el desplome de 2020 y el rebote de 2021 son tan grandes que, a escala completa, el resto de la serie se vería plano. El eje se corta en ±' + I.recorte + '% y el aviso de arriba dice cuánto llegaron a valer; el cursor muestra la cifra exacta.</p>',
+          '<p>Because the 2020 collapse and the 2021 rebound are so large that, at full scale, the rest of the series would look flat. The axis is cut at ±' + I.recorte + '% and the notice above says how far they went; the cursor shows the exact figure.</p>')]
       ];
     }
 

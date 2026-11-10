@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carga Ferroviaria · Populi</title>
+  <title data-en="Rail Freight · Populi">Carga Ferroviaria · Populi</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -15,14 +15,14 @@
 <body>
   <div class="wrap">
     <div class="sec-hd">
-      <div class="sec-title"><span class="accent-bar"></span>Carga Ferroviaria</div>
-      <div class="sec-sub" id="sub">Toneladas de carga transportadas por tren por mes, un año por línea</div>
+      <div class="sec-title" data-en='<span class="accent-bar"></span>Rail Freight'><span class="accent-bar"></span>Carga Ferroviaria</div>
+      <div class="sec-sub" id="sub" data-en="Tonnes of freight carried by rail per month, one year per line">Toneladas de carga transportadas por tren por mes, un año por línea</div>
     </div>
 
     <div class="hz-bar">
-      <div class="hz-item"><span class="hz-lbl">Red</span><div class="hz-grp" id="b-serie"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Vista</span><div class="hz-grp" id="b-vista"></div></div>
-      <div class="hz-item"><span class="hz-lbl">Medida</span><div class="hz-grp" id="b-extra"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Network">Red</span><div class="hz-grp" id="b-serie"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="View">Vista</span><div class="hz-grp" id="b-vista"></div></div>
+      <div class="hz-item"><span class="hz-lbl" data-en="Measure">Medida</span><div class="hz-grp" id="b-extra"></div></div>
     </div>
 
     <div class="kpi-grid" id="kpis"></div>
@@ -30,10 +30,10 @@
     <div class="main-grid">
       <div class="chart-card">
         <div class="chart-ctrl"><div class="tog-grp" id="pastillas"></div></div>
-        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span>Cargando carga ferroviaria…</span></div></div>
+        <div class="grafico" id="chart"><div class="loading"><div class="spinner"></div><span data-en="Loading rail freight…">Cargando carga ferroviaria…</span></div></div>
       </div>
       <div class="panel">
-        <div class="panel-hd"><span class="panel-hd-t">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
+        <div class="panel-hd"><span class="panel-hd-t" data-en="Reading the indicator">Lectura del indicador</span><span class="panel-hd-d" id="panel-fecha"></span></div>
         <div class="panel-body" id="panel"></div>
       </div>
     </div>
@@ -43,16 +43,17 @@
   </div>
 
   <script>
+  var T = PM.t;   // T('castellano', 'inglés'): con ?lang=en el gráfico sale en inglés
   IND.armar({
     archivo: 'ind_ferroviario.json',
     tipo: 'flujo',
     unidad: 't',
     umbrales: [3, 10],
-    fuente: 'INE — Flujo del transporte ferroviario',
+    fuente: T('INE — Flujo del transporte ferroviario', 'INE (National Statistics Institute) — Rail transport flow'),
     series: [
-      { k: 'total', boton: 'Total', corto: 'Carga total', mide: 'Toneladas de carga transportadas por tren', acum: 'los trenes transportaron {v} de carga' },
-      { k: 'oriental', boton: 'Oriental', corto: 'Red Oriental', mide: 'Toneladas de carga de la Red Oriental', acum: 'la Red Oriental transportó {v} de carga' },
-      { k: 'andina', boton: 'Andina', corto: 'Red Andina', mide: 'Toneladas de carga de la Red Andina', acum: 'la Red Andina transportó {v} de carga' }
+      { k: 'total', boton: T('Total', 'Total'), corto: T('Carga total', 'Total freight'), mide: T('Toneladas de carga transportadas por tren', 'Tonnes of freight carried by rail'), acum: T('los trenes transportaron {v} de carga', 'trains carried {v} of freight') },
+      { k: 'oriental', boton: T('Oriental', 'Eastern'), corto: T('Red Oriental', 'Eastern Network'), mide: T('Toneladas de carga de la Red Oriental', 'Tonnes of freight on the Eastern Network'), acum: T('la Red Oriental transportó {v} de carga', 'the Eastern Network carried {v} of freight') },
+      { k: 'andina', boton: T('Andina', 'Andean'), corto: T('Red Andina', 'Andean Network'), mide: T('Toneladas de carga de la Red Andina', 'Tonnes of freight on the Andean Network'), acum: T('la Red Andina transportó {v} de carga', 'the Andean Network carried {v} of freight') }
     ],
     preguntas: function (A) {
       // participación de la Red Oriental en la carga del año en curso: sale del dato
@@ -63,12 +64,18 @@
       });
       var cuota = tot ? PM.pct(ori / tot * 100, 0) : null;
       return [
-        ['¿Qué mide?', '<p>Las <strong>toneladas de carga</strong> que transportan por mes las dos redes ferroviarias del país: la <strong>Red Oriental</strong>, que une Santa Cruz con las fronteras de Brasil (Puerto Quijarro) y Argentina (Yacuiba), y la <strong>Red Andina</strong>, en el occidente, que une La Paz, Oruro y Potosí con las salidas a Chile y Argentina.</p>' +
-          '<p>Los datos los reportan las dos empresas ferroviarias al INE; la serie empieza en ' + A.primeroAnio('total') + '.</p>'],
-        ['¿Por qué adelanta al PIB?', 'Por tren viaja carga pesada y de poco valor por tonelada: soya y sus derivados, minerales, combustibles, cemento. Su volumen anticipa las <strong>exportaciones</strong> de la agroindustria y de la minería y la actividad del <strong>transporte</strong>, antes de que lleguen las cifras de comercio exterior y del PIB.'],
-        ['¿Por qué dos redes?', 'No están conectadas entre sí y mueven cosas distintas. ' + (cuota ? 'En ' + f.y + ' la <strong>Red Oriental</strong> llevó el ' + cuota + ' de la carga: ' : 'La <strong>Red Oriental</strong> lleva la mayor parte de la carga: ') +
-          'la agroindustria de Santa Cruz hacia la hidrovía y los puertos del Atlántico. La <strong>Red Andina</strong> mueve sobre todo minerales hacia los puertos del Pacífico.'],
-        ['Notas del INE', 'La carga total es la suma de las dos redes. Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p), sujetas a revisión.']
+        [T('¿Qué mide?', 'What does it measure?'), T('<p>Las <strong>toneladas de carga</strong> que transportan por mes las dos redes ferroviarias del país: la <strong>Red Oriental</strong>, que une Santa Cruz con las fronteras de Brasil (Puerto Quijarro) y Argentina (Yacuiba), y la <strong>Red Andina</strong>, en el occidente, que une La Paz, Oruro y Potosí con las salidas a Chile y Argentina.</p>' +
+          '<p>Los datos los reportan las dos empresas ferroviarias al INE; la serie empieza en ' + A.primeroAnio('total') + '.</p>',
+          '<p>The <strong>tonnes of freight</strong> carried each month by the country’s two rail networks: the <strong>Eastern Network</strong>, which links Santa Cruz with the borders of Brazil (Puerto Quijarro) and Argentina (Yacuiba), and the <strong>Andean Network</strong>, in the west, which links La Paz, Oruro and Potosí with the outlets to Chile and Argentina.</p>' +
+          '<p>The data are reported to the INE by the two railway companies; the series starts in ' + A.primeroAnio('total') + '.</p>')],
+        [T('¿Por qué adelanta al PIB?', 'Why is it a leading indicator of GDP?'), T('Por tren viaja carga pesada y de poco valor por tonelada: soya y sus derivados, minerales, combustibles, cemento. Su volumen anticipa las <strong>exportaciones</strong> de la agroindustria y de la minería y la actividad del <strong>transporte</strong>, antes de que lleguen las cifras de comercio exterior y del PIB.',
+          'Rail carries heavy cargo of low value per tonne: soybeans and their by-products, minerals, fuels, cement. Its volume anticipates the <strong>exports</strong> of agribusiness and mining and the activity of <strong>transport</strong>, before the foreign trade and GDP figures arrive.')],
+        [T('¿Por qué dos redes?', 'Why two networks?'), T('No están conectadas entre sí y mueven cosas distintas. ' + (cuota ? 'En ' + f.y + ' la <strong>Red Oriental</strong> llevó el ' + cuota + ' de la carga: ' : 'La <strong>Red Oriental</strong> lleva la mayor parte de la carga: ') +
+          'la agroindustria de Santa Cruz hacia la hidrovía y los puertos del Atlántico. La <strong>Red Andina</strong> mueve sobre todo minerales hacia los puertos del Pacífico.',
+          'They are not connected to each other and they move different things. ' + (cuota ? 'In ' + f.y + ' the <strong>Eastern Network</strong> carried ' + cuota + ' of the freight: ' : 'The <strong>Eastern Network</strong> carries most of the freight: ') +
+          'Santa Cruz agribusiness headed for the waterway and the Atlantic ports. The <strong>Andean Network</strong> mostly moves minerals to the Pacific ports.')],
+        [T('Notas del INE', 'INE notes'), T('La carga total es la suma de las dos redes. Las cifras ' + (A.prelim ? 'de ' + A.prelim + ' en adelante ' : '') + 'son <strong>preliminares</strong> (p), sujetas a revisión.',
+          'Total freight is the sum of the two networks. The figures ' + (A.prelim ? 'from ' + A.prelim + ' onward ' : '') + 'are <strong>preliminary</strong> (p), subject to revision.')]
       ];
     }
   });
